@@ -79,7 +79,7 @@ export default async function ReceiptPage({
   }));
 
   const customerName = subject.guest?.name ?? (session ? session.user.name : "Customer");
-  const totalMinor = payment?.amountMinor ?? (order ? order.totalMinor : booking ? booking.priceMinor : 0n);
+  const totalMinor = payment?.amountMinor ?? (order ? order.totalMinor : 0n);
 
   const receiptData: ReceiptData = {
     receiptNumber: id.slice(0, 8).toUpperCase(),
