@@ -8,12 +8,22 @@ export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const session = await getSession();
-  const d = deps();
-  const [rows, events, favorites] = await Promise.all([
-    d.store.listPublicBusinesses(24, 0),
-    d.store.listPublicEvents(8),
-    session ? d.store.listFavoriteBusinesses(session.user.id) : Promise.resolve([] as BusinessRecord[]),
-  ]);
+  let rows: BusinessRecord[] = [];
+  let events: any[] = [];
+  let favorites: BusinessRecord[] = [];
+  try {
+    const d = deps();
+    const results = await Promise.all([
+      d.store.listPublicBusinesses(24, 0).catch(() => []),
+      d.store.listPublicEvents(8).catch(() => []),
+      session ? d.store.listFavoriteBusinesses(session.user.id).catch(() => []) : Promise.resolve([]),
+    ]);
+    rows = (results[0] ?? []) as BusinessRecord[];
+    events = (results[1] ?? []) as any[];
+    favorites = (results[2] ?? []) as BusinessRecord[];
+  } catch (err) {
+    console.warn("Home page database connection/data check:", err);
+  }
   const label = new Map(BUSINESS_TYPES.map((t) => [t.id, t.label]));
 
   return (

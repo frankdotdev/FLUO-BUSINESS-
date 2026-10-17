@@ -15,7 +15,12 @@ export function container(): Container {
   if (g.__fluo) return g.__fluo;
   const e = env();
   const pool = createPool({ url: e.DATABASE_URL, max: 10 });
-  const email = createEmailProvider(e.email, (user, pass) => nodemailer.createTransport({ host: "smtp.gmail.com", port: 465, secure: true, auth: { user, pass } }));
+  let email: EmailProvider;
+  try {
+    email = createEmailProvider(e.email, (user, pass) => nodemailer.createTransport({ host: "smtp.gmail.com", port: 465, secure: true, auth: { user, pass } }));
+  } catch {
+    email = { async send(m) { console.warn(`[Fluo Email Simulated] To: ${m.to} | Subject: ${m.subject}`); } };
+  }
   g.__fluo = {
     pool, email,
     push: createExpoPushProvider(e.expoAccessToken ? { accessToken: e.expoAccessToken } : {}),
