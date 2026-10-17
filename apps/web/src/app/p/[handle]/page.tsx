@@ -6,6 +6,7 @@ import { getSession } from "@/server/session.ts";
 import { friendly } from "@/server/messages.ts";
 import { photo } from "@/server/media.ts";
 import { placeOrderAction } from "@/app/actions.ts";
+import { IconShield } from "@/components/icons.tsx";
 
 export const dynamic = "force-dynamic";
 
@@ -72,7 +73,10 @@ export default async function ProductPage({ params, searchParams }: { params: Pr
           </fieldset>
           <label style={{ fontWeight: 500, display: "flex", alignItems: "center", gap: 8, margin: "14px 0 8px" }}>
             <input type="checkbox" name="useEscrow" value="1" defaultChecked style={{ width: "auto", minHeight: 0 }} />
-            <span className="small">🔒 <strong>Protect with Fluo Escrow</strong> (Seller paid only after you inspect and release delivery)</span>
+            <span className="small" style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
+              <IconShield size={15} style={{ color: "var(--coral)", flexShrink: 0 }} />
+              <span><strong>Protect with Fluo Escrow</strong> (Seller paid only after you inspect and release delivery)</span>
+            </span>
           </label>
           <p><button className="btn btn-primary btn-block" type="submit">Place order</button></p>
           {!session && <p className="small muted">No account needed. You can sign up after to keep your orders in one place.</p>}

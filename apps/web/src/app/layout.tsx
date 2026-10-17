@@ -1,6 +1,9 @@
 import type { Metadata, Viewport } from "next";
-import Link from "next/link";
 import { getSession } from "@/server/session.ts";
+import { deps } from "@/server/container.ts";
+import { Header } from "@/components/header.tsx";
+import { BottomNav } from "@/components/bottom-nav.tsx";
+import { SplashScreen } from "@/components/splash-screen.tsx";
 import { InstallPrompt } from "@/components/install-prompt.tsx";
 import "./globals.css";
 
@@ -22,31 +25,49 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: "#0b0b0b",
+  themeColor: "#FFFFFF",
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const session = await getSession();
+  let businessCount = 0;
+  let unreadCount = 0;
+
+  if (session?.user?.id) {
+    try {
+      const d = deps();
+      const [memberships, convs] = await Promise.all([
+        d.store.membershipsForUser(session.user.id).catch(() => []),
+        d.store.listConversationsForCustomer(session.user.id, 10).catch(() => []),
+      ]);
+      businessCount = memberships.filter((m) => m.status === "active").length;
+      unreadCount = convs.reduce((sum, c) => sum + (c.customerUnread || 0), 0);
+    } catch {
+      // Non-blocking fallback
+    }
+  }
+
   return (
     <html lang="en">
       <head>
         <link rel="apple-touch-icon" href="/icon.svg" />
       </head>
       <body>
+        <SplashScreen />
         <div className="wrap">
-          <nav className="nav" aria-label="Main">
-            <Link href="/" className="brand">Fluo</Link>
-            <div className="row">
-              {session ? (<><Link href="/app">My workspaces</Link><Link href="/account/orders">My orders</Link><Link href="/account/messages">Messages</Link></>) : (<><Link href="/sign-in">Sign in</Link><Link href="/sign-up" className="btn btn-primary">Get started</Link></>)}
-            </div>
-          </nav>
+          <Header
+            user={session?.user}
+            businessCount={businessCount}
+            unreadCount={unreadCount}
+          />
           <InstallPrompt />
-          <form action="/search" method="get" role="search" style={{ padding: "8px 0" }}><input name="q" type="search" placeholder="Search businesses, items, events" aria-label="Search" maxLength={60} /></form>
-          <main>{children}</main>
-          <footer className="muted small" style={{ padding: "32px 0" }}>Fluo. Built for campus, open to everyone.</footer>
+          <main id="main-content">{children}</main>
+          <footer className="muted small screen-only" style={{ padding: "32px 0 24px", textAlign: "center", borderTop: "1px solid var(--border-subtle)", marginTop: "40px" }}>
+            Fluo &middot; Built for campus, open to everyone &middot; 30-Day Free Trial for Businesses
+          </footer>
         </div>
+        <BottomNav />
       </body>
     </html>
   );
 }
-
