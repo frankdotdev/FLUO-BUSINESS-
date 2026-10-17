@@ -1,0 +1,25 @@
+/* Fluo design tokens — solid colours only, no gradients anywhere. Status: in progress.
+   Contrast (WCAG) measured: ink/white 19.68, ink/accent 11.31, muted/white 6.69,
+   accent-strong/white 5.1, error/white 6.57, warning-text/white 6.33. */
+:root {
+  --fluo-bg: #FFFFFF;
+  --fluo-surface: #F2F2F0;
+  --fluo-border: #DDDDD8;
+  --fluo-ink: #0B0B0B;
+  --fluo-muted: #5C5C5C;
+
+  --fluo-accent: #9FD19B;          /* fills; always pair with ink text */
+  --fluo-accent-strong: #2F7D3A;   /* links, focus, text-on-white */
+
+  --fluo-success: #2F7D3A;
+  --fluo-warning: #8A5300;
+  --fluo-error: #B42318;
+  --fluo-info: #1D4E89;
+
+  --fluo-radius-sm: 6px;
+  --fluo-radius-md: 10px;           /* max for cards; avoid heavier rounding */
+  --fluo-space: 4px;                /* scale: 4 8 12 16 24 32 48 */
+  --fluo-control-h: 44px;           /* touch target */
+  --fluo-font: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+/* Dark theme: tokens to be defined and contrast-tested before shipping. */

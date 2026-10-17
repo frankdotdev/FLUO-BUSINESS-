@@ -1,0 +1,34 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "erasableSyntaxOnly": true,
+    "types": [
+      "node"
+    ],
+    "paths": {
+      "@fluo/core": [
+        "packages/core/src/index.ts"
+      ],
+      "@fluo/core/client": [
+        "packages/core/src/client.ts"
+      ],
+      "@fluo/adapters": [
+        "packages/adapters/src/index.ts"
+      ],
+      "@fluo/db": [
+        "packages/db/src/index.ts"
+      ]
+    }
+  },
+  "include": [
+    "packages/**/*.ts"
+  ]
+}

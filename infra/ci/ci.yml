@@ -1,0 +1,28 @@
+name: CI
+on: { push: { branches: [main] }, pull_request: {} }
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env: { POSTGRES_USER: postgres, POSTGRES_PASSWORD: postgres, POSTGRES_DB: fluo_test }
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 3s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version-file: .nvmrc }
+      - name: Install (uses the lockfile when committed)
+        run: if [ -f package-lock.json ]; then npm ci; else npm install --no-audit --no-fund; fi
+      - name: Type-check everything
+        run: npm run typecheck
+      - name: Unit tests and the shared store contract against REAL PostgreSQL
+        run: npm test
+        env:
+          TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/fluo_test
+          DB_SSL: disable
+      - name: Build the web app
+        run: npm run build -w @fluo/web
+        env: { NEXT_TELEMETRY_DISABLED: "1" }

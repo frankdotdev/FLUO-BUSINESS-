@@ -1,0 +1,27 @@
+{
+  "name": "fluo",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json && npm run typecheck --workspaces --if-present",
+    "test": "node --import ./scripts/workspace-resolve.mjs --test \"packages/**/*.test.ts\"",
+    "db:migrate": "node packages/db/src/migrate.ts",
+    "dev:web": "npm run dev -w @fluo/web",
+    "dev:mobile": "npm run start -w @fluo/mobile",
+    "build": "npm run build -w @fluo/web",
+    "docs:support": "node scripts/support-matrix.mjs",
+    "loadtest": "node tests/load/loadtest.mjs",
+    "verify:migration": "node scripts/verify-migration.mjs"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.0",
+    "@types/node": "^22.0.0"
+  },
+  "engines": {
+    "node": ">=22.18"
+  }
+}

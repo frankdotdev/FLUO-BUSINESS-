@@ -1,0 +1,4 @@
+# Optional: pnpm users can run `pnpm install` with the same layout (see docs/decisions/ADR-006-package-manager.md). npm workspaces remain the default.
+packages:
+  - "apps/*"
+  - "packages/*"

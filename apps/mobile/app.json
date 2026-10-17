@@ -1,0 +1,15 @@
+{
+  "expo": {
+    "name": "Fluo",
+    "slug": "fluo",
+    "scheme": "fluo",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": { "supportsTablet": false, "bundleIdentifier": "app.fluo.mobile" },
+    "android": { "package": "app.fluo.mobile" },
+    "plugins": ["expo-router", "expo-secure-store", ["expo-notifications", { "color": "#2F7D3A" }]],
+    "experiments": { "typedRoutes": true }
+  }
+}

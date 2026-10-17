@@ -1,0 +1,44 @@
+:root {
+  --bg: #FFFFFF; --surface: #F2F2F0; --border: #DDDDD8; --ink: #0B0B0B; --muted: #5C5C5C;
+  --accent: #9FD19B; --accent-strong: #2F7D3A; --error: #B42318; --warning: #8A5300;
+  --radius: 10px; --control: 44px;
+}
+@media (prefers-color-scheme: dark) { :root { --bg: #0B0B0B; --surface: #161616; --border: #2A2A2A; --ink: #F5F5F2; --muted: #A3A3A0; --accent-strong: #7FC48A; } }
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.5 Inter, system-ui, -apple-system, "Segoe UI", sans-serif; }
+a { color: var(--accent-strong); } a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px solid var(--accent-strong); outline-offset: 2px; }
+.wrap { max-width: 960px; margin: 0 auto; padding: 16px; }
+.nav { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); }
+.brand { font-weight: 800; font-size: 22px; letter-spacing: -0.02em; color: var(--ink); text-decoration: none; }
+h1 { font-size: 30px; line-height: 1.15; letter-spacing: -0.02em; margin: 24px 0 8px; } h2 { font-size: 20px; margin: 24px 0 8px; } h3 { font-size: 16px; margin: 0; }
+.muted { color: var(--muted); } .small { font-size: 14px; }
+.grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+.card { border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; background: var(--bg); }
+.card a.cover { text-decoration: none; color: inherit; display: block; }
+.btn { display: inline-flex; align-items: center; justify-content: center; min-height: var(--control); padding: 0 18px; border-radius: 8px; border: 1px solid var(--ink); background: var(--bg); color: var(--ink); font: inherit; font-weight: 600; cursor: pointer; text-decoration: none; }
+.btn-primary { background: var(--ink); color: var(--bg); } .btn-accent { background: var(--accent); border-color: var(--accent); color: #0B0B0B; }
+.btn-danger { border-color: var(--error); color: var(--error); } .btn-block { width: 100%; }
+label { display: block; font-weight: 600; margin: 12px 0 4px; font-size: 14px; }
+input, select, textarea { width: 100%; min-height: var(--control); padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--ink); font: inherit; }
+.row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; } .row > * { flex: 0 0 auto; } .between { justify-content: space-between; } .grow { flex: 1 1 200px !important; }
+.badge { display: inline-block; padding: 2px 10px; border-radius: 99px; background: var(--surface); font-size: 13px; font-weight: 600; }
+.badge.ok { background: var(--accent); color: #0B0B0B; } .badge.warn { background: #FFE9C2; color: var(--warning); } .badge.bad { background: #FDE2DF; color: var(--error); }
+.alert { padding: 12px 16px; border-radius: 8px; background: #FDE2DF; color: var(--error); font-weight: 600; margin: 12px 0; }
+.notice { padding: 12px 16px; border-radius: 8px; background: var(--surface); margin: 12px 0; }
+.pay-box { border: 2px solid var(--ink); border-radius: var(--radius); padding: 16px; margin: 12px 0; }
+.pay-box .acct { font-size: 32px; font-weight: 800; letter-spacing: 0.04em; margin: 4px 0; word-break: break-all; }
+table { width: 100%; border-collapse: collapse; } th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--border); font-size: 14px; vertical-align: top; } th { color: var(--muted); font-weight: 600; }
+.tabs { display: flex; gap: 4px; overflow-x: auto; border-bottom: 1px solid var(--border); margin: 12px 0; } .tabs a { padding: 10px 14px; text-decoration: none; color: var(--muted); font-weight: 600; white-space: nowrap; } .tabs a[aria-current="page"] { color: var(--ink); border-bottom: 3px solid var(--accent-strong); }
+.overflow { overflow-x: auto; }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+.photo { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 8px; background: var(--surface); margin-bottom: 8px; }
+.logo { width: 56px; height: 56px; object-fit: cover; border-radius: 10px; background: var(--surface); }
+
+@media print {
+  body { background: #fff !important; color: #000 !important; }
+  .screen-only, .nav, footer, form[role="search"] { display: none !important; }
+  .print-only { display: block !important; width: 100% !important; margin: 0 !important; padding: 0 !important; }
+  .wrap { max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
+}
+
