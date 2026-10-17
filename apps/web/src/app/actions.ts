@@ -129,7 +129,13 @@ export async function cancelAction(f: FormData): Promise<void> {
   const proof = await customerProof(f); const back = safe(str(f, "back"));
   if (!proof) redirect(`/sign-in?next=${encodeURIComponent(back)}`);
   const businessId = str(f, "businessId"), id = str(f, "id");
-  await guarded(back, () => (str(f, "kind") === "booking" ? cancelBooking(deps(), { businessId, bookingId: id, by: { kind: "customer", proof: proof! } }) : cancelUnpaidOrder(deps(), { businessId, orderId: id, as: proof! })));
+  await guarded(back, async () => {
+    if (str(f, "kind") === "booking") {
+      await cancelBooking(deps(), { businessId, bookingId: id, by: { kind: "customer", proof: proof! } });
+    } else {
+      await cancelUnpaidOrder(deps(), { businessId, orderId: id, as: proof! });
+    }
+  });
   revalidatePath(back); redirect(back);
 }
 
@@ -356,7 +362,7 @@ export async function requestUploadAction(a: { businessId: string; purpose: Imag
   try { return { ok: true, ...(await requestUpload(deps(), user.id, a.businessId, { purpose: a.purpose, contentType: a.contentType, bytes: a.bytes })) }; }
   catch (e) { if (e instanceof ServiceError) return { ok: false, error: uploadMessage(e.code) }; throw e; }
 }
-export async function completeUploadAction(a: { businessId: string; assetId: string; target: MediaTarget }): Promise<UploadResult<Record<string, never>>> {
+export async function completeUploadAction(a: { businessId: string; assetId: string; target: MediaTarget }): Promise<UploadResult<Record<string, unknown>>> {
   const user = await requireUser();
   try { const d = deps(); await completeUpload(d, user.id, a.businessId, a.assetId); await attachMedia(d, user.id, a.businessId, a.assetId, a.target); revalidatePath(`/app/${a.businessId}`); return { ok: true }; }
   catch (e) { if (e instanceof ServiceError) return { ok: false, error: uploadMessage(e.code) }; throw e; }

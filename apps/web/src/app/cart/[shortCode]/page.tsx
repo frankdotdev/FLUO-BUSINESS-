@@ -64,7 +64,7 @@ export default async function GroupCartPage({
         fundedAmountMinor: newFunded,
         status: isFunded ? "funded" : cart.status,
       });
-      cart.fundedAmountMinor = newFunded;
+      (cart as any).fundedAmountMinor = newFunded;
       if (isFunded) (cart as any).status = "funded";
     }
   }

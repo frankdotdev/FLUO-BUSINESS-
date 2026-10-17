@@ -1,5 +1,27 @@
 {
   "$schema": "https://turbo.build/schema.json",
+  "globalEnv": [
+    "DATABASE_URL",
+    "APP_URL",
+    "BETTER_AUTH_SECRET",
+    "FIELD_ENCRYPTION_KEYS",
+    "TICKET_HMAC_SECRET",
+    "PAYSTACK_SECRET_KEY",
+    "CRON_SECRET",
+    "EMAIL_FROM",
+    "RESEND_API_KEY",
+    "GMAIL_USER",
+    "GMAIL_APP_PASSWORD",
+    "GOOGLE_CLIENT_ID",
+    "GOOGLE_CLIENT_SECRET",
+    "EXPO_ACCESS_TOKEN",
+    "EVENT_FEE_BPS",
+    "R2_ACCOUNT_ID",
+    "R2_ACCESS_KEY_ID",
+    "R2_SECRET_ACCESS_KEY",
+    "R2_BUCKET",
+    "R2_PUBLIC_BASE_URL"
+  ],
   "tasks": {
     "typecheck": { "dependsOn": ["^typecheck"] },
     "build": { "dependsOn": ["^build"], "outputs": [".next/**", "!.next/cache/**"] },

@@ -507,7 +507,7 @@ export class PgStore implements Store {
       .map(mOperator)
       .filter((o) => {
         if (!o.currentLocation) return false;
-        const dist = estimateDistanceKm(lat, lng, o.currentLocation.lat, o.currentLocation.lng);
+        const dist = estimateDistanceKm({ lat, lng }, o.currentLocation);
         return dist <= radiusKm;
       })
       .sort((a, b) => b.rating - a.rating);
