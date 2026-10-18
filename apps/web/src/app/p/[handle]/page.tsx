@@ -6,7 +6,7 @@ import { getSession } from "@/server/session.ts";
 import { friendly } from "@/server/messages.ts";
 import { photo } from "@/server/media.ts";
 import { placeOrderAction } from "@/app/actions.ts";
-import { IconShield, IconLock, IconArrowRight, IconClock, IconStore, IconCheck } from "@/components/icons.tsx";
+import { IconShield, IconArrowRight, IconClock, IconStore, IconCheck } from "@/components/icons.tsx";
 
 export const dynamic = "force-dynamic";
 
