@@ -3,136 +3,153 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  IconHome,
-  IconHeart,
-  IconPlus,
-  IconMessageSquare,
-  IconUser,
-  IconUsers,
-  IconCar,
-  IconStore,
-  IconQrCode,
-  IconX
-} from "./icons.tsx";
 
 export function BottomNav() {
   const pathname = usePathname();
-  const [sheetOpen, setSheetOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
 
-  // Hide bottom nav on full-screen Kiosk or specialized print/checkout views if needed
+  // Hide on specialized full-screen routes like Kiosk
   if (pathname.includes("/kiosk")) return null;
 
   return (
     <>
-      <nav className="bottom-nav" aria-label="Mobile Navigation">
+      <nav className="mobile-nav" aria-label="Main navigation">
         <Link
           href="/"
-          className={`bottom-nav-item ${pathname === "/" ? "active" : ""}`}
+          className={`nav-item ${pathname === "/" ? "active" : ""}`}
         >
-          <IconHome size={22} />
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="m3 10 9-7 9 7v10H3z" />
+            <path d="M9 20v-6h6v6" />
+          </svg>
           <span>Home</span>
         </Link>
 
         <Link
           href="/search?filter=favorites"
-          className={`bottom-nav-item ${pathname.includes("favorites") ? "active" : ""}`}
+          className={`nav-item ${pathname.includes("favorites") ? "active" : ""}`}
         >
-          <IconHeart size={22} />
-          <span>Regulars</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8z" />
+          </svg>
+          <span>Saved</span>
         </Link>
 
-        {/* Center Floating Coral Action Button */}
         <button
           type="button"
-          className="bottom-nav-action-btn"
-          onClick={() => setSheetOpen(true)}
-          aria-label="Quick Actions"
+          className="nav-item create-nav"
+          id="createButton"
+          aria-label="Create new order or business"
+          onClick={() => setModalOpen(true)}
         >
-          <IconPlus size={24} />
+          <span>+</span>
         </button>
 
         <Link
-          href="/account/messages"
-          className={`bottom-nav-item ${pathname.includes("/messages") ? "active" : ""}`}
+          href="/account/orders"
+          className={`nav-item ${pathname.startsWith("/account/orders") ? "active" : ""}`}
         >
-          <IconMessageSquare size={22} />
-          <span>Chats</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 4h16v16H4z" />
+            <path d="M8 8h8M8 12h8M8 16h5" />
+          </svg>
+          <span>Orders</span>
         </Link>
 
         <Link
           href="/account"
-          className={`bottom-nav-item ${pathname.startsWith("/account") && !pathname.includes("/messages") ? "active" : ""}`}
+          className={`nav-item ${pathname.startsWith("/account") && !pathname.includes("/orders") ? "active" : ""}`}
         >
-          <IconUser size={22} />
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="8" r="4" />
+            <path d="M4 21a8 8 0 0 1 16 0" />
+          </svg>
           <span>Profile</span>
         </Link>
       </nav>
 
-      {/* Quick Action Bottom Sheet */}
-      {sheetOpen && (
-        <div className="sheet-backdrop" onClick={() => setSheetOpen(false)}>
-          <div className="sheet-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="sheet-handle" />
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
-              <h3 style={{ fontSize: 18, fontWeight: 700, margin: 0 }}>Quick Actions</h3>
-              <button
-                type="button"
-                onClick={() => setSheetOpen(false)}
-                style={{ background: "none", border: "none", padding: 4, cursor: "pointer", color: "var(--muted)" }}
-                aria-label="Close"
-              >
-                <IconX size={20} />
-              </button>
+      {/* Account / Action Modal matching reference design */}
+      {modalOpen && (
+        <div
+          className="modal-backdrop open"
+          id="accountModal"
+          onClick={() => setModalOpen(false)}
+        >
+          <section
+            className="modal account-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="accountTitle"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="modal-handle"></div>
+            <button
+              type="button"
+              className="close-modal account-close"
+              onClick={() => setModalOpen(false)}
+              aria-label="Close"
+            >
+              &times;
+            </button>
+            <div className="brand modal-brand">
+              <span className="brand-mark">f</span>
+              <span>fluo</span>
+              <i></i>
             </div>
+            <span className="section-kicker">ONE ACCOUNT. MORE POSSIBILITIES.</span>
+            <h2 id="accountTitle">Make everyday work better.</h2>
+            <p className="modal-copy">
+              Join your community on Fluo &mdash; order together, discover shops, or launch your business.
+            </p>
 
-            <div style={{ display: "grid", gap: 10 }}>
+            <div className="account-actions">
               <Link
                 href="/cart/new"
-                onClick={() => setSheetOpen(false)}
-                className="category-tile"
-                style={{ flexDirection: "row", justifyContent: "flex-start", padding: "14px 16px", gap: 14 }}
+                onClick={() => setModalOpen(false)}
+                className="account-choice"
               >
-                <div style={{ width: 38, height: 38, borderRadius: 10, background: "var(--coral-subtle)", color: "var(--coral)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <IconUsers size={20} />
-                </div>
-                <div style={{ textAlign: "left" }}>
-                  <div style={{ fontWeight: 700, fontSize: 14.5 }}>Start a Group Cart</div>
-                  <div style={{ fontSize: 12, color: "var(--muted)" }}>Split bills and order together with friends</div>
-                </div>
+                <span className="choice-icon customer-choice">&nearr;</span>
+                <span>
+                  <b>Start a Group Cart</b>
+                  <small>Order together with friends and split the bill automatically.</small>
+                </span>
+                <span className="choice-arrow">&rarr;</span>
               </Link>
 
               <Link
                 href="/search?q=keke"
-                onClick={() => setSheetOpen(false)}
-                className="category-tile"
-                style={{ flexDirection: "row", justifyContent: "flex-start", padding: "14px 16px", gap: 14 }}
+                onClick={() => setModalOpen(false)}
+                className="account-choice"
               >
-                <div style={{ width: 38, height: 38, borderRadius: 10, background: "var(--surface)", color: "var(--ink)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <IconCar size={20} />
-                </div>
-                <div style={{ textAlign: "left" }}>
-                  <div style={{ fontWeight: 700, fontSize: 14.5 }}>Request a Ride or Dispatch</div>
-                  <div style={{ fontSize: 12, color: "var(--muted)" }}>Propose your fare and negotiate with riders</div>
-                </div>
+                <span className="choice-icon customer-choice">&nearr;</span>
+                <span>
+                  <b>Request a Ride or Dispatch</b>
+                  <small>Propose your fare and connect with keke and dispatch riders.</small>
+                </span>
+                <span className="choice-arrow">&rarr;</span>
               </Link>
 
               <Link
                 href="/app/new"
-                onClick={() => setSheetOpen(false)}
-                className="category-tile"
-                style={{ flexDirection: "row", justifyContent: "flex-start", padding: "14px 16px", gap: 14 }}
+                onClick={() => setModalOpen(false)}
+                className="account-choice"
               >
-                <div style={{ width: 38, height: 38, borderRadius: 10, background: "var(--surface)", color: "var(--ink)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <IconStore size={20} />
-                </div>
-                <div style={{ textAlign: "left" }}>
-                  <div style={{ fontWeight: 700, fontSize: 14.5 }}>Open a Business on Fluo</div>
-                  <div style={{ fontSize: 12, color: "var(--muted)" }}>30-day Free Trial for new merchants</div>
-                </div>
+                <span className="choice-icon business-choice">&#9638;</span>
+                <span>
+                  <b>I run a business &middot; 30-Day Free Trial</b>
+                  <small>Manage sales, orders, bookings, POS counter, and direct bank payouts.</small>
+                </span>
+                <span className="choice-arrow">&rarr;</span>
               </Link>
             </div>
-          </div>
+
+            <p className="account-foot">
+              Already have an account?{" "}
+              <Link href="/sign-in" onClick={() => setModalOpen(false)}>
+                Log in
+              </Link>
+            </p>
+          </section>
         </div>
       )}
     </>

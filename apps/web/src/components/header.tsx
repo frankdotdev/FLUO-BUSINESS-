@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { IconMapPin, IconChevronDown, IconBell, IconStore } from "./icons.tsx";
 
 interface HeaderProps {
   user?: { name: string; email: string } | null;
@@ -8,88 +7,54 @@ interface HeaderProps {
 }
 
 export function Header({ user, businessCount = 0, unreadCount = 0 }: HeaderProps) {
-  return (
-    <header className="fluo-top-bar" role="banner">
-      <div className="brand-wrap">
-        <Link href="/" className="brand-title" aria-label="Fluo Home">
-          <span>Fluo</span>
-          <span className="brand-dot" />
-        </Link>
+  const avatarLetter = user?.name ? user.name.trim().charAt(0).toUpperCase() : "F";
 
-        {/* Location Selector Pill */}
-        <div className="location-pill" title="Current location: Main Campus">
-          <IconMapPin size={13} style={{ color: "var(--coral)" }} />
-          <span>Campus</span>
-          <IconChevronDown size={13} style={{ color: "var(--muted)" }} />
-        </div>
+  return (
+    <header className="topbar" role="banner">
+      <Link className="brand" href="/" aria-label="Fluo home">
+        <span className="brand-mark">f</span>
+        <span>fluo</span>
+        <i></i>
+      </Link>
+
+      <div className="location-pill" title="Current Community: Abakaliki / Campus">
+        <span className="pin-dot"></span>
+        <span>Abakaliki</span>
+        <svg viewBox="0 0 16 16" aria-hidden="true">
+          <path d="m4 6 4 4 4-4" />
+        </svg>
       </div>
 
-      <div className="row" style={{ gap: 10, alignItems: "center" }}>
-        {/* Desktop-only quick links */}
-        <div className="desktop-links">
-          <Link href="/search" className="btn btn-subtle" style={{ minHeight: 34, padding: "0 12px", fontSize: 13 }}>
-            Browse
-          </Link>
-          {user ? (
-            <>
-              <Link href="/account/orders" className="btn btn-subtle" style={{ minHeight: 34, padding: "0 12px", fontSize: 13 }}>
-                Orders
-              </Link>
-              <Link href="/app" className="btn btn-subtle" style={{ minHeight: 34, padding: "0 12px", fontSize: 13 }}>
-                Workspaces
-              </Link>
-            </>
-          ) : (
-            <Link href="/app/new" className="badge coral" style={{ padding: "6px 12px", fontWeight: 600, fontSize: 12 }}>
-              30-Day Free Trial
-            </Link>
-          )}
-        </div>
-
+      <div className="top-actions">
         {businessCount > 0 && (
           <Link
             href="/app"
             className="badge coral"
-            style={{ padding: "6px 10px", fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 5 }}
+            style={{ padding: "6px 11px", fontWeight: 700, fontSize: 12, borderRadius: 10 }}
             title="Switch to Business Workspaces"
           >
-            <IconStore size={14} />
-            <span className="screen-only">Workspaces</span>
+            Workspaces
           </Link>
         )}
 
         <Link
           href="/account/messages"
-          className="notif-btn"
+          className="icon-btn notification-btn"
           aria-label={unreadCount > 0 ? `${unreadCount} unread notifications` : "Notifications"}
         >
-          <IconBell size={18} />
-          {unreadCount > 0 && <span className="notif-count">{unreadCount > 9 ? "9+" : unreadCount}</span>}
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" />
+          </svg>
+          {unreadCount > 0 && <span className="notification-dot"></span>}
         </Link>
 
-        {!user ? (
-          <Link href="/sign-in" className="btn btn-subtle" style={{ minHeight: 36, padding: "0 12px", fontSize: 13 }}>
-            Sign In
+        {user ? (
+          <Link href="/account" className="avatar" aria-label="Open profile" title={user.name}>
+            {avatarLetter}
           </Link>
         ) : (
-          <Link href="/account" aria-label="My Account" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none" }}>
-            <div
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: "50%",
-                background: "var(--surface)",
-                border: "1px solid var(--border)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontWeight: 700,
-                fontSize: 14,
-                color: "var(--ink)",
-              }}
-            >
-              {user.name ? user.name[0]?.toUpperCase() : "U"}
-            </div>
+          <Link href="/sign-in" className="avatar" aria-label="Sign in" title="Sign in or create account">
+            F
           </Link>
         )}
       </div>

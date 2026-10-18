@@ -8,8 +8,8 @@ import { InstallPrompt } from "@/components/install-prompt.tsx";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: { default: "Fluo: discover, buy, book, attend", template: "%s | Fluo" },
-  description: "Your campus, all in one place. Local businesses, bookings, rides and events, open to everyone.",
+  title: { default: "Fluo — Commerce, connected.", template: "%s | Fluo" },
+  description: "Discover local businesses, get things done, and keep your everyday moving — all in one place.",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
@@ -25,7 +25,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: "#FFFFFF",
+  themeColor: "#f6f7f8",
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
@@ -51,10 +51,16 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang="en">
       <head>
         <link rel="apple-touch-icon" href="/icon.svg" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap"
+          rel="stylesheet"
+        />
       </head>
       <body>
         <SplashScreen />
-        <div className="wrap">
+        <div className="app-shell">
           <Header
             user={session?.user}
             businessCount={businessCount}
@@ -62,8 +68,18 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           />
           <InstallPrompt />
           <main id="main-content">{children}</main>
-          <footer className="muted small screen-only" style={{ padding: "32px 0 24px", textAlign: "center", borderTop: "1px solid var(--border-subtle)", marginTop: "40px" }}>
-            Fluo &middot; Built for campus, open to everyone &middot; 30-Day Free Trial for Businesses
+          <footer
+            className="muted small screen-only"
+            style={{
+              padding: "36px clamp(20px, 5.5vw, 82px) 24px",
+              textAlign: "center",
+              borderTop: "1px solid var(--border-subtle)",
+              marginTop: "40px",
+              fontSize: "12px",
+              color: "var(--muted)",
+            }}
+          >
+            &copy; 2026 Fluo &middot; Made for the way business and community work &middot; 30-Day Free Trial for Merchants
           </footer>
         </div>
         <BottomNav />
