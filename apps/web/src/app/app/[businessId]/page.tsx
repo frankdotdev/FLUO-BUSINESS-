@@ -48,6 +48,7 @@ import {
   IconSettings,
   IconHelpCircle,
   IconTrendingUp,
+  IconSparkles,
 } from "@/components/icons.tsx";
 
 export const dynamic = "force-dynamic";
