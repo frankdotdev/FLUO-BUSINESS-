@@ -79,7 +79,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               color: "var(--muted)",
             }}
           >
-            &copy; 2026 Fluo &middot; Made for the way business and community work &middot; 30-Day Free Trial for Merchants
+            © 2026 Fluo • Made for the way business and community work • 30-Day Free Trial for Merchants
           </footer>
         </div>
         <BottomNav />

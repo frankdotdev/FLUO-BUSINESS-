@@ -23,7 +23,14 @@ export function env(): Env {
     keys["k1"] = Buffer.from("jIJYrq2gFiZV0jiWDbJkmDaIz/mfeIUw/Y51eEYPKMo=", "base64");
     keyId = "k1";
   }
-  let appUrl = (e["APP_URL"] ?? "https://fluo-business.vercel.app").trim();
+  let appUrl = (e["APP_URL"] ?? "").trim();
+  if (!appUrl || appUrl.includes("your-project-name")) {
+    appUrl = e["VERCEL_PROJECT_PRODUCTION_URL"]
+      ? `https://${e["VERCEL_PROJECT_PRODUCTION_URL"]}`
+      : e["VERCEL_URL"]
+      ? `https://${e["VERCEL_URL"]}`
+      : "https://fluo-business.vercel.app";
+  }
   if (appUrl.endsWith("/")) appUrl = appUrl.slice(0, -1);
 
   const betterAuthSecret = (e["BETTER_AUTH_SECRET"] && e["BETTER_AUTH_SECRET"].length >= 32)

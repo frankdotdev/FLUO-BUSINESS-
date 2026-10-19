@@ -84,7 +84,7 @@ export default async function GroupCartPage({
       {/* Business Header */}
       <div style={{ marginBottom: 16 }}>
         <p className="small">
-          <Link href={`/b/${biz.slug}`}>&larr; {biz.name}</Link>
+          <Link href={`/b/${biz.slug}`}>← {biz.name}</Link>
         </p>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
           <h1 style={{ margin: "4px 0" }}>Group Cart #{shortCode}</h1>
@@ -93,7 +93,7 @@ export default async function GroupCartPage({
           </span>
         </div>
         <p className="muted small">
-          Initiated by <strong>{cart.hostName}</strong> &bull; Split style: {cart.splitKind}
+          Initiated by <strong>{cart.hostName}</strong> • Split style: {cart.splitKind}
         </p>
       </div>
 
@@ -117,7 +117,7 @@ export default async function GroupCartPage({
           />
         </div>
         <p className="small muted" style={{ marginTop: 8, marginBottom: 0 }}>
-          {fundedPct}% funded &bull; {isFunded ? "Order ready for dispatch" : `Remaining: ${fmtMoney(cart.targetAmountMinor > cart.fundedAmountMinor ? cart.targetAmountMinor - cart.fundedAmountMinor : 0n, cart.currency)}`}
+          {fundedPct}% funded • {isFunded ? "Order ready for dispatch" : `Remaining: ${fmtMoney(cart.targetAmountMinor > cart.fundedAmountMinor ? cart.targetAmountMinor - cart.fundedAmountMinor : 0n, cart.currency)}`}
         </p>
       </div>
 

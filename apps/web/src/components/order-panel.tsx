@@ -197,7 +197,7 @@ export async function OrderPanel({
               >
                 <div>
                   <strong style={{ color: "var(--ink)" }}>{i.name}</strong>
-                  <span style={{ color: "var(--muted)", fontSize: 12, marginLeft: 6 }}>&times; {i.quantity}</span>
+                  <span style={{ color: "var(--muted)", fontSize: 12, marginLeft: 6 }}>× {i.quantity}</span>
                 </div>
                 <div style={{ fontWeight: 700, color: "var(--ink)" }}>
                   {fmtMoney(i.unitPriceMinor * BigInt(i.quantity), biz.currency)}
@@ -321,7 +321,7 @@ export async function OrderPanel({
             fontWeight: 600,
           }}>
             <IconCheck size={18} />
-            <span>Escrow Released &mdash; Physical delivery hand-off verified. Payout released to merchant.</span>
+            <span>Escrow Released — Physical delivery hand-off verified. Payout released to merchant.</span>
           </div>
         )}
 

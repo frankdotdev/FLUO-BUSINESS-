@@ -1137,7 +1137,7 @@ async function Events({
               <div>
                 <h3 style={{ fontFamily: "Manrope, sans-serif", fontSize: 18, fontWeight: 800, margin: "0 0 4px" }}>{e.name}</h3>
                 <p style={{ fontSize: 12, color: "var(--muted)", margin: 0 }}>
-                  {fmtLocal(e.startsAtMs, tz)} &bull; <span className="open-badge" style={{ position: "static", textTransform: "capitalize" }}>{e.status}</span>
+                  {fmtLocal(e.startsAtMs, tz)} • <span className="open-badge" style={{ position: "static", textTransform: "capitalize" }}>{e.status}</span>
                 </p>
               </div>
               {e.status === "published" && (
@@ -1152,7 +1152,7 @@ async function Events({
                 {types.map(({ t, sold }) => (
                   <div key={t.id} style={{ display: "flex", justifyContent: "space-between", padding: "10px 14px", borderBottom: "1px solid var(--line)", fontSize: 13 }}>
                     <span style={{ fontWeight: 600 }}>{t.name}</span>
-                    <span style={{ color: "var(--muted)" }}>{t.priceMinor === 0n ? "Free" : fmtMoney(t.priceMinor, t.currency)} &bull; {sold} / {t.capacity} sold</span>
+                    <span style={{ color: "var(--muted)" }}>{t.priceMinor === 0n ? "Free" : fmtMoney(t.priceMinor, t.currency)} • {sold} / {t.capacity} sold</span>
                   </div>
                 ))}
               </div>
@@ -1344,10 +1344,10 @@ async function Team({
             <label style={{ display: "grid", gap: 6, fontSize: 12, fontWeight: 700, color: "var(--ink)" }}>
               Assigned Role
               <select id="irole" name="role" defaultValue="staff" style={{ padding: "10px 12px", borderRadius: 10, border: "1px solid var(--line)", fontSize: 13, background: "#ffffff" }}>
-                <option value="cashier">Cashier &mdash; Ring up counter sales &amp; see orders</option>
-                <option value="staff">Staff &mdash; Fulfil orders, manage bookings, check-in guests</option>
-                <option value="manager">Manager &mdash; Also manage items, events, and approve refunds</option>
-                {isOwner && <option value="admin">Admin &mdash; Full control (except billing and payouts)</option>}
+                <option value="cashier">Cashier — Ring up counter sales &amp; see orders</option>
+                <option value="staff">Staff — Fulfil orders, manage bookings, check-in guests</option>
+                <option value="manager">Manager — Also manage items, events, and approve refunds</option>
+                {isOwner && <option value="admin">Admin — Full control (except billing and payouts)</option>}
               </select>
             </label>
             <button className="primary-button" type="submit" style={{ width: "fit-content", padding: "10px 20px" }}>
@@ -1536,7 +1536,7 @@ async function Payments({
         {po ? (
           <div style={{ padding: "14px 18px", borderRadius: 14, background: "var(--canvas)", border: "1px solid var(--line)", marginBottom: 16 }}>
             <strong style={{ display: "block", fontSize: 14 }}>{po.accountName}</strong>
-            <span style={{ fontSize: 12, color: "var(--muted)" }}>Account ending in ****{po.accountLast4}</span> &bull;{" "}
+            <span style={{ fontSize: 12, color: "var(--muted)" }}>Account ending in ****{po.accountLast4}</span> •{" "}
             <span className="open-badge" style={{ position: "static", background: po.verified ? "#edf6f0" : "#fef3c7", color: po.verified ? "var(--green)" : "#92400e" }}>
               {po.verified ? "Verified" : "Under review"}
             </span>

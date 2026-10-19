@@ -75,7 +75,7 @@ export function Thread({
                       padding: "0 4px",
                     }}
                   >
-                    {m.senderKind === "customer" ? names.customer : names.business} &middot; {fmtLocal(m.createdAtMs, tz)}
+                    {m.senderKind === "customer" ? names.customer : names.business} • {fmtLocal(m.createdAtMs, tz)}
                   </div>
                 </div>
               );

@@ -5,7 +5,7 @@ import { deps } from "@/server/container.ts";
 import { getSession } from "@/server/session.ts";
 
 import { PrintButton } from "@/components/print-button.tsx";
-import { IconShield, IconZap, IconSmartphone } from "@/components/icons.tsx";
+import { IconShield, IconZap, IconSmartphone, IconSparkles } from "@/components/icons.tsx";
 
 export const dynamic = "force-dynamic";
 
@@ -105,7 +105,7 @@ export default async function ReceiptPage({
       {/* Top back navigation */}
       <div className="no-print" style={{ marginBottom: 16, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <Link href={`/b/${biz.slug}`} className="small">
-          &larr; Back to {biz.name}
+          ← Back to {biz.name}
         </Link>
         <span className="badge ok">Paid &amp; Confirmed</span>
       </div>
@@ -177,6 +177,51 @@ export default async function ReceiptPage({
           </p>
         </div>
       </div>
+
+      {/* Polite post-purchase account save prompt for guest shoppers */}
+      {!session && (
+        <div
+          className="no-print card"
+          style={{
+            marginTop: 18,
+            padding: 20,
+            background: "linear-gradient(135deg, rgba(79, 70, 229, 0.04), rgba(79, 70, 229, 0.08))",
+            border: "1px solid rgba(79, 70, 229, 0.2)",
+            borderRadius: 14,
+            textAlign: "center",
+          }}
+        >
+          <div
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: 38,
+              height: 38,
+              borderRadius: "50%",
+              background: "var(--accent)",
+              color: "#fff",
+              marginBottom: 10,
+            }}
+          >
+            <IconSparkles size={18} />
+          </div>
+          <h3 style={{ fontSize: 16, fontWeight: 700, margin: "0 0 6px", color: "var(--ink)" }}>
+            Save this receipt to your phone
+          </h3>
+          <p style={{ fontSize: 13, color: "var(--muted)", margin: "0 0 16px", lineHeight: 1.5 }}>
+            Never lose your order details or escrow status. Create a free account to track your orders in one tap.
+          </p>
+          <Link
+            href={`/auth?mode=signup&email=${encodeURIComponent(subject.guest?.email ?? "")}&returnTo=${encodeURIComponent(`/receipt/${id}?b=${businessId}${token ? `&t=${token}` : ""}`)}`}
+            className="primary-button"
+            style={{ display: "inline-flex", alignItems: "center", gap: 6, textDecoration: "none", padding: "10px 20px" }}
+          >
+            <span>Create Password • Save Order</span>
+            <span>↗</span>
+          </Link>
+        </div>
+      )}
 
       {/* Action Buttons for Printing and Thermal Copy */}
       <div className="no-print" style={{ marginTop: 20, display: "flex", flexDirection: "column", gap: 10 }}>

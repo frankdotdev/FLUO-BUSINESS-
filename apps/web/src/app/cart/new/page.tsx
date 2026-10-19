@@ -115,7 +115,7 @@ export default async function NewGroupCartPage() {
               disabled={businesses.length === 0}
               style={{ minHeight: 46, fontSize: 15 }}
             >
-              Create Shared Cart &rarr;
+              Create Shared Cart →
             </button>
           </div>
         </form>

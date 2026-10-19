@@ -92,7 +92,7 @@ export default async function MyOrders() {
                       {biz?.name ?? "Order"}
                     </h3>
                     <p style={{ margin: 0, fontSize: 12, color: "var(--muted)" }}>
-                      Total {fmtMoney(o.totalMinor, o.currency)} &bull; Order #{o.id.slice(0, 8)}
+                      Total {fmtMoney(o.totalMinor, o.currency)} • Order #{o.id.slice(0, 8)}
                     </p>
                   </div>
                 </div>

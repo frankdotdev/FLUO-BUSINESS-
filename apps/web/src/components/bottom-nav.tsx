@@ -3,6 +3,17 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import {
+  IconUsers,
+  IconCar,
+  IconStore,
+  IconMessageSquare,
+  IconArrowRight,
+  IconX,
+  IconSparkles,
+  IconReceipt,
+  IconHeart,
+} from "./icons.tsx";
 
 export function BottomNav() {
   const pathname = usePathname();
@@ -14,10 +25,7 @@ export function BottomNav() {
   return (
     <>
       <nav className="mobile-nav" aria-label="Main navigation">
-        <Link
-          href="/"
-          className={`nav-item ${pathname === "/" ? "active" : ""}`}
-        >
+        <Link href="/" className={`nav-item ${pathname === "/" ? "active" : ""}`}>
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="m3 10 9-7 9 7v10H3z" />
             <path d="M9 20v-6h6v6" />
@@ -35,11 +43,12 @@ export function BottomNav() {
           <span>Saved</span>
         </Link>
 
+        {/* Central Floating Action Button */}
         <button
           type="button"
           className="nav-item create-nav"
           id="createButton"
-          aria-label="Create new order or business"
+          aria-label="Create or explore quick actions"
           onClick={() => setModalOpen(true)}
         >
           <span>+</span>
@@ -58,7 +67,7 @@ export function BottomNav() {
 
         <Link
           href="/account"
-          className={`nav-item ${pathname.startsWith("/account") && !pathname.includes("/orders") ? "active" : ""}`}
+          className={`nav-item ${pathname.startsWith("/account") && !pathname.includes("/orders") && !pathname.includes("/messages") ? "active" : ""}`}
         >
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <circle cx="12" cy="8" r="4" />
@@ -68,13 +77,9 @@ export function BottomNav() {
         </Link>
       </nav>
 
-      {/* Account / Action Modal matching reference design */}
+      {/* Floating Action Modal */}
       {modalOpen && (
-        <div
-          className="modal-backdrop open"
-          id="accountModal"
-          onClick={() => setModalOpen(false)}
-        >
+        <div className="modal-backdrop open" id="accountModal" onClick={() => setModalOpen(false)}>
           <section
             className="modal account-modal"
             role="dialog"
@@ -89,64 +94,81 @@ export function BottomNav() {
               onClick={() => setModalOpen(false)}
               aria-label="Close"
             >
-              &times;
+              <IconX size={18} />
             </button>
             <div className="brand modal-brand">
               <span className="brand-mark">f</span>
               <span>fluo</span>
               <i></i>
             </div>
-            <span className="section-kicker">ONE ACCOUNT. MORE POSSIBILITIES.</span>
-            <h2 id="accountTitle">Make everyday work better.</h2>
+            <span className="section-kicker">QUICK ACTIONS • EVERYTHING CONNECTED</span>
+            <h2 id="accountTitle">What would you like to do?</h2>
             <p className="modal-copy">
-              Join your community on Fluo &mdash; order together, discover shops, or launch your business.
+              Explore your community on Fluo — message sellers, pool orders, request rides, or bring your business online.
             </p>
 
             <div className="account-actions">
-              <Link
-                href="/cart/new"
-                onClick={() => setModalOpen(false)}
-                className="account-choice"
-              >
-                <span className="choice-icon customer-choice">&nearr;</span>
+              {/* Direct Messages & Chat */}
+              <Link href="/account/messages" onClick={() => setModalOpen(false)} className="account-choice">
+                <span className="choice-icon customer-choice">
+                  <IconMessageSquare size={18} />
+                </span>
+                <span>
+                  <b>Messages &amp; Inquiries</b>
+                  <small>Chat directly with local merchants or track your order questions.</small>
+                </span>
+                <span className="choice-arrow">
+                  <IconArrowRight size={15} />
+                </span>
+              </Link>
+
+              {/* Start Group Cart */}
+              <Link href="/cart/new" onClick={() => setModalOpen(false)} className="account-choice">
+                <span className="choice-icon customer-choice">
+                  <IconUsers size={18} />
+                </span>
                 <span>
                   <b>Start a Group Cart</b>
-                  <small>Order together with friends and split the bill automatically.</small>
+                  <small>Order food or groceries together with friends and split the bill.</small>
                 </span>
-                <span className="choice-arrow">&rarr;</span>
+                <span className="choice-arrow">
+                  <IconArrowRight size={15} />
+                </span>
               </Link>
 
-              <Link
-                href="/search?q=keke"
-                onClick={() => setModalOpen(false)}
-                className="account-choice"
-              >
-                <span className="choice-icon customer-choice">&nearr;</span>
+              {/* Ride / Dispatch */}
+              <Link href="/search?q=keke" onClick={() => setModalOpen(false)} className="account-choice">
+                <span className="choice-icon customer-choice">
+                  <IconCar size={18} />
+                </span>
                 <span>
                   <b>Request a Ride or Dispatch</b>
-                  <small>Propose your fare and connect with keke and dispatch riders.</small>
+                  <small>Connect with verified campus keke drivers and dispatch couriers.</small>
                 </span>
-                <span className="choice-arrow">&rarr;</span>
+                <span className="choice-arrow">
+                  <IconArrowRight size={15} />
+                </span>
               </Link>
 
-              <Link
-                href="/app/new"
-                onClick={() => setModalOpen(false)}
-                className="account-choice"
-              >
-                <span className="choice-icon business-choice">&#9638;</span>
-                <span>
-                  <b>I run a business &middot; 30-Day Free Trial</b>
-                  <small>Manage sales, orders, bookings, POS counter, and direct bank payouts.</small>
+              {/* Business Onboarding */}
+              <Link href="/app/new" onClick={() => setModalOpen(false)} className="account-choice">
+                <span className="choice-icon business-choice">
+                  <IconStore size={18} />
                 </span>
-                <span className="choice-arrow">&rarr;</span>
+                <span>
+                  <b>I Run a Business • 30-Day Free Trial</b>
+                  <small>Launch your online store, counter POS register, and accept bank transfers.</small>
+                </span>
+                <span className="choice-arrow">
+                  <IconArrowRight size={15} />
+                </span>
               </Link>
             </div>
 
             <p className="account-foot">
               Already have an account?{" "}
-              <Link href="/sign-in" onClick={() => setModalOpen(false)}>
-                Log in
+              <Link href="/sign-in" onClick={() => setModalOpen(false)} style={{ color: "var(--coral-dark)", fontWeight: 700 }}>
+                Sign in ↗
               </Link>
             </p>
           </section>

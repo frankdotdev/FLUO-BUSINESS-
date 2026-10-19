@@ -20,7 +20,7 @@ export default async function Workspaces() {
     <div style={{ maxWidth: 720, margin: "16px auto" }}>
       <div style={{ marginBottom: 20 }}>
         <h1 style={{ fontSize: 24, fontWeight: 800, margin: "0 0 6px" }}>
-          Workspaces &middot; {user.name.split(" ")[0]}
+          Workspaces • {user.name.split(" ")[0]}
         </h1>
         <p className="muted" style={{ fontSize: 14, margin: 0 }}>
           Manage your businesses, switch between store counters, or return to consumer shopping.
@@ -126,7 +126,7 @@ export default async function Workspaces() {
                   </span>
                 </div>
                 <p className="muted small" style={{ margin: 0 }}>
-                  {label.get(b!.typeId) ?? "Business"} &middot; Role: <strong>{m.role}</strong>
+                  {label.get(b!.typeId) ?? "Business"} • Role: <strong>{m.role}</strong>
                 </p>
               </div>
 

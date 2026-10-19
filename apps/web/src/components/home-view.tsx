@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import { type BusinessRecord, BUSINESS_TYPES, isBusinessOpenNow } from "@fluo/core";
+import { IconSparkles } from "@/components/icons.tsx";
 
 interface HomeViewProps {
   initialBusinesses: BusinessRecord[];
@@ -20,138 +21,50 @@ export function HomeView({ initialBusinesses, favoriteIds = [] }: HomeViewProps)
 
   const labelMap = useMemo(() => new Map(BUSINESS_TYPES.map((t) => [t.id, t.label])), []);
 
-  // Featured stores fallback if database is empty or fresh
-  const fallbackStores = [
-    {
-      id: "bukka-house",
-      slug: "search?group=food",
-      name: "Bukka House",
-      category: "Food",
-      categoryLabel: "Local favourites · Nigerian",
-      rating: "4.8",
-      meta: "₦₦ · 15–25 min",
-      tag: "Delivery",
-      tagClass: "delivery-tag",
-      photoClass: "food-photo photo-bukka",
-      photoContent: (
-        <div className="photo-caption">
-          BH<span>.</span>
-        </div>
-      ),
-      searchTags: "bukka house jollof rice food restaurant",
-    },
-    {
-      id: "corner-market",
-      slug: "search?group=retail",
-      name: "Corner Market",
-      category: "Retail",
-      categoryLabel: "Groceries · Everyday essentials",
-      rating: "4.7",
-      meta: "₦ · 10–20 min",
-      tag: "Pickup",
-      tagClass: "delivery-tag",
-      photoClass: "market-photo",
-      photoContent: (
-        <div className="market-illustration">
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <b>
-            CORNER<br />MARKET
-          </b>
-        </div>
-      ),
-      searchTags: "corner market groceries snacks drinks supermarket",
-    },
-    {
-      id: "the-studio",
-      slug: "search?group=beauty",
-      name: "The Studio",
-      category: "Beauty",
-      categoryLabel: "Barbering · Grooming",
-      rating: "4.9",
-      meta: "From ₦2,000",
-      tag: "Book a slot",
-      tagClass: "delivery-tag booking-tag",
-      photoClass: "studio-photo",
-      photoContent: (
-        <div className="studio-sign">
-          THE<br />
-          <strong>STUDIO</strong>
-          <small>BARBER &amp; GROOMING</small>
-        </div>
-      ),
-      searchTags: "the studio barber haircut beauty salon",
-    },
-    {
-      id: "swift-fix",
-      slug: "search?group=services",
-      name: "SwiftFix",
-      category: "Services",
-      categoryLabel: "Phone repairs · Electronics",
-      rating: "4.6",
-      meta: "Same-day service",
-      tag: "Get a quote",
-      tagClass: "delivery-tag booking-tag",
-      photoClass: "repair-photo",
-      photoContent: (
-        <div className="repair-device">
-          <div></div>
-          <span>swiftfix</span>
-        </div>
-      ),
-      searchTags: "swiftfix phone repairs electronics services",
-    },
-  ];
-
-  // Convert live businesses or fallback
+  // Convert live businesses from database
   const storeCards = useMemo(() => {
-    if (initialBusinesses.length > 0) {
-      return initialBusinesses.map((b, idx) => {
-        const typeName = labelMap.get(b.typeId) || "Business";
-        const openStatus = isBusinessOpenNow(null, b.timezone);
-        let categoryGroup = "Retail";
-        if (b.typeId.includes("food") || b.typeId.includes("restaurant") || b.typeId.includes("cafe")) categoryGroup = "Food";
-        else if (b.typeId.includes("salon") || b.typeId.includes("barber") || b.typeId.includes("spa")) categoryGroup = "Beauty";
-        else if (b.typeId.includes("repair") || b.typeId.includes("laundry") || b.typeId.includes("clean")) categoryGroup = "Services";
-        else if (b.typeId.includes("keke") || b.typeId.includes("driver") || b.typeId.includes("ride") || b.typeId.includes("delivery")) categoryGroup = "Mobility";
+    return initialBusinesses.map((b, idx) => {
+      const typeName = labelMap.get(b.typeId) || "Business";
+      const openStatus = isBusinessOpenNow(null, b.timezone);
+      let categoryGroup = "Retail";
+      if (b.typeId.includes("food") || b.typeId.includes("restaurant") || b.typeId.includes("cafe")) categoryGroup = "Food";
+      else if (b.typeId.includes("salon") || b.typeId.includes("barber") || b.typeId.includes("spa")) categoryGroup = "Beauty";
+      else if (b.typeId.includes("repair") || b.typeId.includes("laundry") || b.typeId.includes("clean")) categoryGroup = "Services";
+      else if (b.typeId.includes("keke") || b.typeId.includes("driver") || b.typeId.includes("ride") || b.typeId.includes("delivery")) categoryGroup = "Mobility";
 
-        const photoStyle = idx % 4 === 0 ? "food-photo photo-bukka" : idx % 4 === 1 ? "market-photo" : idx % 4 === 2 ? "studio-photo" : "repair-photo";
+      const photoStyle = idx % 4 === 0 ? "food-photo photo-bukka" : idx % 4 === 1 ? "market-photo" : idx % 4 === 2 ? "studio-photo" : "repair-photo";
 
-        return {
-          id: b.id,
-          slug: `b/${b.slug}`,
-          name: b.name,
-          category: categoryGroup,
-          categoryLabel: typeName,
-          rating: "4.8",
-          meta: b.acceptsAutomatic ? "Pay Online · Fast" : "Direct Transfer",
-          tag: b.allowsTransfer ? "Available" : "Verified",
-          tagClass: "delivery-tag",
-          photoClass: photoStyle,
-          photoContent: (
-            <div className="photo-caption" style={{ fontSize: 26 }}>
-              {b.name.slice(0, 2).toUpperCase()}
-              <span>.</span>
-            </div>
-          ),
-          searchTags: `${b.name} ${typeName} ${b.slug}`.toLowerCase(),
-          isOpen: openStatus.isOpen,
-        };
-      });
-    }
-    return fallbackStores;
+      return {
+        id: b.id,
+        slug: `b/${b.slug}`,
+        name: b.name,
+        category: categoryGroup,
+        categoryLabel: typeName,
+        rating: "4.8",
+        meta: b.acceptsAutomatic ? "Pay Online • Instant Escrow" : "Direct Transfer",
+        tag: b.allowsTransfer ? "Available" : "Verified",
+        tagClass: "delivery-tag",
+        photoClass: photoStyle,
+        photoContent: (
+          <div className="photo-caption" style={{ fontSize: 26 }}>
+            {b.name.slice(0, 2).toUpperCase()}
+            <span>.</span>
+          </div>
+        ),
+        searchTags: `${b.name} ${typeName} ${b.slug}`.toLowerCase(),
+        isOpen: openStatus.isOpen,
+      };
+    });
   }, [initialBusinesses, labelMap]);
 
-  // Client-side filtering logic matching reference code
+  // Client-side filtering logic
   const filteredStores = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     return storeCards.filter((card) => {
       const matchCategory = activeCategory === "All" || card.category === activeCategory;
       const matchSearch = !q || (card.searchTags + " " + card.name + " " + card.categoryLabel).toLowerCase().includes(q);
-      const matchOpen = !openOnly || true;
-      const matchDelivery = !deliveryOnly || card.tag === "Delivery" || card.tag === "Pickup";
+      const matchOpen = !openOnly || card.isOpen;
+      const matchDelivery = !deliveryOnly || card.tag === "Delivery" || card.tag === "Pickup" || card.tag === "Available";
       const matchBooking = !bookingOnly || card.tagClass.includes("booking-tag");
       return matchCategory && matchSearch && matchOpen && matchDelivery && matchBooking;
     });
@@ -185,7 +98,7 @@ export function HomeView({ initialBusinesses, favoriteIds = [] }: HomeViewProps)
           <h1>
             Your next find<br />is <span>closer than ever.</span>
           </h1>
-          <p>Discover local businesses, get things done, and keep your everyday moving &mdash; all in one place.</p>
+          <p>Discover local businesses, get things done, and keep your everyday moving — all in one place.</p>
         </div>
 
         <form action="/search" method="get" role="search" className="hero-search">
@@ -239,7 +152,7 @@ export function HomeView({ initialBusinesses, favoriteIds = [] }: HomeViewProps)
             <h2>What are you looking for?</h2>
           </div>
           <Link href="/search" className="text-button" id="viewAllCategories">
-            View all <span>&nearr;</span>
+            View all <span>↗</span>
           </Link>
         </div>
 
@@ -347,7 +260,7 @@ export function HomeView({ initialBusinesses, favoriteIds = [] }: HomeViewProps)
           </h2>
           <p>Bring everyone into one cart. Everyone picks what they want and pays their own share. No chasing transfers.</p>
           <Link href="/cart/new" className="primary-button" id="groupCartCta">
-            Explore group ordering <span>&nearr;</span>
+            Explore group ordering <span>↗</span>
           </Link>
         </div>
 
@@ -366,9 +279,9 @@ export function HomeView({ initialBusinesses, favoriteIds = [] }: HomeViewProps)
             <span className="mini-avatar avatar-a">A</span>
             <span>
               <b>Ada paid</b>
-              <small>&#8358;2,500 &middot; Jollof + chicken</small>
+              <small>₦2,500 • Jollof + chicken</small>
             </span>
-            <span className="check">&#10003;</span>
+            <span className="check">✓</span>
           </div>
           <div className="floating-card progress-card">
             <span className="progress-title">GROUP ORDER</span>
@@ -376,7 +289,7 @@ export function HomeView({ initialBusinesses, favoriteIds = [] }: HomeViewProps)
             <div className="mini-progress">
               <i></i>
             </div>
-            <small>Almost there &mdash; 75%</small>
+            <small>Almost there — 75%</small>
           </div>
         </div>
       </section>
@@ -389,50 +302,101 @@ export function HomeView({ initialBusinesses, favoriteIds = [] }: HomeViewProps)
             <h2>Worth checking out</h2>
           </div>
           <Link href="/search" className="text-button" id="viewAllStores">
-            See all <span>&nearr;</span>
+            See all <span>↗</span>
           </Link>
         </div>
 
-        <div className="store-grid" id="storeGrid">
-          {filteredStores.map((store) => {
-            const isSaved = savedIds.has(store.id);
-            return (
-              <Link key={store.id} href={`/${store.slug}`} className="store-card">
-                <div className={`store-image ${store.photoClass}`}>
-                  <span className="open-badge">
-                    <i></i> Open now
-                  </span>
-                  <button
-                    type="button"
-                    className={`save-btn ${isSaved ? "saved" : ""}`}
-                    onClick={(e) => toggleSave(store.id, e)}
-                    aria-label={`Save ${store.name}`}
-                  >
-                    {isSaved ? "♥" : "♡"}
-                  </button>
-                  {store.photoContent}
-                </div>
-
-                <div className="store-details">
-                  <div className="store-title-row">
-                    <h3>{store.name}</h3>
-                    <span className="rating">&starf; {store.rating}</span>
+        {filteredStores.length > 0 ? (
+          <div className="store-grid" id="storeGrid">
+            {filteredStores.map((store) => {
+              const isSaved = savedIds.has(store.id);
+              return (
+                <Link key={store.id} href={`/${store.slug}`} className="store-card">
+                  <div className={`store-image ${store.photoClass}`}>
+                    <span className="open-badge">
+                      <i></i> {store.isOpen ? "Open now" : "Closed"}
+                    </span>
+                    <button
+                      type="button"
+                      className={`save-btn ${isSaved ? "saved" : ""}`}
+                      onClick={(e) => toggleSave(store.id, e)}
+                      aria-label={`Save ${store.name}`}
+                    >
+                      {isSaved ? "♥" : "♡"}
+                    </button>
+                    {store.photoContent}
                   </div>
-                  <p>{store.categoryLabel}</p>
-                  <div className="store-meta">
-                    <span>{store.meta}</span>
-                    <span className={store.tagClass}>{store.tag}</span>
-                  </div>
-                </div>
-              </Link>
-            );
-          })}
-        </div>
 
-        {filteredStores.length === 0 && (
+                  <div className="store-details">
+                    <div className="store-title-row">
+                      <h3>{store.name}</h3>
+                      <span className="rating">★ {store.rating}</span>
+                    </div>
+                    <p>{store.categoryLabel}</p>
+                    <div className="store-meta">
+                      <span>{store.meta}</span>
+                      <span className={store.tagClass}>{store.tag}</span>
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        ) : storeCards.length === 0 ? (
+          <div
+            className="empty-state"
+            id="emptyState"
+            style={{
+              padding: "48px 24px",
+              textAlign: "center",
+              background: "var(--surface)",
+              borderRadius: "var(--radius-xl)",
+              border: "1px dashed var(--border)",
+              marginTop: 16,
+            }}
+          >
+            <div
+              style={{
+                width: 56,
+                height: 56,
+                borderRadius: "50%",
+                background: "var(--surface-sunken)",
+                border: "1px solid var(--border)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                margin: "0 auto 16px",
+              }}
+            >
+              <IconSparkles size={24} style={{ color: "var(--accent)" }} />
+            </div>
+            <h3 style={{ fontSize: 20, fontWeight: 700, margin: "0 0 8px", color: "var(--ink)" }}>
+              No stores on this campus yet
+            </h3>
+            <p
+              style={{
+                maxWidth: 460,
+                margin: "0 auto 24px",
+                color: "var(--muted)",
+                fontSize: 14,
+                lineHeight: 1.6,
+              }}
+            >
+              Be the first merchant to bring your products, food, or services online. Start completely free with our 30-day trial — no upfront card required.
+            </p>
+            <Link
+              href="/app/new"
+              className="primary-button"
+              style={{ display: "inline-flex", alignItems: "center", gap: 8, margin: "0 auto", textDecoration: "none" }}
+            >
+              <span>Open Your Store • Free Trial</span>
+              <span>↗</span>
+            </Link>
+          </div>
+        ) : (
           <div className="empty-state" id="emptyState">
-            <span>Nothing here just yet.</span>
-            <p>Try another search or category.</p>
+            <span>Nothing matched your filters.</span>
+            <p>Try another search or clear your filter selections.</p>
             <button
               type="button"
               className="text-button"
@@ -445,7 +409,7 @@ export function HomeView({ initialBusinesses, favoriteIds = [] }: HomeViewProps)
                 setBookingOnly(false);
               }}
             >
-              Clear filters &nearr;
+              Clear filters ↗
             </button>
           </div>
         )}
@@ -519,7 +483,7 @@ export function HomeView({ initialBusinesses, favoriteIds = [] }: HomeViewProps)
                 onClick={() => setFilterModalOpen(false)}
                 aria-label="Close"
               >
-                &times;
+                ×
               </button>
             </div>
             <p className="modal-copy">Choose what matters and we’ll narrow things down.</p>
@@ -573,7 +537,7 @@ export function HomeView({ initialBusinesses, favoriteIds = [] }: HomeViewProps)
                 id="applyFilters"
                 onClick={() => setFilterModalOpen(false)}
               >
-                Apply filters <span>&nearr;</span>
+                Apply filters <span>↗</span>
               </button>
             </div>
           </section>
