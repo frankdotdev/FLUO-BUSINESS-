@@ -32,6 +32,7 @@ export default async function Workspaces() {
       <div
         style={{
           display: "flex",
+          flexWrap: "wrap",
           gap: 10,
           background: "var(--surface)",
           border: "1px solid var(--border)",
@@ -43,21 +44,21 @@ export default async function Workspaces() {
         <Link
           href="/"
           className="btn btn-subtle"
-          style={{ flex: 1, minHeight: 40, justifyContent: "center", fontSize: 13, fontWeight: 600 }}
+          style={{ flex: "1 1 140px", minHeight: 40, justifyContent: "center", fontSize: 13, fontWeight: 600 }}
         >
           Browse as Customer
         </Link>
         <Link
           href="/account/orders"
           className="btn btn-subtle"
-          style={{ flex: 1, minHeight: 40, justifyContent: "center", fontSize: 13, fontWeight: 600 }}
+          style={{ flex: "1 1 140px", minHeight: 40, justifyContent: "center", fontSize: 13, fontWeight: 600 }}
         >
           My Orders
         </Link>
         <Link
           href="/app/new"
           className="btn btn-primary"
-          style={{ flex: 1, minHeight: 40, justifyContent: "center", fontSize: 13, fontWeight: 700 }}
+          style={{ flex: "1 1 140px", minHeight: 40, justifyContent: "center", fontSize: 13, fontWeight: 700 }}
         >
           <IconPlus size={16} /> Open Business
         </Link>
@@ -117,7 +118,7 @@ export default async function Workspaces() {
                   background: "#ffffff",
                   border: isDraft ? "1.5px solid #fed7aa" : "1px solid var(--border)",
                   borderRadius: "var(--radius-lg)",
-                  padding: "20px 22px",
+                  padding: "clamp(14px, 4vw, 22px)",
                   display: "grid",
                   gap: 14,
                   boxShadow: "0 2px 8px rgba(0,0,0,0.02)",

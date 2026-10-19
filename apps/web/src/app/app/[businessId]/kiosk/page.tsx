@@ -23,7 +23,7 @@ export default async function PosKioskPage({ params }: { params: Promise<{ busin
 
   return (
     <div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px", paddingBottom: "12px", borderBottom: "1px solid #eaeaea" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "12px", marginBottom: "16px", paddingBottom: "12px", borderBottom: "1px solid #eaeaea" }}>
         <div>
           <h1 style={{ margin: "0 0 2px", fontSize: "22px" }}>{business.name}</h1>
           <p className="muted small" style={{ margin: 0, display: "inline-flex", alignItems: "center", gap: 5 }}>

@@ -176,7 +176,7 @@ export function NewBusinessForm({ types, action }: NewBusinessFormProps) {
         background: "#ffffff",
         border: "1px solid var(--line)",
         borderRadius: 20,
-        padding: "22px 24px",
+        padding: "clamp(16px, 4vw, 24px)",
       }}>
         <div style={{ marginBottom: 16 }}>
           <span className="section-kicker" style={{ margin: "0 0 2px" }}>SELECT YOUR VERTICAL</span>
@@ -194,7 +194,7 @@ export function NewBusinessForm({ types, action }: NewBusinessFormProps) {
         {/* Grid of Interactive Vertical Cards */}
         <div style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+          gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 260px), 1fr))",
           gap: 14,
         }}>
           {FEATURED_VERTICALS.map((v) => {

@@ -493,20 +493,20 @@ export default async function Dashboard({
             </p>
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", width: "auto" }}>
             {biz.status === "active" && (
               <Link
                 href={`/b/${biz.slug}`}
                 target="_blank"
                 className="secondary-button"
-                style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "10px 18px", fontSize: 13 }}
+                style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "10px 16px", fontSize: 13, flex: "1 1 auto" }}
               >
-                View Live Storefront <IconExternalLink size={14} />
+                View Storefront <IconExternalLink size={14} />
               </Link>
             )}
             <Link
               className="primary-button"
-              style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "10px 18px", fontSize: 13 }}
+              style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "10px 16px", fontSize: 13, flex: "1 1 auto" }}
               href={`/app/${businessId}/kiosk`}
             >
               <IconZap size={15} /> + New sale / POS Kiosk
@@ -623,7 +623,7 @@ async function Overview({
       {/* 4 Metric Cards Grid matching Screenshot 4 */}
       <section style={{
         display: "grid",
-        gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+        gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 200px), 1fr))",
         gap: 16,
       }}>
         {/* Card 1: Today's sales */}
@@ -631,7 +631,7 @@ async function Overview({
           background: "#ffffff",
           border: "1px solid var(--line)",
           borderRadius: 20,
-          padding: "20px 22px",
+          padding: "clamp(16px, 4vw, 22px)",
           display: "flex",
           flexDirection: "column",
           gap: 10,
@@ -731,7 +731,7 @@ async function Overview({
       {/* Two-Column Dashboard Overview Section matching Screenshot 4 */}
       <div style={{
         display: "grid",
-        gridTemplateColumns: "repeat(auto-fit, minmax(360px, 1fr))",
+        gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 300px), 1fr))",
         gap: 20,
       }}>
         {/* Left Column: Sales Overview with SVG Wave Chart */}
@@ -739,7 +739,7 @@ async function Overview({
           background: "#ffffff",
           border: "1px solid var(--line)",
           borderRadius: 20,
-          padding: 24,
+          padding: "clamp(16px, 4vw, 24px)",
           boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
           display: "flex",
           flexDirection: "column",
@@ -927,7 +927,7 @@ async function Overview({
         background: "#ffffff",
         border: "1px solid var(--line)",
         borderRadius: 20,
-        padding: 24,
+        padding: "clamp(16px, 4vw, 24px)",
         boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
       }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12, marginBottom: 16 }}>
@@ -942,7 +942,7 @@ async function Overview({
           </div>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 14 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 260px), 1fr))", gap: 14 }}>
           {/* Engine 1: Products & Catalogue */}
           <div style={{
             padding: 16,
@@ -1316,68 +1316,166 @@ async function Orders({
             <p>Share your storefront URL on WhatsApp or social media to begin taking orders.</p>
           </div>
         ) : (
-          <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
-              <thead>
-                <tr style={{ background: "var(--canvas)", textAlign: "left", color: "var(--muted)", fontSize: 11, fontWeight: 700 }}>
-                  <th style={{ padding: "12px 14px", borderRadius: "10px 0 0 10px" }}>CUSTOMER</th>
-                  <th style={{ padding: "12px 14px" }}>TOTAL</th>
-                  <th style={{ padding: "12px 14px" }}>STATUS</th>
-                  <th style={{ padding: "12px 14px" }}>PAYMENT &amp; ESCROW</th>
-                  <th style={{ padding: "12px 14px", borderRadius: "0 10px 10px 0" }}>ACTIONS</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map(({ o, p, escrow }) => (
-                  <tr key={o.id} style={{ borderBottom: "1px solid #f0f1f1" }}>
-                    <td style={{ padding: "14px" }}>
-                      <strong style={{ display: "block", color: "var(--ink)" }}>{o.guest?.name ?? "Customer Account"}</strong>
+          <>
+            {/* Desktop / Tablet Table View */}
+            <div className="desktop-table-view">
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+                <thead>
+                  <tr style={{ background: "var(--canvas)", textAlign: "left", color: "var(--muted)", fontSize: 11, fontWeight: 700 }}>
+                    <th style={{ padding: "12px 14px", borderRadius: "10px 0 0 10px" }}>CUSTOMER</th>
+                    <th style={{ padding: "12px 14px" }}>TOTAL</th>
+                    <th style={{ padding: "12px 14px" }}>STATUS</th>
+                    <th style={{ padding: "12px 14px" }}>PAYMENT &amp; ESCROW</th>
+                    <th style={{ padding: "12px 14px", borderRadius: "0 10px 10px 0" }}>ACTIONS</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.map(({ o, p, escrow }) => (
+                    <tr key={o.id} style={{ borderBottom: "1px solid #f0f1f1" }}>
+                      <td style={{ padding: "14px" }}>
+                        <strong style={{ display: "block", color: "var(--ink)" }}>{o.guest?.name ?? "Customer Account"}</strong>
+                        {o.note && <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>Note: {o.note}</div>}
+                        <Link
+                          href={`/receipt/${o.id}?b=${businessId}`}
+                          style={{ fontSize: 11, color: "var(--coral-dark)", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 3, marginTop: 4 }}
+                          target="_blank"
+                        >
+                          <IconReceipt size={11} /> Receipt ↗
+                        </Link>
+                      </td>
+                      <td style={{ padding: "14px", fontFamily: "Manrope, sans-serif", fontWeight: 800 }}>
+                        {fmtMoney(o.totalMinor, o.currency)}
+                      </td>
+                      <td style={{ padding: "14px" }}>
+                        <span className="open-badge" style={{ position: "static", textTransform: "capitalize" }}>
+                          {o.status.replace("_", " ")}
+                        </span>
+                      </td>
+                      <td style={{ padding: "14px" }}>
+                        <div style={{ fontSize: 12, color: "var(--ink)", fontWeight: 600 }}>
+                          {p?.method === "bank_transfer" ? `Transfer (${p.status.replace("_", " ")})` : `Online (${p?.status ?? "none"})`}
+                        </div>
+                        {escrow && (
+                          <div style={{ marginTop: 4 }}>
+                            {escrow.status === "held" ? (
+                              <span style={{ display: "inline-flex", alignItems: "center", gap: 4, background: "#fef3c7", color: "#92400e", padding: "2px 8px", borderRadius: 6, fontSize: 10, fontWeight: 700 }}>
+                                <IconShield size={10} /> Escrow Held (PIN required)
+                              </span>
+                            ) : escrow.status === "released" ? (
+                              <span style={{ display: "inline-flex", alignItems: "center", gap: 4, background: "#edf6f0", color: "var(--green)", padding: "2px 8px", borderRadius: 6, fontSize: 10, fontWeight: 700 }}>
+                                <IconCheck size={10} /> Escrow Released
+                              </span>
+                            ) : (
+                              <span style={{ display: "inline-flex", alignItems: "center", gap: 4, background: "#fee2e2", color: "#dc2626", padding: "2px 8px", borderRadius: 6, fontSize: 10, fontWeight: 700 }}>
+                                <IconAlertTriangle size={10} /> {escrow.status}
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </td>
+                      <td style={{ padding: "14px" }}>
+                        {canWrite && p?.method === "bank_transfer" && (p.status === "awaiting_confirmation" || p.status === "created") && o.status === "awaiting_payment" && (
+                          <form action={A.confirmOrderTransferAction} style={{ marginBottom: 6 }}>
+                            {H(businessId)}
+                            <input type="hidden" name="orderId" value={o.id} />
+                            <button className="primary-button" style={{ padding: "6px 12px", fontSize: 11 }} type="submit">
+                              Confirm Transfer Received
+                            </button>
+                          </form>
+                        )}
+                        {canWrite && escrow && escrow.status === "held" && (
+                          <form action={A.releaseEscrowWithPinAction} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                            <input type="hidden" name="orderId" value={o.id} />
+                            <input type="hidden" name="back" value={`/app/${businessId}?tab=orders`} />
+                            <input
+                              name="pin"
+                              maxLength={4}
+                              pattern="[0-9]{4}"
+                              placeholder="PIN"
+                              style={{ width: 64, padding: "6px 8px", borderRadius: 8, border: "1px solid var(--line)", fontSize: 12, textAlign: "center" }}
+                              required
+                            />
+                            <button className="primary-button" style={{ padding: "6px 12px", fontSize: 11 }} type="submit">
+                              Release
+                            </button>
+                          </form>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile Native Card View (no side-scroll, perfectly fits phone) */}
+            <div className="mobile-cards-view">
+              {rows.map(({ o, p, escrow }) => (
+                <div
+                  key={o.id}
+                  style={{
+                    background: "var(--canvas)",
+                    border: "1px solid var(--line)",
+                    borderRadius: 16,
+                    padding: 16,
+                    display: "grid",
+                    gap: 12,
+                  }}
+                >
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8 }}>
+                    <div>
+                      <strong style={{ display: "block", fontSize: 14, color: "var(--ink)" }}>{o.guest?.name ?? "Customer Account"}</strong>
+                      <span style={{ fontSize: 11, color: "var(--muted)" }}>#FL-{o.id.slice(0, 8).toUpperCase()}</span>
                       {o.note && <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>Note: {o.note}</div>}
-                      <Link
-                        href={`/receipt/${o.id}?b=${businessId}`}
-                        style={{ fontSize: 11, color: "var(--coral-dark)", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 3, marginTop: 4 }}
-                        target="_blank"
-                      >
-                        <IconReceipt size={11} /> Receipt ↗
-                      </Link>
-                    </td>
-                    <td style={{ padding: "14px", fontFamily: "Manrope, sans-serif", fontWeight: 800 }}>
-                      {fmtMoney(o.totalMinor, o.currency)}
-                    </td>
-                    <td style={{ padding: "14px" }}>
-                      <span className="open-badge" style={{ position: "static", textTransform: "capitalize" }}>
+                    </div>
+                    <div style={{ textAlign: "right" }}>
+                      <div style={{ fontFamily: "Manrope, sans-serif", fontSize: 15, fontWeight: 800, color: "var(--ink)" }}>
+                        {fmtMoney(o.totalMinor, o.currency)}
+                      </div>
+                      <span className="open-badge" style={{ position: "static", textTransform: "capitalize", marginTop: 4, display: "inline-block" }}>
                         {o.status.replace("_", " ")}
                       </span>
-                    </td>
-                    <td style={{ padding: "14px" }}>
-                      <div style={{ fontSize: 12, color: "var(--ink)", fontWeight: 600 }}>
-                        {p?.method === "bank_transfer" ? `Transfer (${p.status.replace("_", " ")})` : `Online (${p?.status ?? "none"})`}
+                    </div>
+                  </div>
+
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8, paddingTop: 8, borderTop: "1px solid var(--line)" }}>
+                    <div style={{ fontSize: 12, color: "var(--ink)", fontWeight: 600 }}>
+                      {p?.method === "bank_transfer" ? `Transfer (${p.status.replace("_", " ")})` : `Online (${p?.status ?? "none"})`}
+                    </div>
+                    {escrow && (
+                      <div>
+                        {escrow.status === "held" ? (
+                          <span style={{ display: "inline-flex", alignItems: "center", gap: 4, background: "#fef3c7", color: "#92400e", padding: "2px 8px", borderRadius: 6, fontSize: 10, fontWeight: 700 }}>
+                            <IconShield size={10} /> Escrow Held
+                          </span>
+                        ) : escrow.status === "released" ? (
+                          <span style={{ display: "inline-flex", alignItems: "center", gap: 4, background: "#edf6f0", color: "var(--green)", padding: "2px 8px", borderRadius: 6, fontSize: 10, fontWeight: 700 }}>
+                            <IconCheck size={10} /> Escrow Released
+                          </span>
+                        ) : (
+                          <span style={{ display: "inline-flex", alignItems: "center", gap: 4, background: "#fee2e2", color: "#dc2626", padding: "2px 8px", borderRadius: 6, fontSize: 10, fontWeight: 700 }}>
+                            <IconAlertTriangle size={10} /> {escrow.status}
+                          </span>
+                        )}
                       </div>
-                      {escrow && (
-                        <div style={{ marginTop: 4 }}>
-                          {escrow.status === "held" ? (
-                            <span style={{ display: "inline-flex", alignItems: "center", gap: 4, background: "#fef3c7", color: "#92400e", padding: "2px 8px", borderRadius: 6, fontSize: 10, fontWeight: 700 }}>
-                              <IconShield size={10} /> Escrow Held (PIN required)
-                            </span>
-                          ) : escrow.status === "released" ? (
-                            <span style={{ display: "inline-flex", alignItems: "center", gap: 4, background: "#edf6f0", color: "var(--green)", padding: "2px 8px", borderRadius: 6, fontSize: 10, fontWeight: 700 }}>
-                              <IconCheck size={10} /> Escrow Released
-                            </span>
-                          ) : (
-                            <span style={{ display: "inline-flex", alignItems: "center", gap: 4, background: "#fee2e2", color: "#dc2626", padding: "2px 8px", borderRadius: 6, fontSize: 10, fontWeight: 700 }}>
-                              <IconAlertTriangle size={10} /> {escrow.status}
-                            </span>
-                          )}
-                        </div>
-                      )}
-                    </td>
-                    <td style={{ padding: "14px" }}>
+                    )}
+                  </div>
+
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8, paddingTop: 4 }}>
+                    <Link
+                      href={`/receipt/${o.id}?b=${businessId}`}
+                      style={{ fontSize: 12, color: "var(--coral-dark)", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 4, fontWeight: 600 }}
+                      target="_blank"
+                    >
+                      <IconReceipt size={13} /> View Receipt ↗
+                    </Link>
+
+                    <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
                       {canWrite && p?.method === "bank_transfer" && (p.status === "awaiting_confirmation" || p.status === "created") && o.status === "awaiting_payment" && (
-                        <form action={A.confirmOrderTransferAction} style={{ marginBottom: 6 }}>
+                        <form action={A.confirmOrderTransferAction}>
                           {H(businessId)}
                           <input type="hidden" name="orderId" value={o.id} />
                           <button className="primary-button" style={{ padding: "6px 12px", fontSize: 11 }} type="submit">
-                            Confirm Transfer Received
+                            Confirm Transfer
                           </button>
                         </form>
                       )}
@@ -1398,12 +1496,12 @@ async function Orders({
                           </button>
                         </form>
                       )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
         )}
       </div>
     </div>
@@ -1444,9 +1542,9 @@ async function Products({
             Add Product or Service to Catalogue
           </h2>
 
-          <form action={A.createProductAction} style={{ display: "grid", gap: 14, maxWidth: 600 }}>
+          <form action={A.createProductAction} style={{ display: "grid", gap: 14, maxWidth: "100%" }}>
             {H(businessId)}
-            <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 12 }}>
+            <div className="admin-form-row-asymmetric">
               <label style={{ display: "grid", gap: 6, fontSize: 12, fontWeight: 700, color: "var(--ink)" }}>
                 Item Name
                 <input
@@ -1473,7 +1571,7 @@ async function Products({
               </label>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <div className="admin-form-row">
               <label style={{ display: "grid", gap: 6, fontSize: 12, fontWeight: 700, color: "var(--ink)" }}>
                 Original / Compare Price ({currency}) (Optional)
                 <input
@@ -1495,7 +1593,7 @@ async function Products({
               </label>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <div className="admin-form-row">
               <label style={{ display: "grid", gap: 6, fontSize: 12, fontWeight: 700, color: "var(--ink)" }}>
                 Fulfilment Mode
                 <select id="fulfilment" name="fulfilment" style={{ padding: "10px 12px", borderRadius: 10, border: "1px solid var(--line)", fontSize: 13, background: "#ffffff" }}>
@@ -1558,110 +1656,194 @@ async function Products({
             <p>Add your dishes, retail products, or services above to begin taking orders.</p>
           </div>
         ) : (
-          <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
-              <thead>
-                <tr style={{ background: "var(--canvas)", textAlign: "left", color: "var(--muted)", fontSize: 11, fontWeight: 700 }}>
-                  <th style={{ padding: "12px 14px", borderRadius: "10px 0 0 10px" }}>ITEM</th>
-                  <th style={{ padding: "12px 14px" }}>PRICE</th>
-                  <th style={{ padding: "12px 14px" }}>STOCK</th>
-                  <th style={{ padding: "12px 14px" }}>STATUS</th>
-                  <th style={{ padding: "12px 14px", borderRadius: "0 10px 10px 0" }}>ACTIONS</th>
-                </tr>
-              </thead>
-              <tbody>
-                {list.map((p) => {
-                  const thumb = photo(businessId, p.imageAssetId, "thumb");
-                  return (
-                    <tr key={p.id} style={{ borderBottom: "1px solid #f0f1f1" }}>
-                      <td style={{ padding: "14px" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                          {thumb ? (
-                            <img src={thumb} alt="" width={48} height={48} style={{ borderRadius: 10, objectFit: "cover" }} />
-                          ) : (
-                            <div style={{ width: 48, height: 48, borderRadius: 10, background: "var(--canvas)", display: "grid", placeItems: "center", fontSize: 14, color: "var(--muted)" }}>
-                              ▦
-                            </div>
-                          )}
-                          <div>
-                            <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
-                              <strong style={{ color: "var(--ink)" }}>{p.name}</strong>
-                              {p.promoBadge && (
-                                <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 6px", borderRadius: 6, background: "var(--coral-soft)", color: "var(--coral-dark)" }}>
-                                  {p.promoBadge}
-                                </span>
-                              )}
-                            </div>
-                            {canWrite && (
-                              <div style={{ marginTop: 6, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                                <ImageUpload businessId={businessId} target={{ kind: "product", id: p.id }} label="+ Add Photo" />
-                                {p.galleryAssetIds && p.galleryAssetIds.length > 1 && (
-                                  <span style={{ fontSize: 11, color: "var(--muted)", fontWeight: 600 }}>
-                                    {p.galleryAssetIds.length} photos
+          <>
+            {/* Desktop Table View */}
+            <div className="desktop-table-view">
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+                <thead>
+                  <tr style={{ background: "var(--canvas)", textAlign: "left", color: "var(--muted)", fontSize: 11, fontWeight: 700 }}>
+                    <th style={{ padding: "12px 14px", borderRadius: "10px 0 0 10px" }}>ITEM</th>
+                    <th style={{ padding: "12px 14px" }}>PRICE</th>
+                    <th style={{ padding: "12px 14px" }}>STOCK</th>
+                    <th style={{ padding: "12px 14px" }}>STATUS</th>
+                    <th style={{ padding: "12px 14px", borderRadius: "0 10px 10px 0" }}>ACTIONS</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {list.map((p) => {
+                    const thumb = photo(businessId, p.imageAssetId, "thumb");
+                    return (
+                      <tr key={p.id} style={{ borderBottom: "1px solid #f0f1f1" }}>
+                        <td style={{ padding: "14px" }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                            {thumb ? (
+                              <img src={thumb} alt="" width={48} height={48} style={{ borderRadius: 10, objectFit: "cover" }} />
+                            ) : (
+                              <div style={{ width: 48, height: 48, borderRadius: 10, background: "var(--canvas)", display: "grid", placeItems: "center", fontSize: 14, color: "var(--muted)" }}>
+                                ▦
+                              </div>
+                            )}
+                            <div>
+                              <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+                                <strong style={{ color: "var(--ink)" }}>{p.name}</strong>
+                                {p.promoBadge && (
+                                  <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 6px", borderRadius: 6, background: "var(--coral-soft)", color: "var(--coral-dark)" }}>
+                                    {p.promoBadge}
                                   </span>
                                 )}
                               </div>
-                            )}
+                              {canWrite && (
+                                <div style={{ marginTop: 6, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                                  <ImageUpload businessId={businessId} target={{ kind: "product", id: p.id }} label="+ Add Photo" />
+                                  {p.galleryAssetIds && p.galleryAssetIds.length > 1 && (
+                                    <span style={{ fontSize: 11, color: "var(--muted)", fontWeight: 600 }}>
+                                      {p.galleryAssetIds.length} photos
+                                    </span>
+                                  )}
+                                </div>
+                              )}
+                            </div>
                           </div>
+                        </td>
+                        <td style={{ padding: "14px", fontFamily: "Manrope, sans-serif" }}>
+                          <div style={{ fontWeight: 800 }}>{fmtMoney(p.priceMinor, p.currency)}</div>
+                          {p.compareAtPriceMinor && (
+                            <div style={{ fontSize: 11, color: "var(--muted)", textDecoration: "line-through" }}>
+                              {fmtMoney(p.compareAtPriceMinor, p.currency)}
+                            </div>
+                          )}
+                        </td>
+                        <td style={{ padding: "14px" }}>
+                          {p.stockQuantity == null ? (
+                            <span style={{ color: "var(--muted)" }}>Unlimited</span>
+                          ) : p.stockQuantity === 0 ? (
+                            <span className="open-badge" style={{ position: "static", background: "#fee2e2", color: "#dc2626" }}>Sold out</span>
+                          ) : p.stockQuantity <= 3 ? (
+                            <span className="open-badge" style={{ position: "static", background: "#fef3c7", color: "#92400e" }}>{p.stockQuantity} left</span>
+                          ) : (
+                            <span>{p.stockQuantity}</span>
+                          )}
+                        </td>
+                        <td style={{ padding: "14px" }}>
+                          <span className="open-badge" style={{ position: "static", textTransform: "capitalize", background: p.status === "active" ? "#edf6f0" : "#fef3c7", color: p.status === "active" ? "var(--green)" : "#92400e" }}>
+                            {p.status}
+                          </span>
+                        </td>
+                        <td style={{ padding: "14px" }}>
+                          {canWrite && (
+                            <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                              <form action={A.setProductStatusAction}>
+                                {H(businessId)}
+                                <input type="hidden" name="productId" value={p.id} />
+                                <input type="hidden" name="status" value={p.status === "active" ? "paused" : "active"} />
+                                <button className="secondary-button" style={{ padding: "6px 12px", fontSize: 11 }} type="submit">
+                                  {p.status === "active" ? "Pause" : "Make Live"}
+                                </button>
+                              </form>
+                              <form action={A.setProductStatusAction}>
+                                {H(businessId)}
+                                <input type="hidden" name="productId" value={p.id} />
+                                <input type="hidden" name="status" value="archived" />
+                                <button
+                                  className="secondary-button"
+                                  style={{ padding: "6px 12px", fontSize: 11, color: "var(--error)" }}
+                                  type="submit"
+                                  title="Delete item"
+                                >
+                                  Delete
+                                </button>
+                              </form>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile Native Card View (eliminates squishing and horizontal scroll) */}
+            <div className="mobile-cards-view">
+              {list.map((p) => {
+                const thumb = photo(businessId, p.imageAssetId, "thumb");
+                return (
+                  <div
+                    key={p.id}
+                    style={{
+                      background: "var(--canvas)",
+                      border: "1px solid var(--line)",
+                      borderRadius: 16,
+                      padding: 16,
+                      display: "grid",
+                      gap: 12,
+                    }}
+                  >
+                    <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+                      {thumb ? (
+                        <img src={thumb} alt="" width={60} height={60} style={{ borderRadius: 12, objectFit: "cover", flexShrink: 0 }} />
+                      ) : (
+                        <div style={{ width: 60, height: 60, borderRadius: 12, background: "var(--surface)", border: "1px solid var(--line)", display: "grid", placeItems: "center", fontSize: 18, color: "var(--muted)", flexShrink: 0 }}>
+                          ▦
                         </div>
-                      </td>
-                      <td style={{ padding: "14px", fontFamily: "Manrope, sans-serif" }}>
-                        <div style={{ fontWeight: 800 }}>{fmtMoney(p.priceMinor, p.currency)}</div>
-                        {p.compareAtPriceMinor && (
-                          <div style={{ fontSize: 11, color: "var(--muted)", textDecoration: "line-through" }}>
-                            {fmtMoney(p.compareAtPriceMinor, p.currency)}
-                          </div>
-                        )}
-                      </td>
-                      <td style={{ padding: "14px" }}>
-                        {p.stockQuantity == null ? (
-                          <span style={{ color: "var(--muted)" }}>Unlimited</span>
-                        ) : p.stockQuantity === 0 ? (
-                          <span className="open-badge" style={{ position: "static", background: "#fee2e2", color: "#dc2626" }}>Sold out</span>
-                        ) : p.stockQuantity <= 3 ? (
-                          <span className="open-badge" style={{ position: "static", background: "#fef3c7", color: "#92400e" }}>{p.stockQuantity} left</span>
-                        ) : (
-                          <span>{p.stockQuantity}</span>
-                        )}
-                      </td>
-                      <td style={{ padding: "14px" }}>
-                        <span className="open-badge" style={{ position: "static", textTransform: "capitalize", background: p.status === "active" ? "#edf6f0" : "#fef3c7", color: p.status === "active" ? "var(--green)" : "#92400e" }}>
-                          {p.status}
-                        </span>
-                      </td>
-                      <td style={{ padding: "14px" }}>
-                        {canWrite && (
-                          <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-                            <form action={A.setProductStatusAction}>
-                              {H(businessId)}
-                              <input type="hidden" name="productId" value={p.id} />
-                              <input type="hidden" name="status" value={p.status === "active" ? "paused" : "active"} />
-                              <button className="secondary-button" style={{ padding: "6px 12px", fontSize: 11 }} type="submit">
-                                {p.status === "active" ? "Pause" : "Make Live"}
-                              </button>
-                            </form>
-                            <form action={A.setProductStatusAction}>
-                              {H(businessId)}
-                              <input type="hidden" name="productId" value={p.id} />
-                              <input type="hidden" name="status" value="archived" />
-                              <button
-                                className="secondary-button"
-                                style={{ padding: "6px 12px", fontSize: 11, color: "var(--error)" }}
-                                type="submit"
-                                title="Delete item"
-                              >
-                                Delete
-                              </button>
-                            </form>
-                          </div>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                      )}
+                      <div style={{ minWidth: 0, flex: 1 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", marginBottom: 4 }}>
+                          <strong style={{ color: "var(--ink)", fontSize: 14 }}>{p.name}</strong>
+                          {p.promoBadge && (
+                            <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 6px", borderRadius: 6, background: "var(--coral-soft)", color: "var(--coral-dark)" }}>
+                              {p.promoBadge}
+                            </span>
+                          )}
+                        </div>
+                        <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
+                          <span style={{ fontFamily: "Manrope, sans-serif", fontSize: 15, fontWeight: 800, color: "var(--ink)" }}>
+                            {fmtMoney(p.priceMinor, p.currency)}
+                          </span>
+                          {p.compareAtPriceMinor && (
+                            <span style={{ fontSize: 11, color: "var(--muted)", textDecoration: "line-through" }}>
+                              {fmtMoney(p.compareAtPriceMinor, p.currency)}
+                            </span>
+                          )}
+                        </div>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 4, fontSize: 11, color: "var(--muted)" }}>
+                          <span>Stock: <strong>{p.stockQuantity == null ? "Unlimited" : p.stockQuantity}</strong></span>
+                          <span>•</span>
+                          <span className="open-badge" style={{ position: "static", textTransform: "capitalize", background: p.status === "active" ? "#edf6f0" : "#fef3c7", color: p.status === "active" ? "var(--green)" : "#92400e", fontSize: 10 }}>
+                            {p.status}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {canWrite && (
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8, paddingTop: 10, borderTop: "1px solid var(--line)" }}>
+                        <ImageUpload businessId={businessId} target={{ kind: "product", id: p.id }} label="+ Photo" />
+                        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                          <form action={A.setProductStatusAction}>
+                            {H(businessId)}
+                            <input type="hidden" name="productId" value={p.id} />
+                            <input type="hidden" name="status" value={p.status === "active" ? "paused" : "active"} />
+                            <button className="secondary-button" style={{ padding: "6px 12px", fontSize: 11 }} type="submit">
+                              {p.status === "active" ? "Pause" : "Make Live"}
+                            </button>
+                          </form>
+                          <form action={A.setProductStatusAction}>
+                            {H(businessId)}
+                            <input type="hidden" name="productId" value={p.id} />
+                            <input type="hidden" name="status" value="archived" />
+                            <button className="secondary-button" style={{ padding: "6px 12px", fontSize: 11, color: "var(--error)" }} type="submit">
+                              Delete
+                            </button>
+                          </form>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </>
         )}
       </div>
     </div>
@@ -1725,7 +1907,7 @@ async function Bookings({
               />
             </label>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <div className="admin-form-row">
               <label style={{ display: "grid", gap: 6, fontSize: 12, fontWeight: 700, color: "var(--ink)" }}>
                 Booking Type
                 <select id="kind" name="kind" defaultValue="time_block" style={{ padding: "10px 12px", borderRadius: 10, border: "1px solid var(--line)", fontSize: 13, background: "#ffffff" }}>
@@ -1766,7 +1948,7 @@ async function Bookings({
         background: "#ffffff",
         border: "1px solid var(--line)",
         borderRadius: 20,
-        padding: 24,
+        padding: "clamp(16px, 4vw, 24px)",
         boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
       }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
@@ -1786,55 +1968,111 @@ async function Bookings({
             <p>Customers can book available appointment windows directly from your public page.</p>
           </div>
         ) : (
-          <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
-              <thead>
-                <tr style={{ background: "var(--canvas)", textAlign: "left", color: "var(--muted)", fontSize: 11, fontWeight: 700 }}>
-                  <th style={{ padding: "12px 14px", borderRadius: "10px 0 0 10px" }}>WHEN</th>
-                  <th style={{ padding: "12px 14px" }}>RESOURCE</th>
-                  <th style={{ padding: "12px 14px" }}>CUSTOMER</th>
-                  <th style={{ padding: "12px 14px" }}>STATUS</th>
-                  <th style={{ padding: "12px 14px", borderRadius: "0 10px 10px 0" }}>ACTIONS</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map(({ b, p, g }) => (
-                  <tr key={b.id} style={{ borderBottom: "1px solid #f0f1f1" }}>
-                    <td style={{ padding: "14px" }}>{fmtLocal(b.startMs, tz)}</td>
-                    <td style={{ padding: "14px", fontWeight: 700 }}>{g?.name ?? "Resource"}</td>
-                    <td style={{ padding: "14px" }}>{b.guest?.name ?? "Customer Account"}</td>
-                    <td style={{ padding: "14px" }}>
-                      <span className="open-badge" style={{ position: "static", textTransform: "capitalize" }}>
-                        {b.status}
-                      </span>
-                    </td>
-                    <td style={{ padding: "14px" }}>
-                      <div style={{ display: "flex", gap: 6 }}>
-                        {canManage && b.status === "held" && p?.method === "bank_transfer" && (
-                          <form action={A.confirmBookingTransferAction}>
-                            {H(businessId)}
-                            <input type="hidden" name="bookingId" value={b.id} />
-                            <button className="primary-button" style={{ padding: "6px 10px", fontSize: 11 }} type="submit">
-                              Confirm Transfer
-                            </button>
-                          </form>
-                        )}
-                        {canManage && (b.status === "held" || b.status === "confirmed") && (
-                          <form action={A.cancelBookingAsBusinessAction}>
-                            {H(businessId)}
-                            <input type="hidden" name="bookingId" value={b.id} />
-                            <button className="secondary-button" style={{ color: "#dc2626", borderColor: "#fca5a5", padding: "6px 10px", fontSize: 11 }} type="submit">
-                              Cancel
-                            </button>
-                          </form>
-                        )}
-                      </div>
-                    </td>
+          <>
+            {/* Desktop Table View */}
+            <div className="desktop-table-view">
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+                <thead>
+                  <tr style={{ background: "var(--canvas)", textAlign: "left", color: "var(--muted)", fontSize: 11, fontWeight: 700 }}>
+                    <th style={{ padding: "12px 14px", borderRadius: "10px 0 0 10px" }}>WHEN</th>
+                    <th style={{ padding: "12px 14px" }}>RESOURCE</th>
+                    <th style={{ padding: "12px 14px" }}>CUSTOMER</th>
+                    <th style={{ padding: "12px 14px" }}>STATUS</th>
+                    <th style={{ padding: "12px 14px", borderRadius: "0 10px 10px 0" }}>ACTIONS</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {rows.map(({ b, p, g }) => (
+                    <tr key={b.id} style={{ borderBottom: "1px solid #f0f1f1" }}>
+                      <td style={{ padding: "14px" }}>{fmtLocal(b.startMs, tz)}</td>
+                      <td style={{ padding: "14px", fontWeight: 700 }}>{g?.name ?? "Resource"}</td>
+                      <td style={{ padding: "14px" }}>{b.guest?.name ?? "Customer Account"}</td>
+                      <td style={{ padding: "14px" }}>
+                        <span className="open-badge" style={{ position: "static", textTransform: "capitalize" }}>
+                          {b.status}
+                        </span>
+                      </td>
+                      <td style={{ padding: "14px" }}>
+                        <div style={{ display: "flex", gap: 6 }}>
+                          {canManage && b.status === "held" && p?.method === "bank_transfer" && (
+                            <form action={A.confirmBookingTransferAction}>
+                              {H(businessId)}
+                              <input type="hidden" name="bookingId" value={b.id} />
+                              <button className="primary-button" style={{ padding: "6px 10px", fontSize: 11 }} type="submit">
+                                Confirm Transfer
+                              </button>
+                            </form>
+                          )}
+                          {canManage && (b.status === "held" || b.status === "confirmed") && (
+                            <form action={A.cancelBookingAsBusinessAction}>
+                              {H(businessId)}
+                              <input type="hidden" name="bookingId" value={b.id} />
+                              <button className="secondary-button" style={{ color: "#dc2626", borderColor: "#fca5a5", padding: "6px 10px", fontSize: 11 }} type="submit">
+                                Cancel
+                              </button>
+                            </form>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile Cards View */}
+            <div className="mobile-cards-view">
+              {rows.map(({ b, p, g }) => (
+                <div
+                  key={b.id}
+                  style={{
+                    background: "var(--canvas)",
+                    border: "1px solid var(--line)",
+                    borderRadius: 14,
+                    padding: 14,
+                    display: "grid",
+                    gap: 10,
+                  }}
+                >
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8 }}>
+                    <div>
+                      <strong style={{ display: "block", fontSize: 14, color: "var(--ink)" }}>{g?.name ?? "Resource"}</strong>
+                      <span style={{ fontSize: 12, color: "var(--muted)" }}>{fmtLocal(b.startMs, tz)}</span>
+                    </div>
+                    <span className="open-badge" style={{ position: "static", textTransform: "capitalize" }}>
+                      {b.status}
+                    </span>
+                  </div>
+                  <div style={{ fontSize: 12, color: "var(--ink)", display: "flex", justifyContent: "space-between" }}>
+                    <span style={{ color: "var(--muted)" }}>Customer:</span>
+                    <span style={{ fontWeight: 600 }}>{b.guest?.name ?? "Customer Account"}</span>
+                  </div>
+                  {canManage && ((b.status === "held" && p?.method === "bank_transfer") || b.status === "held" || b.status === "confirmed") && (
+                    <div style={{ display: "flex", gap: 8, flexWrap: "wrap", paddingTop: 8, borderTop: "1px solid var(--line)" }}>
+                      {canManage && b.status === "held" && p?.method === "bank_transfer" && (
+                        <form action={A.confirmBookingTransferAction} style={{ flex: "1 1 auto" }}>
+                          {H(businessId)}
+                          <input type="hidden" name="bookingId" value={b.id} />
+                          <button className="primary-button" style={{ width: "100%", padding: "8px 12px", fontSize: 12 }} type="submit">
+                            Confirm Transfer
+                          </button>
+                        </form>
+                      )}
+                      {canManage && (b.status === "held" || b.status === "confirmed") && (
+                        <form action={A.cancelBookingAsBusinessAction} style={{ flex: "1 1 auto" }}>
+                          {H(businessId)}
+                          <input type="hidden" name="bookingId" value={b.id} />
+                          <button className="secondary-button" style={{ width: "100%", color: "#dc2626", borderColor: "#fca5a5", padding: "8px 12px", fontSize: 12 }} type="submit">
+                            Cancel
+                          </button>
+                        </form>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </>
         )}
       </div>
     </div>
@@ -1878,14 +2116,14 @@ async function Events({
           background: "#ffffff",
           border: "1px solid var(--line)",
           borderRadius: 20,
-          padding: 24,
+          padding: "clamp(16px, 4vw, 24px)",
           boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
         }}>
           <span className="section-kicker">NEW EVENT</span>
           <h2 style={{ fontFamily: "Manrope, sans-serif", fontSize: 18, fontWeight: 800, margin: "2px 0 16px" }}>
             Create Ticketed Event
           </h2>
-          <form action={A.createEventAction} style={{ display: "grid", gap: 14, maxWidth: 600 }}>
+          <form action={A.createEventAction} style={{ display: "grid", gap: 14, maxWidth: "100%" }}>
             {H(businessId)}
             <label style={{ display: "grid", gap: 6, fontSize: 12, fontWeight: 700, color: "var(--ink)" }}>
               Event Title
@@ -1895,7 +2133,7 @@ async function Events({
               Venue Location
               <input id="ev" name="venue" maxLength={200} placeholder="e.g. Convocation Arena, Abakaliki" style={{ padding: "10px 12px", borderRadius: 10, border: "1px solid var(--line)", fontSize: 13 }} />
             </label>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <div className="admin-form-row">
               <label style={{ display: "grid", gap: 6, fontSize: 12, fontWeight: 700, color: "var(--ink)" }}>
                 Start Date &amp; Time
                 <input id="es" name="start" type="datetime-local" required style={{ padding: "10px 12px", borderRadius: 10, border: "1px solid var(--line)", fontSize: 13 }} />
@@ -1919,7 +2157,7 @@ async function Events({
             background: "#ffffff",
             border: "1px solid var(--line)",
             borderRadius: 20,
-            padding: 24,
+            padding: "clamp(16px, 4vw, 24px)",
             boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
           }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12 }}>
@@ -1939,7 +2177,7 @@ async function Events({
             {types.length > 0 && (
               <div style={{ margin: "16px 0", border: "1px solid var(--line)", borderRadius: 12, overflow: "hidden" }}>
                 {types.map(({ t, sold }) => (
-                  <div key={t.id} style={{ display: "flex", justifyContent: "space-between", padding: "10px 14px", borderBottom: "1px solid var(--line)", fontSize: 13 }}>
+                  <div key={t.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 6, padding: "10px 14px", borderBottom: "1px solid var(--line)", fontSize: 13 }}>
                     <span style={{ fontWeight: 600 }}>{t.name}</span>
                     <span style={{ color: "var(--muted)" }}>{t.priceMinor === 0n ? "Free" : fmtMoney(t.priceMinor, t.currency)} • {sold} / {t.capacity} sold</span>
                   </div>
@@ -1951,10 +2189,10 @@ async function Events({
               <form action={A.addTicketTypeAction} style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
                 {H(businessId)}
                 <input type="hidden" name="eventId" value={e.id} />
-                <input name="name" placeholder="Tier Name (e.g. VIP)" required style={{ padding: "8px 12px", borderRadius: 8, border: "1px solid var(--line)", fontSize: 12, flex: 1 }} />
-                <input name="price" placeholder="Price (0 = free)" inputMode="decimal" required style={{ width: 110, padding: "8px 12px", borderRadius: 8, border: "1px solid var(--line)", fontSize: 12 }} />
-                <input name="capacity" type="number" min={1} placeholder="Capacity" required style={{ width: 90, padding: "8px 12px", borderRadius: 8, border: "1px solid var(--line)", fontSize: 12 }} />
-                <button className="primary-button" type="submit" style={{ fontSize: 12, padding: "8px 14px" }}>
+                <input name="name" placeholder="Tier Name (e.g. VIP)" required style={{ padding: "8px 12px", borderRadius: 8, border: "1px solid var(--line)", fontSize: 12, flex: "1 1 140px" }} />
+                <input name="price" placeholder="Price (0 = free)" inputMode="decimal" required style={{ width: 110, flex: "1 1 90px", padding: "8px 12px", borderRadius: 8, border: "1px solid var(--line)", fontSize: 12 }} />
+                <input name="capacity" type="number" min={1} placeholder="Capacity" required style={{ width: 90, flex: "1 1 80px", padding: "8px 12px", borderRadius: 8, border: "1px solid var(--line)", fontSize: 12 }} />
+                <button className="primary-button" type="submit" style={{ fontSize: 12, padding: "8px 14px", flex: "1 1 120px" }}>
                   Add Ticket Tier
                 </button>
               </form>
@@ -1963,11 +2201,11 @@ async function Events({
             {canCheckIn && e.status === "published" && (
               <div style={{ marginTop: 20, paddingTop: 16, borderTop: "1px solid var(--line)" }}>
                 <span className="section-kicker">GATE CHECK-IN SCANNER</span>
-                <form action={A.checkInAction} style={{ display: "flex", gap: 8, marginTop: 8 }}>
+                <form action={A.checkInAction} style={{ display: "flex", gap: 8, marginTop: 8, flexWrap: "wrap" }}>
                   {H(businessId)}
                   <input type="hidden" name="eventId" value={e.id} />
-                  <input id={`code-${e.id}`} name="token" autoComplete="off" placeholder="Scan or enter ticket token" required style={{ flex: 1, padding: "10px 12px", borderRadius: 10, border: "1px solid var(--line)", fontSize: 13 }} />
-                  <button className="primary-button" type="submit" style={{ padding: "10px 18px", fontSize: 13 }}>
+                  <input id={`code-${e.id}`} name="token" autoComplete="off" placeholder="Scan or enter ticket token" required style={{ flex: "1 1 200px", padding: "10px 12px", borderRadius: 10, border: "1px solid var(--line)", fontSize: 13 }} />
+                  <button className="primary-button" type="submit" style={{ padding: "10px 18px", fontSize: 13, flex: "1 1 auto" }}>
                     Admit Guest ↗
                   </button>
                 </form>
@@ -2019,7 +2257,7 @@ async function Messages({
         background: "#ffffff",
         border: "1px solid var(--line)",
         borderRadius: 20,
-        padding: 24,
+        padding: "clamp(16px, 4vw, 24px)",
         boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
       }}>
         <span className="section-kicker">CUSTOMER CONVERSATIONS</span>
@@ -2043,6 +2281,8 @@ async function Messages({
                   display: "flex",
                   justifyContent: "space-between",
                   alignItems: "center",
+                  flexWrap: "wrap",
+                  gap: 10,
                   padding: "14px 18px",
                   borderRadius: 14,
                   border: "1px solid var(--line)",
@@ -2112,7 +2352,7 @@ async function Team({
           background: "#ffffff",
           border: "1px solid var(--line)",
           borderRadius: 20,
-          padding: 24,
+          padding: "clamp(16px, 4vw, 24px)",
           boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
         }}>
           <span className="section-kicker">STAFF ACCESS</span>
@@ -2124,7 +2364,7 @@ async function Team({
               ✓ Invitation sent to {invited}. Valid for 7 days.
             </div>
           )}
-          <form action={A.inviteMemberAction} style={{ display: "grid", gap: 14, maxWidth: 500 }}>
+          <form action={A.inviteMemberAction} style={{ display: "grid", gap: 14, maxWidth: "100%" }}>
             {H(businessId)}
             <label style={{ display: "grid", gap: 6, fontSize: 12, fontWeight: 700, color: "var(--ink)" }}>
               Email Address
@@ -2151,7 +2391,7 @@ async function Team({
         background: "#ffffff",
         border: "1px solid var(--line)",
         borderRadius: 20,
-        padding: 24,
+        padding: "clamp(16px, 4vw, 24px)",
         boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
       }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
@@ -2174,6 +2414,8 @@ async function Team({
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
+                flexWrap: "wrap",
+                gap: 12,
                 padding: "14px 18px",
                 borderRadius: 14,
                 border: "1px solid var(--line)",
@@ -2249,7 +2491,7 @@ async function Payments({
         background: "#ffffff",
         border: "1px solid var(--line)",
         borderRadius: 20,
-        padding: 24,
+        padding: "clamp(16px, 4vw, 24px)",
         boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
       }}>
         <span className="section-kicker">CHECKOUT CHANNELS</span>
@@ -2258,7 +2500,7 @@ async function Payments({
         </h2>
 
         {canManage && (
-          <form action={A.setModesAction} style={{ display: "grid", gap: 12, maxWidth: 540 }}>
+          <form action={A.setModesAction} style={{ display: "grid", gap: 12, maxWidth: "100%" }}>
             {H(biz.id)}
             <label style={{
               display: "flex",
@@ -2314,7 +2556,7 @@ async function Payments({
         background: "#ffffff",
         border: "1px solid var(--line)",
         borderRadius: 20,
-        padding: 24,
+        padding: "clamp(16px, 4vw, 24px)",
         boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
       }}>
         <span className="section-kicker">SETTLEMENT ACCOUNT</span>
@@ -2335,7 +2577,7 @@ async function Payments({
         )}
 
         {canBilling ? (
-          <form action={A.savePayoutAction} style={{ display: "grid", gap: 14, maxWidth: 540 }}>
+          <form action={A.savePayoutAction} style={{ display: "grid", gap: 14, maxWidth: "100%" }}>
             {H(biz.id)}
             <label style={{ display: "grid", gap: 6, fontSize: 12, fontWeight: 700, color: "var(--ink)" }}>
               Bank
@@ -2397,7 +2639,7 @@ async function Billing({
         background: "var(--coral-soft)",
         border: "1.5px solid #fcdcd7",
         borderRadius: 24,
-        padding: "24px 28px",
+        padding: "clamp(18px, 4vw, 28px)",
         boxShadow: "0 4px 20px rgba(240, 120, 102, 0.08)",
       }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8, marginBottom: 8 }}>
@@ -2432,7 +2674,7 @@ async function Billing({
         background: "#ffffff",
         border: "1px solid var(--line)",
         borderRadius: 20,
-        padding: 24,
+        padding: "clamp(16px, 4vw, 24px)",
         boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
       }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 10, marginBottom: 14 }}>
@@ -2479,7 +2721,7 @@ async function Billing({
         background: "#ffffff",
         border: "1px solid var(--line)",
         borderRadius: 20,
-        padding: 24,
+        padding: "clamp(16px, 4vw, 24px)",
         boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
       }}>
         <span className="section-kicker">AVAILABLE TIERS</span>
@@ -2492,7 +2734,7 @@ async function Billing({
 
         <div style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+          gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 240px), 1fr))",
           gap: 16,
         }}>
           {plans.map((pk) => {
@@ -2568,7 +2810,7 @@ async function Billing({
         background: "#ffffff",
         border: "1px solid var(--line)",
         borderRadius: 20,
-        padding: 24,
+        padding: "clamp(16px, 4vw, 24px)",
       }}>
         <span className="section-kicker">TRANSPARENCY</span>
         <h3 style={{ fontFamily: "Manrope, sans-serif", fontSize: 16, fontWeight: 800, margin: "2px 0 10px" }}>
