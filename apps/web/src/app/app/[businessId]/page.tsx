@@ -16,6 +16,7 @@ import {
   paidPlanKey,
   resolveEntitlements,
   trialState,
+  planUsageReport,
   type Permission,
 } from "@fluo/core";
 import { listPaystackBanks } from "@fluo/adapters";
@@ -1909,6 +1910,13 @@ async function Billing({
   const plan = effectivePlanKey(paidPlanKey(sub, now), trial, now);
   const plans = [...new Set(PRICE_BOOK.filter((p) => p.currency === biz.currency).map((p) => p.planKey))];
 
+  // 30-day cycle usage calculation
+  const cycleStart = now - 30 * 24 * 60 * 60 * 1000;
+  const completedCount = await d.store.countCompletedOrdersSince(biz.id, cycleStart).catch(() => 0);
+  const usage = planUsageReport(plan, completedCount);
+  const currentEnt = PLAN_ENTITLEMENTS[plan] ?? PLAN_ENTITLEMENTS["free"]!;
+  const currentOverageRate = currentEnt.overage_fee_bps ? `${(currentEnt.overage_fee_bps / 100).toFixed(2)}%` : "0%";
+
   return (
     <div style={{ display: "grid", gap: 24 }}>
       {/* 30-Day Trial Status Banner */}
@@ -1941,9 +1949,56 @@ async function Billing({
         </h2>
         <p style={{ fontSize: 13, color: "var(--muted)", margin: 0, lineHeight: 1.55 }}>
           {state.status === "active"
-            ? "You have full access to every business feature: unlimited listings, counter POS, staff permissions, and direct bank payouts."
-            : "Your business is running on a live subscription. You can modify or upgrade your plan below."}
+            ? "You have full access to Growth Plan features: 500 listings, 300 orders/mo included with 0% fees, POS register, and multi-staff roles."
+            : "Your business is running on a live subscription. Modify or upgrade your plan anytime."}
         </p>
+      </div>
+
+      {/* Monthly Transaction Usage & Fee Status */}
+      <div style={{
+        background: "#ffffff",
+        border: "1px solid var(--line)",
+        borderRadius: 20,
+        padding: 24,
+        boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
+      }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 10, marginBottom: 14 }}>
+          <div>
+            <span className="section-kicker">MONTHLY ORDER ALLOWANCE</span>
+            <h3 style={{ fontFamily: "Manrope, sans-serif", fontSize: 18, fontWeight: 800, margin: "2px 0 4px" }}>
+              Completed Online Orders This Cycle
+            </h3>
+            <p style={{ fontSize: 12, color: "var(--muted)", margin: 0 }}>
+              {usage.includedCount === "unlimited"
+                ? "Unlimited online orders included with 0% Fluo platform fees."
+                : `${completedCount} of ${usage.includedCount} included orders completed in the current 30-day billing cycle.`}
+            </p>
+          </div>
+          <span style={{
+            fontSize: 12,
+            fontWeight: 700,
+            padding: "6px 12px",
+            borderRadius: 10,
+            background: usage.isOverAllowance ? "#fef2f2" : "#f0fdf4",
+            color: usage.isOverAllowance ? "#991b1b" : "#16a34a",
+            border: `1px solid ${usage.isOverAllowance ? "#fecaca" : "#bbf7d0"}`,
+          }}>
+            {usage.isOverAllowance
+              ? `Overage active: ${currentOverageRate} per additional order (capped at ₦50 max)`
+              : "0% Fluo Platform Fee Active (Within allowance)"}
+          </span>
+        </div>
+
+        {usage.includedCount !== "unlimited" && (
+          <div style={{ width: "100%", height: 8, background: "var(--surface)", borderRadius: 4, overflow: "hidden", marginTop: 8 }}>
+            <div style={{
+              width: `${Math.min(100, usage.percentUsed)}%`,
+              height: "100%",
+              background: usage.isOverAllowance ? "#ef4444" : "var(--coral)",
+              borderRadius: 4,
+            }} />
+          </div>
+        )}
       </div>
 
       {/* Available Plans Grid */}
@@ -1955,9 +2010,12 @@ async function Billing({
         boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
       }}>
         <span className="section-kicker">AVAILABLE TIERS</span>
-        <h2 style={{ fontFamily: "Manrope, sans-serif", fontSize: 20, fontWeight: 800, margin: "2px 0 20px" }}>
+        <h2 style={{ fontFamily: "Manrope, sans-serif", fontSize: 20, fontWeight: 800, margin: "2px 0 8px" }}>
           Choose a Plan for Growth
         </h2>
+        <p style={{ fontSize: 13, color: "var(--muted)", margin: "0 0 20px" }}>
+          Every plan includes a generous monthly order allowance with 0% Fluo platform fees. Transaction fees apply only after the allowance is exceeded and are capped at a maximum of ₦50/order.
+        </p>
 
         <div style={{
           display: "grid",
@@ -1990,12 +2048,26 @@ async function Billing({
                   <div style={{ fontFamily: "Manrope, sans-serif", fontSize: 22, fontWeight: 800, color: "var(--ink)", marginBottom: 8 }}>
                     {fmtMoney(price.amountMinor, biz.currency)} <small style={{ fontSize: 12, fontWeight: 500, color: "var(--muted)" }}>/ mo</small>
                   </div>
-                  <p style={{ fontSize: 12, color: "var(--muted)", margin: "0 0 16px", lineHeight: 1.5 }}>
-                    {pk === "starter" && "100 listings • 100 orders included • 3 staff seats"}
-                    {pk === "growth" && "500 listings • 300 orders included • 6 staff seats"}
-                    {pk === "business" && "Unlimited listings • 1,000 orders included • 15 staff • Custom domain"}
-                    {pk === "pro" && "Unlimited listings • Unlimited orders • 50 staff • 0% overage fee"}
-                  </p>
+                  <div style={{ fontSize: 12, color: "var(--muted)", margin: "0 0 16px", lineHeight: 1.6 }}>
+                    <strong style={{ display: "block", color: "var(--ink)", marginBottom: 2 }}>
+                      {pk === "starter" && "100 orders included / mo (0% fee)"}
+                      {pk === "growth" && "300 orders included / mo (0% fee)"}
+                      {pk === "business" && "1,000 orders included / mo (0% fee)"}
+                      {pk === "pro" && "Unlimited orders included (0% fee)"}
+                    </strong>
+                    <span style={{ display: "block", color: pk === "pro" ? "var(--green)" : "var(--coral-dark)", fontWeight: 600 }}>
+                      {pk === "starter" && "After 100: 0.75% per order (cap ₦50)"}
+                      {pk === "growth" && "After 300: 0.50% per order (cap ₦50)"}
+                      {pk === "business" && "After 1,000: 0.25% per order (cap ₦50)"}
+                      {pk === "pro" && "0% overage fee always (never charged)"}
+                    </span>
+                    <span style={{ display: "block", marginTop: 4 }}>
+                      {pk === "starter" && "100 listings • 3 staff seats"}
+                      {pk === "growth" && "500 listings • 6 staff seats"}
+                      {pk === "business" && "Unlimited listings • 15 staff • Custom domain"}
+                      {pk === "pro" && "Unlimited listings • 50 staff • Priority support"}
+                    </span>
+                  </div>
                 </div>
 
                 {canBilling && (
@@ -2015,6 +2087,33 @@ async function Billing({
               </div>
             );
           })}
+        </div>
+      </div>
+
+      {/* Platform Fee Explainer Panel */}
+      <div style={{
+        background: "#ffffff",
+        border: "1px solid var(--line)",
+        borderRadius: 20,
+        padding: 24,
+      }}>
+        <span className="section-kicker">TRANSPARENCY</span>
+        <h3 style={{ fontFamily: "Manrope, sans-serif", fontSize: 16, fontWeight: 800, margin: "2px 0 10px" }}>
+          How Fluo Platform Fees Work
+        </h3>
+        <div style={{ display: "grid", gap: 10, fontSize: 13, color: "var(--muted)", lineHeight: 1.6 }}>
+          <p style={{ margin: 0 }}>
+            • <strong style={{ color: "var(--ink)" }}>100% Free Within Allowance:</strong> Every plan includes a generous monthly volume of completed orders where Fluo charges 0% platform fee.
+          </p>
+          <p style={{ margin: 0 }}>
+            • <strong style={{ color: "var(--ink)" }}>Hard ₦50 Maximum Cap:</strong> Once your business exceeds its monthly allowance, Fluo only charges a tiny percentage (0.25% – 0.75%) capped at a hard maximum of ₦50 per order. A ₦150,000 order will never pay more than ₦50.
+          </p>
+          <p style={{ margin: 0 }}>
+            • <strong style={{ color: "var(--ink)" }}>No Penalty for Cash or Direct Transfers:</strong> Manual in-store bank transfers and counter cash sales are never metered or charged overage fees.
+          </p>
+          <p style={{ margin: 0 }}>
+            • <strong style={{ color: "var(--ink)" }}>Pro Plan Has 0% Fees:</strong> Pro workspaces enjoy unlimited online orders with 0% transaction fees forever.
+          </p>
         </div>
       </div>
     </div>
