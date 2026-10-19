@@ -223,7 +223,7 @@ test("subscriptions: server-side price, paid period, early renewal, one-tap canc
   const { store, d } = setup();
   const b = await createBusiness(d, "frank", { name: "Frank Shop", typeId: "retail", ...lagos });
   await publishBusiness(d, "frank", b.id);
-  assert.equal((await resolveEntitlements(d, b.id, PLAN_ENTITLEMENTS)).planKey, "business", "free month = Business features");
+  assert.equal((await resolveEntitlements(d, b.id, PLAN_ENTITLEMENTS)).planKey, "growth", "free month = Growth features");
   assert.equal(await code(startSubscriptionPayment(d, { actor: "mallory", businessId: b.id, planKey: "starter", interval: "month", prices: PRICE_BOOK })), "forbidden");
   assert.equal(await code(startSubscriptionPayment(d, { actor: "frank", businessId: b.id, planKey: "platinum", interval: "month", prices: PRICE_BOOK })), "plan_not_available");
   const sp = await startSubscriptionPayment(d, { actor: "frank", businessId: b.id, planKey: "starter", interval: "month", prices: PRICE_BOOK });

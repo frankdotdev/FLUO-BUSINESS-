@@ -1,7 +1,7 @@
 // Free trial policy (configuration, not scattered constants). The clock starts when a business PUBLISHES,
 // not at sign-up, so no one wastes days while still setting up.
 export const TRIAL_DAYS = 30;
-export const TRIAL_PLAN = "business";                       // the plan whose features a trialing business gets
+export const TRIAL_PLAN = "growth";                         // the plan whose features a trialing business gets (500 listings, 300 orders/mo, 6 staff seats)
 export const REMINDER_OFFSET_DAYS = [-7, -3, -1, 0, 7];    // relative to trial end: before, on the day, and a win-back after
 const DAY = 86_400_000;
 

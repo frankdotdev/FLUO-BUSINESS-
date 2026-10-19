@@ -402,16 +402,6 @@ export function IconPackage({ size = 16, ...props }: IconProps) {
       <path d="M12 22V12" />
     </svg>
   );
-}
-
-export function IconCreditCard({ size = 16, ...props }: IconProps) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" {...props}>
-      <rect width="20" height="14" x="2" y="5" rx="2" />
-      <line x1="2" x2="22" y1="10" y2="10" />
-    </svg>
-  );
-}
 
 export function IconSettings({ size = 16, ...props }: IconProps) {
   return (

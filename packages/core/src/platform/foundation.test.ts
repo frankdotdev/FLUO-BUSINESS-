@@ -66,7 +66,7 @@ test("trial: 30 days from publish, plan switching, reminders, one trial per owne
   assert.deepEqual(s, { status: "active", daysLeft: 25, endsMs: t.endsMs });
   assert.equal(trialState(t, t.endsMs).status, "ended");
   assert.equal(trialState(null, 0).status, "none");
-  assert.equal(effectivePlanKey(null, t, 0), "business");
+  assert.equal(effectivePlanKey(null, t, 0), "growth");
   assert.equal(effectivePlanKey(null, t, t.endsMs), "free");
   assert.equal(effectivePlanKey("starter", t, t.endsMs), "starter");
   assert.deepEqual(reminderTimes(t).map((r) => r.offsetDays), [-7, -3, -1, 0, 7]);

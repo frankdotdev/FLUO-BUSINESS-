@@ -371,7 +371,7 @@ export function HomeView({ initialBusinesses, favoriteIds = [] }: HomeViewProps)
               <IconSparkles size={24} style={{ color: "var(--accent)" }} />
             </div>
             <h3 style={{ fontSize: 20, fontWeight: 700, margin: "0 0 8px", color: "var(--ink)" }}>
-              No stores on this campus yet
+              No businesses discovered in this area yet
             </h3>
             <p
               style={{
@@ -382,7 +382,7 @@ export function HomeView({ initialBusinesses, favoriteIds = [] }: HomeViewProps)
                 lineHeight: 1.6,
               }}
             >
-              Be the first merchant to bring your products, food, or services online. Start completely free with our 30-day trial — no upfront card required.
+              Be the first business or merchant to bring your retail products, restaurant, bookings, or professional services online. Start completely free with our 30-day Growth trial — no card required.
             </p>
             <Link
               href="/app/new"

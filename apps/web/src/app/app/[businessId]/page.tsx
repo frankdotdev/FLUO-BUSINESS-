@@ -725,24 +725,40 @@ async function Overview({
           </form>
         )}
       </div>
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                padding: "12px 16px",
-                borderRadius: 14,
-                border: "1px solid var(--line)",
-                textDecoration: "none",
-                color: "inherit",
-                background: "var(--canvas)",
-              }}
-            >
-              <div>
-                <strong style={{ display: "block", fontSize: 13, color: "var(--ink)" }}>Manage Catalogue Items</strong>
-                <small style={{ color: "var(--muted)", fontSize: 11 }}>Add products, adjust stock quantities, and update prices</small>
-              </div>
-              <span style={{ color: "var(--coral-dark)", fontWeight: 700 }}>↗</span>
-            </Link>
+
+      {/* Quick Operations Card */}
+      <div style={{
+        background: "#ffffff",
+        border: "1px solid var(--line)",
+        borderRadius: 20,
+        padding: 24,
+        boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
+      }}>
+        <span className="section-kicker">SHORTCUTS</span>
+        <h2 style={{ fontFamily: "Manrope, sans-serif", fontSize: 18, fontWeight: 800, margin: "4px 0 16px" }}>
+          Quick Workspace Actions
+        </h2>
+        <div style={{ display: "grid", gap: 10 }}>
+          <Link
+            href={`/app/${biz.id}?tab=products`}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              padding: "12px 16px",
+              borderRadius: 14,
+              border: "1px solid var(--line)",
+              textDecoration: "none",
+              color: "inherit",
+              background: "var(--canvas)",
+            }}
+          >
+            <div>
+              <strong style={{ display: "block", fontSize: 13, color: "var(--ink)" }}>Manage Catalogue Items</strong>
+              <small style={{ color: "var(--muted)", fontSize: 11 }}>Add products, adjust stock quantities, and update prices</small>
+            </div>
+            <span style={{ color: "var(--coral-dark)", fontWeight: 700 }}>↗</span>
+          </Link>
 
             <Link
               href={`/app/${biz.id}?tab=team`}

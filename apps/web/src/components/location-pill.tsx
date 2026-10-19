@@ -12,6 +12,32 @@ interface KnownLandmark {
 }
 
 const KNOWN_LANDMARKS: KnownLandmark[] = [
+  // --- Major Commercial Districts & Hubs ---
+  { name: "Ikeja / Allen / GRA", subtitle: "Ikeja Commercial Hub, Lagos", lat: 6.596, lon: 3.343, radiusKm: 6.0 },
+  { name: "Victoria Island / Lekki", subtitle: "Financial District, Lagos", lat: 6.428, lon: 3.421, radiusKm: 8.0 },
+  { name: "Yaba / Surulere", subtitle: "Technology & Retail, Lagos", lat: 6.500, lon: 3.360, radiusKm: 5.0 },
+  { name: "Marina / Broad Street", subtitle: "Commercial Center, Lagos Island", lat: 6.453, lon: 3.395, radiusKm: 4.0 },
+  { name: "Trade Fair / Alaba", subtitle: "Wholesale & Electronics, Lagos", lat: 6.463, lon: 3.208, radiusKm: 5.0 },
+  { name: "Central Business District", subtitle: "Central Area, Abuja FCT", lat: 9.057, lon: 7.495, radiusKm: 5.0 },
+  { name: "Wuse 2 / Maitama", subtitle: "Retail & Dining, Abuja FCT", lat: 9.076, lon: 7.472, radiusKm: 5.0 },
+  { name: "Garki / Asokoro", subtitle: "Commercial & Business, Abuja", lat: 9.032, lon: 7.489, radiusKm: 5.0 },
+  { name: "Gwarinpa / Kubwa", subtitle: "Abuja Metropolis", lat: 9.110, lon: 7.375, radiusKm: 7.0 },
+  { name: "Independence Layout", subtitle: "Commercial & Admin, Enugu", lat: 6.448, lon: 7.518, radiusKm: 4.0 },
+  { name: "Ogbete Market / Coal Camp", subtitle: "Trading & Retail Hub, Enugu", lat: 6.442, lon: 7.493, radiusKm: 4.0 },
+  { name: "New Haven / Ogui", subtitle: "Enugu Metropolis", lat: 6.447, lon: 7.512, radiusKm: 3.5 },
+  { name: "Onitsha Main Market", subtitle: "Commercial Center, Anambra", lat: 6.155, lon: 6.776, radiusKm: 7.0 },
+  { name: "Nnewi Industrial Hub", subtitle: "Auto & Manufacturing, Anambra", lat: 6.019, lon: 6.917, radiusKm: 5.0 },
+  { name: "Port Harcourt / GRA", subtitle: "Commercial Hub, Rivers", lat: 4.815, lon: 7.010, radiusKm: 6.0 },
+  { name: "Trans-Amadi Industrial", subtitle: "Industrial Layout, Port Harcourt", lat: 4.812, lon: 7.042, radiusKm: 5.0 },
+  { name: "Aba Commercial / Ariaria", subtitle: "Trading & Footwear Hub, Abia", lat: 5.116, lon: 7.340, radiusKm: 6.0 },
+  { name: "Bodija / Dugbe", subtitle: "Commercial Center, Ibadan, Oyo", lat: 7.398, lon: 3.896, radiusKm: 6.0 },
+  { name: "Kano Commercial District", subtitle: "Kano Metropolis", lat: 12.002, lon: 8.591, radiusKm: 8.0 },
+  { name: "Warri / Effurun", subtitle: "Commercial District, Delta", lat: 5.544, lon: 5.760, radiusKm: 6.0 },
+  { name: "Benin City Commercial", subtitle: "King's Square & Ring Rd, Edo", lat: 6.335, lon: 5.603, radiusKm: 6.0 },
+  { name: "Asaba Metropolis", subtitle: "Delta State", lat: 6.198, lon: 6.732, radiusKm: 6.0 },
+  { name: "Uyo Metropolis", subtitle: "Akwa Ibom State", lat: 5.037, lon: 7.912, radiusKm: 6.0 },
+  { name: "Calabar Metropolis", subtitle: "Cross River State", lat: 4.975, lon: 8.341, radiusKm: 6.0 },
+
   // --- Enugu State Universities & Polytechnics ---
   { name: "Caritas University", subtitle: "Amorji-Nike, Enugu", lat: 6.518, lon: 7.562, radiusKm: 3.5 },
   { name: "Coal City University", subtitle: "Emene, Enugu", lat: 6.471, lon: 7.575, radiusKm: 3.5 },
@@ -28,9 +54,8 @@ const KNOWN_LANDMARKS: KnownLandmark[] = [
   { name: "Renaissance University", subtitle: "Ugbawka, Enugu", lat: 6.291, lon: 7.585, radiusKm: 4.0 },
   { name: "Peaceland College", subtitle: "Independence Layout, Enugu", lat: 6.448, lon: 7.518, radiusKm: 2.5 },
   { name: "FCE Eha-Amufu", subtitle: "Eha-Amufu, Enugu", lat: 6.657, lon: 7.759, radiusKm: 4.0 },
-  { name: "Enugu Metropolis", subtitle: "Enugu State", lat: 6.458, lon: 7.546, radiusKm: 15.0 },
 
-  // --- Ebonyi State Campuses ---
+  // --- Ebonyi State Campuses & Towns ---
   { name: "EBSU Ishieke Campus", subtitle: "Abakaliki, Ebonyi", lat: 6.415, lon: 8.156, radiusKm: 4.0 },
   { name: "EBSU CAS Campus", subtitle: "Abakaliki, Ebonyi", lat: 6.326, lon: 8.113, radiusKm: 3.0 },
   { name: "EBSU Presco Campus", subtitle: "Abakaliki, Ebonyi", lat: 6.318, lon: 8.098, radiusKm: 2.5 },
@@ -46,7 +71,6 @@ const KNOWN_LANDMARKS: KnownLandmark[] = [
   { name: "Federal Polytechnic Oko", subtitle: "Oko, Anambra", lat: 6.041, lon: 7.081, radiusKm: 4.0 },
   { name: "Paul University", subtitle: "Awka, Anambra", lat: 6.216, lon: 7.069, radiusKm: 2.5 },
   { name: "Tansian University", subtitle: "Umunya, Anambra", lat: 6.208, lon: 6.915, radiusKm: 3.5 },
-  { name: "Onitsha Metropolis", subtitle: "Anambra State", lat: 6.149, lon: 6.786, radiusKm: 12.0 },
 
   // --- Imo & Abia State Campuses ---
   { name: "FUTO Campus", subtitle: "Owerri, Imo", lat: 5.385, lon: 7.009, radiusKm: 4.5 },
@@ -99,7 +123,7 @@ function haversineDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
 }
 
 export function LocationPill() {
-  const [locationName, setLocationName] = useState("Abakaliki");
+  const [locationName, setLocationName] = useState("Discover");
   const [isOpen, setIsOpen] = useState(false);
   const [detecting, setDetecting] = useState(false);
   const [search, setSearch] = useState("");
@@ -116,15 +140,36 @@ export function LocationPill() {
     autoDetectLocation();
   }, []);
 
+  const ipFallback = async () => {
+    try {
+      const ipRes = await fetch("https://ipapi.co/json/", { signal: AbortSignal.timeout(3500) });
+      if (ipRes.ok) {
+        const ipData = await ipRes.json();
+        if (ipData.city && ipData.region) {
+          saveLocation(`${ipData.city}, ${ipData.region}`);
+          return;
+        } else if (ipData.city) {
+          saveLocation(ipData.city);
+          return;
+        }
+      }
+    } catch {}
+    saveLocation("Enugu Metropolis");
+  };
+
   const autoDetectLocation = () => {
-    if (!("geolocation" in navigator)) return;
     setDetecting(true);
+
+    if (!("geolocation" in navigator)) {
+      ipFallback().finally(() => setDetecting(false));
+      return;
+    }
 
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
         const { latitude, longitude } = pos.coords;
 
-        // Check known landmarks/campuses first
+        // Step 1: Check known commercial districts, towns, or campuses first
         let closestMatch: KnownLandmark | null = null;
         let minDistance = Infinity;
 
@@ -142,32 +187,59 @@ export function LocationPill() {
           return;
         }
 
-        // Fallback: reverse geocode with OpenStreetMap Nominatim
+        // Step 2: Reverse geocode via BigDataCloud client API (free, reliable client-side geocoding)
+        try {
+          const bdc = await fetch(
+            `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`,
+            { signal: AbortSignal.timeout(4000) }
+          );
+          if (bdc.ok) {
+            const data = await bdc.json();
+            const loc = data.locality || data.city;
+            const state = data.principalSubdivision;
+            if (loc && state && loc !== state) {
+              saveLocation(`${loc}, ${state}`);
+              setDetecting(false);
+              return;
+            } else if (loc || state) {
+              saveLocation(loc || state);
+              setDetecting(false);
+              return;
+            }
+          }
+        } catch {}
+
+        // Step 3: Fallback reverse geocode with OpenStreetMap Nominatim
         try {
           const res = await fetch(
             `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`,
-            { headers: { "Accept-Language": "en" } }
+            { headers: { "Accept-Language": "en" }, signal: AbortSignal.timeout(4000) }
           );
           if (res.ok) {
             const data = await res.json();
             const addr = data.address || {};
-            const city =
-              addr.city || addr.town || addr.suburb || addr.neighbourhood || addr.state || "Abakaliki";
-            saveLocation(city);
+            const local = addr.suburb || addr.neighbourhood || addr.city_district || addr.quarter;
+            const city = addr.city || addr.town || addr.municipality || addr.state;
+            if (local && city && local !== city) {
+              saveLocation(`${local}, ${city}`);
+            } else {
+              saveLocation(city || local || "Nigeria");
+            }
           } else {
-            saveLocation("Abakaliki");
+            await ipFallback();
           }
         } catch {
-          saveLocation("Abakaliki");
+          await ipFallback();
         } finally {
           setDetecting(false);
         }
       },
-      (err) => {
-        console.log("Location auto-detect permission not granted or timeout:", err.message);
+      async (err) => {
+        console.log("GPS permission unavailable or dismissed:", err.message);
+        await ipFallback();
         setDetecting(false);
       },
-      { timeout: 7000, maximumAge: 600000 }
+      { timeout: 6000, maximumAge: 600000 }
     );
   };
 
@@ -242,7 +314,7 @@ export function LocationPill() {
           >
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
               <div>
-                <span className="section-kicker" style={{ margin: "0 0 2px" }}>CAMPUS &amp; CITY SELECTION</span>
+                <span className="section-kicker" style={{ margin: "0 0 2px" }}>COMMUNITY, CITY &amp; CAMPUS SELECTION</span>
                 <h3 style={{ fontFamily: "Manrope, sans-serif", fontSize: 18, fontWeight: 800, margin: 0 }}>
                   Choose Your Location
                 </h3>
@@ -290,7 +362,7 @@ export function LocationPill() {
             {/* Filter Search */}
             <input
               type="text"
-              placeholder="Search campus, town, or state..."
+              placeholder="Search city, district, campus, or town..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               style={{
