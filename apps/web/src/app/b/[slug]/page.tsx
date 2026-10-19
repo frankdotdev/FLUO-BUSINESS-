@@ -7,6 +7,7 @@ import { getSession } from "@/server/session.ts";
 import { photo } from "@/server/media.ts";
 import { friendly } from "@/server/messages.ts";
 import { IconShield, IconHeart, IconUsers, IconMessageSquare, IconStar, IconArrowRight } from "@/components/icons.tsx";
+import { ShareModal } from "@/components/share-modal.tsx";
 
 export const dynamic = "force-dynamic";
 
@@ -14,7 +15,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const b = await deps().store.getPublicBusinessBySlug((await params).slug);
   if (!b) return { title: "Not found" };
   const type = BUSINESS_TYPES.find((t) => t.id === b.typeId)?.label ?? "Business";
-  const ogUrl = `/api/og?title=${encodeURIComponent(b.name)}&subtitle=${encodeURIComponent(`${type} on Fluo • Order online & transfer`)}&badge=Verified+Store`;
+  const logo = photo(b.id, b.logoAssetId, "card");
+  const ogUrl = `/api/og?title=${encodeURIComponent(b.name)}&subtitle=${encodeURIComponent(`${type} on Fluo • Order online & transfer`)}&badge=Verified+Store&category=${encodeURIComponent(type)}${logo ? `&image=${encodeURIComponent(logo)}` : ""}`;
   return {
     title: `${b.name} — Fluo`,
     description: `Order from ${b.name} on Fluo. ${type}. Safe payments and fast local delivery.`,
@@ -140,6 +142,17 @@ export default async function Storefront({
 
           {/* Action Strip */}
           <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+            <ShareModal
+              title={b.name}
+              subtitle={`${type} • 100% Escrow Protected on Fluo`}
+              category={type}
+              type="business"
+              path={`/b/${b.slug}`}
+              imageUrl={logoUrl || undefined}
+              badge="Verified Merchant"
+              label="Share Spot"
+            />
+
             <form action={toggleFavoriteBusinessAction} style={{ display: "inline" }}>
               <input type="hidden" name="businessId" value={b.id} />
               <input type="hidden" name="back" value={`/b/${b.slug}`} />

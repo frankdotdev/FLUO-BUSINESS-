@@ -23,6 +23,7 @@ import { listPaystackBanks } from "@fluo/adapters";
 import { Scanner } from "@/components/scanner.tsx";
 import { Thread } from "@/components/thread.tsx";
 import { ImageUpload } from "@/components/image-upload.tsx";
+import { ShareModal } from "@/components/share-modal.tsx";
 import { photo } from "@/server/media.ts";
 import { deps } from "@/server/container.ts";
 import { env } from "@/server/env.ts";
@@ -495,14 +496,26 @@ export default async function Dashboard({
 
           <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", width: "auto" }}>
             {biz.status === "active" && (
-              <Link
-                href={`/b/${biz.slug}`}
-                target="_blank"
-                className="secondary-button"
-                style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "10px 16px", fontSize: 13, flex: "1 1 auto" }}
-              >
-                View Storefront <IconExternalLink size={14} />
-              </Link>
+              <>
+                <Link
+                  href={`/b/${biz.slug}`}
+                  target="_blank"
+                  className="secondary-button"
+                  style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "10px 16px", fontSize: 13, flex: "1 1 auto" }}
+                >
+                  View Storefront <IconExternalLink size={14} />
+                </Link>
+                <ShareModal
+                  title={biz.name}
+                  subtitle={`${typeInfo?.label || "Business"} on Fluo • 100% Escrow Protected`}
+                  category={typeInfo?.label}
+                  type="business"
+                  path={`/b/${biz.slug}`}
+                  imageUrl={photo(biz.id, biz.logoAssetId, "card") || undefined}
+                  badge="Verified Spot"
+                  label="Share Storefront"
+                />
+              </>
             )}
             <Link
               className="primary-button"
@@ -578,7 +591,7 @@ export default async function Dashboard({
             <Team businessId={businessId} isOwner={myRole === "owner"} canManage={can("members.manage")} invited={sp.invited} />
           )}
           {tab === "products" && (
-            <Products businessId={businessId} canWrite={can("catalogue.write")} enabled={caps.includes("catalogue")} currency={biz.currency} />
+            <Products businessId={businessId} bizName={biz.name} canWrite={can("catalogue.write")} enabled={caps.includes("catalogue")} currency={biz.currency} />
           )}
           {tab === "payments" && (
             <Payments biz={biz} canManage={can("business.manage")} canBilling={can("billing.manage")} payout={sp.payout} />
@@ -1510,11 +1523,13 @@ async function Orders({
 
 async function Products({
   businessId,
+  bizName,
   canWrite,
   enabled,
   currency,
 }: {
   businessId: string;
+  bizName: string;
   canWrite: boolean;
   enabled: boolean;
   currency: string;
@@ -1731,7 +1746,20 @@ async function Products({
                         </td>
                         <td style={{ padding: "14px" }}>
                           {canWrite && (
-                            <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                            <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
+                              <ShareModal
+                                title={p.name}
+                                subtitle={`Available from ${bizName} • ${fmtMoney(p.priceMinor, p.currency)}`}
+                                price={fmtMoney(p.priceMinor, p.currency)}
+                                businessName={bizName}
+                                category={p.category || "Product"}
+                                type="product"
+                                path={resourcePath("p", p.name, p.shortId)}
+                                imageUrl={thumb || undefined}
+                                badge="Escrow Protected"
+                                variant="compact"
+                                label="Share"
+                              />
                               <form action={A.setProductStatusAction}>
                                 {H(businessId)}
                                 <input type="hidden" name="productId" value={p.id} />
@@ -1819,7 +1847,20 @@ async function Products({
                     {canWrite && (
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8, paddingTop: 10, borderTop: "1px solid var(--line)" }}>
                         <ImageUpload businessId={businessId} target={{ kind: "product", id: p.id }} label="+ Photo" />
-                        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                        <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+                          <ShareModal
+                            title={p.name}
+                            subtitle={`Available from ${bizName} • ${fmtMoney(p.priceMinor, p.currency)}`}
+                            price={fmtMoney(p.priceMinor, p.currency)}
+                            businessName={bizName}
+                            category={p.category || "Product"}
+                            type="product"
+                            path={resourcePath("p", p.name, p.shortId)}
+                            imageUrl={thumb || undefined}
+                            badge="Escrow Protected"
+                            variant="compact"
+                            label="Share"
+                          />
                           <form action={A.setProductStatusAction}>
                             {H(businessId)}
                             <input type="hidden" name="productId" value={p.id} />

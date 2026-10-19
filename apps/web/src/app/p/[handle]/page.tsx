@@ -8,6 +8,7 @@ import { photo } from "@/server/media.ts";
 import { placeOrderAction, startChatAction } from "@/app/actions.ts";
 import { IconShield, IconArrowRight, IconClock, IconStore, IconCheck } from "@/components/icons.tsx";
 import { ProductGallery } from "@/components/product-gallery.tsx";
+import { ShareModal } from "@/components/share-modal.tsx";
 
 export const dynamic = "force-dynamic";
 
@@ -19,7 +20,8 @@ export async function generateMetadata({ params }: { params: Promise<{ handle: s
   if (!found) return { title: "Item not found" };
   const { product: p, business: b } = found;
   const priceFormatted = fmtMoney(p.priceMinor, p.currency);
-  const ogUrl = `/api/og?title=${encodeURIComponent(p.name)}&subtitle=${encodeURIComponent(`Available from ${b.name}`)}&price=${encodeURIComponent(priceFormatted)}&badge=Available+Now`;
+  const photoUrl = p.imageAssetId ? photo(b.id, p.imageAssetId, "card") : null;
+  const ogUrl = `/api/og?title=${encodeURIComponent(p.name)}&subtitle=${encodeURIComponent(`Available from ${b.name} • Escrow Protected`)}&price=${encodeURIComponent(priceFormatted)}&badge=Escrow+Protected&category=${encodeURIComponent(p.category || "Product")}${photoUrl ? `&image=${encodeURIComponent(photoUrl)}` : ""}`;
   return {
     title: `${p.name} — ${b.name} on Fluo`,
     description: p.description || `Order ${p.name} for ${priceFormatted} from ${b.name} on Fluo.`,
@@ -114,17 +116,33 @@ export default async function ProductPage({
           />
 
           <div style={{ marginTop: 24 }}>
-            <span className="section-kicker">SOLD BY <Link href={`/b/${b.slug}`} style={{ color: "var(--coral-dark)", textDecoration: "none" }}>{b.name.toUpperCase()}</Link></span>
-            <h1 style={{
-              margin: "6px 0 12px",
-              fontFamily: "Manrope, sans-serif",
-              fontSize: "clamp(26px, 3.2vw, 36px)",
-              fontWeight: 800,
-              letterSpacing: "-1px",
-              color: "var(--ink)",
-            }}>
-              {p.name}
-            </h1>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12 }}>
+              <div>
+                <span className="section-kicker">SOLD BY <Link href={`/b/${b.slug}`} style={{ color: "var(--coral-dark)", textDecoration: "none" }}>{b.name.toUpperCase()}</Link></span>
+                <h1 style={{
+                  margin: "6px 0 12px",
+                  fontFamily: "Manrope, sans-serif",
+                  fontSize: "clamp(26px, 3.2vw, 36px)",
+                  fontWeight: 800,
+                  letterSpacing: "-1px",
+                  color: "var(--ink)",
+                }}>
+                  {p.name}
+                </h1>
+              </div>
+              <ShareModal
+                title={p.name}
+                subtitle={`Available from ${b.name} • ${fmtMoney(p.priceMinor, p.currency)}`}
+                price={fmtMoney(p.priceMinor, p.currency)}
+                businessName={b.name}
+                category={p.category || "Product"}
+                type="product"
+                path={back}
+                imageUrl={photoUrls[0] || undefined}
+                badge="Escrow Protected"
+                label="Share Item"
+              />
+            </div>
 
             {/* Price & Discounts */}
             <div style={{ marginBottom: 16 }}>

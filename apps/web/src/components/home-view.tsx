@@ -15,6 +15,7 @@ import {
   IconShoppingBag,
 } from "@/components/icons.tsx";
 import { toggleFavoriteBusinessAction } from "@/app/actions.ts";
+import { ShareModal } from "@/components/share-modal.tsx";
 
 export interface HomeProductItem {
   id: string;
@@ -355,6 +356,28 @@ export function HomeView({
                     <span className="open-badge">
                       <i></i> {store.isOpen ? "Open now" : "Closed"}
                     </span>
+                    <div style={{ position: "absolute", top: 10, right: 46, zIndex: 3 }}>
+                      <ShareModal
+                        title={store.name}
+                        subtitle={`${store.categoryLabel} on Fluo • Escrow Protected`}
+                        category={store.categoryLabel}
+                        type="business"
+                        path={`/b/${store.slug}`}
+                        imageUrl={store.logoUrl || undefined}
+                        badge="Verified Spot"
+                        variant="icon"
+                        label={`Share ${store.name}`}
+                        style={{
+                          width: 28,
+                          height: 28,
+                          borderRadius: "50%",
+                          background: "rgba(255, 255, 255, 0.92)",
+                          backdropFilter: "blur(8px)",
+                          boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
+                          border: "1px solid rgba(0,0,0,0.06)",
+                        }}
+                      />
+                    </div>
                     <form
                       action={toggleFavoriteBusinessAction}
                       style={{ position: "absolute", top: 10, right: 10, zIndex: 3 }}
@@ -503,6 +526,30 @@ export function HomeView({
                       {p.businessName}
                     </div>
                   )}
+
+                  <div style={{ position: "absolute", top: 10, right: 10, zIndex: 3 }}>
+                    <ShareModal
+                      title={p.name}
+                      subtitle={`Available from ${p.businessName} • ${p.priceFormatted}`}
+                      price={p.priceFormatted}
+                      businessName={p.businessName}
+                      type="product"
+                      path={p.url}
+                      imageUrl={p.photoUrl || undefined}
+                      badge="Escrow Protected"
+                      variant="icon"
+                      label={`Share ${p.name}`}
+                      style={{
+                        width: 28,
+                        height: 28,
+                        borderRadius: "50%",
+                        background: "rgba(255, 255, 255, 0.92)",
+                        backdropFilter: "blur(8px)",
+                        boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
+                        border: "1px solid rgba(0,0,0,0.06)",
+                      }}
+                    />
+                  </div>
 
                   {p.promoBadge && (
                     <span style={{
@@ -670,10 +717,32 @@ export function HomeView({
                   display: "flex",
                   flexDirection: "column",
                   justifyContent: "space-between",
+                  position: "relative",
                 }}
               >
+                <div style={{ position: "absolute", top: 16, right: 16, zIndex: 3 }}>
+                  <ShareModal
+                    title={e.name}
+                    subtitle={`Hosted by ${e.businessName} • ${e.startsAtFormatted}`}
+                    businessName={e.businessName}
+                    type="event"
+                    path={e.url}
+                    badge="Tickets Available"
+                    variant="icon"
+                    label={`Share ${e.name}`}
+                    style={{
+                      width: 28,
+                      height: 28,
+                      borderRadius: "50%",
+                      background: "rgba(255, 255, 255, 0.92)",
+                      backdropFilter: "blur(8px)",
+                      boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+                      border: "1px solid var(--line)",
+                    }}
+                  />
+                </div>
                 <div>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10, paddingRight: 36 }}>
                     <span className="open-badge" style={{ position: "static" }}>
                       Tickets Available
                     </span>
@@ -764,6 +833,28 @@ export function HomeView({
                   <span className="open-badge">
                     <i></i> {store.isOpen ? "Open now" : "Closed"}
                   </span>
+                  <div style={{ position: "absolute", top: 10, right: 46, zIndex: 3 }}>
+                    <ShareModal
+                      title={store.name}
+                      subtitle={`${store.categoryLabel} on Fluo • Escrow Protected`}
+                      category={store.categoryLabel}
+                      type="business"
+                      path={`/b/${store.slug}`}
+                      imageUrl={store.logoUrl || undefined}
+                      badge="Verified Spot"
+                      variant="icon"
+                      label={`Share ${store.name}`}
+                      style={{
+                        width: 28,
+                        height: 28,
+                        borderRadius: "50%",
+                        background: "rgba(255, 255, 255, 0.92)",
+                        backdropFilter: "blur(8px)",
+                        boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
+                        border: "1px solid rgba(0,0,0,0.06)",
+                      }}
+                    />
+                  </div>
                   <form
                     action={toggleFavoriteBusinessAction}
                     style={{ position: "absolute", top: 10, right: 10, zIndex: 3 }}
@@ -832,6 +923,28 @@ export function HomeView({
                     <span className="open-badge">
                       <i></i> {store.isOpen ? "Open now" : "Closed"}
                     </span>
+                    <div style={{ position: "absolute", top: 10, right: 46, zIndex: 3 }}>
+                      <ShareModal
+                        title={store.name}
+                        subtitle={`${store.categoryLabel} on Fluo • Escrow Protected`}
+                        category={store.categoryLabel}
+                        type="business"
+                        path={`/b/${store.slug}`}
+                        imageUrl={store.logoUrl || undefined}
+                        badge="Verified Spot"
+                        variant="icon"
+                        label={`Share ${store.name}`}
+                        style={{
+                          width: 28,
+                          height: 28,
+                          borderRadius: "50%",
+                          background: "rgba(255, 255, 255, 0.92)",
+                          backdropFilter: "blur(8px)",
+                          boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
+                          border: "1px solid rgba(0,0,0,0.06)",
+                        }}
+                      />
+                    </div>
                     <form
                       action={toggleFavoriteBusinessAction}
                       style={{ position: "absolute", top: 10, right: 10, zIndex: 3 }}

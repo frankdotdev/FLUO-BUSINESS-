@@ -8,6 +8,7 @@ import { InstallPrompt } from "@/components/install-prompt.tsx";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://fluo-business.vercel.app"),
   title: { default: "Fluo — Commerce, connected.", template: "%s | Fluo" },
   description: "Discover local businesses, get things done, and keep your everyday moving — all in one place.",
   appleWebApp: {
