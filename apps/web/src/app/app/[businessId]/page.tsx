@@ -1915,7 +1915,8 @@ async function Billing({
   const completedCount = await d.store.countCompletedOrdersSince(biz.id, cycleStart).catch(() => 0);
   const usage = planUsageReport(plan, completedCount);
   const currentEnt = PLAN_ENTITLEMENTS[plan] ?? PLAN_ENTITLEMENTS["free"]!;
-  const currentOverageRate = currentEnt.overage_fee_bps ? `${(currentEnt.overage_fee_bps / 100).toFixed(2)}%` : "0%";
+  const overageBps = typeof currentEnt["overage_fee_bps"] === "number" ? currentEnt["overage_fee_bps"] : 0;
+  const currentOverageRate = overageBps > 0 ? `${(overageBps / 100).toFixed(2)}%` : "0%";
 
   return (
     <div style={{ display: "grid", gap: 24 }}>
