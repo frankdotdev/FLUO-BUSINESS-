@@ -16,8 +16,11 @@ export const metadata: Metadata = {
     title: "Fluo",
   },
   icons: {
-    icon: "/icon.svg",
-    apple: "/icon.svg",
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/logo.png", type: "image/png" },
+    ],
+    apple: "/logo.png",
   },
 };
 
@@ -25,7 +28,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: "#f6f7f8",
+  themeColor: "#f06a58",
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {

@@ -8,7 +8,7 @@ export default function manifest(): MetadataRoute.Manifest {
     start_url: "/",
     display: "standalone",
     background_color: "#ffffff",
-    theme_color: "#0b0b0b",
+    theme_color: "#f06a58",
     orientation: "portrait",
     categories: ["shopping", "business", "lifestyle", "travel"],
     icons: [
@@ -16,7 +16,39 @@ export default function manifest(): MetadataRoute.Manifest {
         src: "/icon.svg",
         sizes: "any",
         type: "image/svg+xml",
+        purpose: "any",
+      },
+      {
+        src: "/icon.svg",
+        sizes: "any",
+        type: "image/svg+xml",
         purpose: "maskable",
+      },
+      {
+        src: "/logo.png",
+        sizes: "226x138",
+        type: "image/png",
+        purpose: "any",
+      },
+      {
+        src: "/splash.png",
+        sizes: "226x138",
+        type: "image/png",
+        purpose: "any",
+      },
+    ],
+    screenshots: [
+      {
+        src: "/logo.png",
+        sizes: "226x138",
+        type: "image/png",
+        form_factor: "wide",
+      },
+      {
+        src: "/logo.png",
+        sizes: "226x138",
+        type: "image/png",
+        form_factor: "narrow",
       },
     ],
   };

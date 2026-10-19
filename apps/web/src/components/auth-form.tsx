@@ -232,7 +232,12 @@ export function AuthForm({ mode, next, google }: { mode: "sign-in" | "sign-up"; 
               gap: 10,
               background: "#ffffff",
             }}
-            onClick={() => authClient.signIn.social({ provider: "google", callbackURL: next })}
+            onClick={() => {
+              const callback = typeof window !== "undefined"
+                ? `${window.location.origin}${next.startsWith("/") ? next : `/${next}`}`
+                : next;
+              authClient.signIn.social({ provider: "google", callbackURL: callback });
+            }}
           >
             <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
               <path

@@ -49,7 +49,15 @@ function create() {
         await mail(c, user.email, "Confirm your email for Fluo", "Confirm your email address to finish creating your Fluo account.", url);
       },
     },
-    ...(e.google ? { socialProviders: { google: e.google } } : {}),
+    socialProviders: e.google
+      ? {
+          google: {
+            clientId: e.google.clientId,
+            clientSecret: e.google.clientSecret,
+            redirectURI: `${e.APP_URL}/api/auth/callback/google`,
+          },
+        }
+      : undefined,
     plugins: [expo(), nextCookies()],
   });
 }
