@@ -507,8 +507,8 @@ export default async function Dashboard({
                 </Link>
                 <ShareModal
                   title={biz.name}
-                  subtitle={`${typeInfo?.label || "Business"} on Fluo • 100% Escrow Protected`}
-                  category={typeInfo?.label}
+                  subtitle={`${type?.label || "Business"} on Fluo • 100% Escrow Protected`}
+                  category={type?.label}
                   type="business"
                   path={`/b/${biz.slug}`}
                   imageUrl={photo(biz.id, biz.logoAssetId, "card") || undefined}
@@ -1752,7 +1752,7 @@ async function Products({
                                 subtitle={`Available from ${bizName} • ${fmtMoney(p.priceMinor, p.currency)}`}
                                 price={fmtMoney(p.priceMinor, p.currency)}
                                 businessName={bizName}
-                                category={p.category || "Product"}
+                                category="Product"
                                 type="product"
                                 path={resourcePath("p", p.name, p.shortId)}
                                 imageUrl={thumb || undefined}
@@ -1853,7 +1853,7 @@ async function Products({
                             subtitle={`Available from ${bizName} • ${fmtMoney(p.priceMinor, p.currency)}`}
                             price={fmtMoney(p.priceMinor, p.currency)}
                             businessName={bizName}
-                            category={p.category || "Product"}
+                            category="Product"
                             type="product"
                             path={resourcePath("p", p.name, p.shortId)}
                             imageUrl={thumb || undefined}

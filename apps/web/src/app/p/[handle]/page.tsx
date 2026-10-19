@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: { params: Promise<{ handle: s
   const { product: p, business: b } = found;
   const priceFormatted = fmtMoney(p.priceMinor, p.currency);
   const photoUrl = p.imageAssetId ? photo(b.id, p.imageAssetId, "card") : null;
-  const ogUrl = `/api/og?title=${encodeURIComponent(p.name)}&subtitle=${encodeURIComponent(`Available from ${b.name} • Escrow Protected`)}&price=${encodeURIComponent(priceFormatted)}&badge=Escrow+Protected&category=${encodeURIComponent(p.category || "Product")}${photoUrl ? `&image=${encodeURIComponent(photoUrl)}` : ""}`;
+  const ogUrl = `/api/og?title=${encodeURIComponent(p.name)}&subtitle=${encodeURIComponent(`Available from ${b.name} • Escrow Protected`)}&price=${encodeURIComponent(priceFormatted)}&badge=Escrow+Protected&category=Product${photoUrl ? `&image=${encodeURIComponent(photoUrl)}` : ""}`;
   return {
     title: `${p.name} — ${b.name} on Fluo`,
     description: p.description || `Order ${p.name} for ${priceFormatted} from ${b.name} on Fluo.`,
@@ -135,7 +135,7 @@ export default async function ProductPage({
                 subtitle={`Available from ${b.name} • ${fmtMoney(p.priceMinor, p.currency)}`}
                 price={fmtMoney(p.priceMinor, p.currency)}
                 businessName={b.name}
-                category={p.category || "Product"}
+                category="Product"
                 type="product"
                 path={back}
                 imageUrl={photoUrls[0] || undefined}

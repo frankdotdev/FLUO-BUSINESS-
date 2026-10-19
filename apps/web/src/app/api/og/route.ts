@@ -150,7 +150,7 @@ export async function GET(request: Request) {
   try {
     const sharp = (await import("sharp")).default;
     const pngBuffer = await sharp(Buffer.from(svg)).png().toBuffer();
-    return new Response(pngBuffer, {
+    return new Response(new Uint8Array(pngBuffer), {
       headers: {
         "Content-Type": "image/png",
         "Cache-Control": "public, max-age=86400, s-maxage=604800, stale-while-revalidate=86400",
