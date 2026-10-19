@@ -402,6 +402,7 @@ export function IconPackage({ size = 16, ...props }: IconProps) {
       <path d="M12 22V12" />
     </svg>
   );
+}
 
 export function IconSettings({ size = 16, ...props }: IconProps) {
   return (
