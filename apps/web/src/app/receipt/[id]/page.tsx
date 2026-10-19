@@ -185,8 +185,8 @@ export default async function ReceiptPage({
           style={{
             marginTop: 18,
             padding: 20,
-            background: "linear-gradient(135deg, rgba(79, 70, 229, 0.04), rgba(79, 70, 229, 0.08))",
-            border: "1px solid rgba(79, 70, 229, 0.2)",
+            background: "var(--surface)",
+            border: "1px solid var(--border)",
             borderRadius: 14,
             textAlign: "center",
           }}

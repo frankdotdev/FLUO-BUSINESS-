@@ -108,6 +108,81 @@ h1, h2, h3, h4, p {
 }
 
 /* Topbar & Brand */
+.desktop-nav {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-left: 20px;
+}
+@media (max-width: 900px) {
+  .desktop-nav {
+    display: none !important;
+  }
+}
+@media (max-width: 600px) {
+  .desktop-cta {
+    display: none !important;
+  }
+}
+
+/* SaaS Admin Dashboard Layout */
+.admin-shell {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 28px;
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 24px 20px 80px;
+}
+.admin-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: sticky;
+  top: 92px;
+  height: fit-content;
+}
+.admin-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--ink);
+  transition: all 0.15s ease;
+}
+.admin-nav-item:hover {
+  background: var(--surface);
+}
+.admin-nav-item.active {
+  background: var(--coral-soft);
+  color: var(--coral-dark);
+  font-weight: 700;
+}
+.admin-main {
+  min-width: 0;
+}
+@media (max-width: 900px) {
+  .admin-shell {
+    grid-template-columns: 1fr;
+    padding: 16px 14px 80px;
+  }
+  .admin-sidebar {
+    display: none;
+  }
+  .mobile-admin-tabs {
+    display: flex !important;
+  }
+}
+@media (min-width: 901px) {
+  .mobile-admin-tabs {
+    display: none !important;
+  }
+}
+
 .topbar {
   height: 78px;
   padding: 0 clamp(20px, 5.5vw, 82px);

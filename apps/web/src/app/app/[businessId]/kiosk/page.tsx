@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { deps } from "@/server/container.ts";
 import { requireUser } from "@/server/session.ts";
 import { PosRegister } from "@/components/pos-register.tsx";
+import { IconZap } from "@/components/icons.tsx";
 
 export const dynamic = "force-dynamic";
 
@@ -25,7 +26,9 @@ export default async function PosKioskPage({ params }: { params: Promise<{ busin
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px", paddingBottom: "12px", borderBottom: "1px solid #eaeaea" }}>
         <div>
           <h1 style={{ margin: "0 0 2px", fontSize: "22px" }}>{business.name}</h1>
-          <p className="muted small" style={{ margin: 0 }}>⚡ POS Kiosk Register Mode</p>
+          <p className="muted small" style={{ margin: 0, display: "inline-flex", alignItems: "center", gap: 5 }}>
+            <IconZap size={14} style={{ color: "var(--coral-dark)" }} /> POS Kiosk Register Mode
+          </p>
         </div>
         <div style={{ display: "flex", gap: "10px" }}>
           <Link href={`/app/${businessId}?tab=products`} className="btn" style={{ fontSize: "13px" }}>

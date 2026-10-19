@@ -18,7 +18,7 @@ export default async function NewBusiness({ searchParams }: { searchParams: Prom
     <div style={{ maxWidth: 620, margin: "32px auto 80px", padding: "0 16px" }}>
       {/* 30-Day Free Trial Highlight */}
       <div style={{
-        background: "linear-gradient(135deg, #fff5f3 0%, #ffece8 100%)",
+        background: "var(--coral-soft)",
         border: "1.5px solid #fcdcd7",
         borderRadius: 24,
         padding: "24px 28px",

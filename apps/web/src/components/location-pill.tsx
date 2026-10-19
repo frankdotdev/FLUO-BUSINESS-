@@ -12,20 +12,79 @@ interface KnownLandmark {
 }
 
 const KNOWN_LANDMARKS: KnownLandmark[] = [
+  // --- Enugu State Universities & Polytechnics ---
+  { name: "Caritas University", subtitle: "Amorji-Nike, Enugu", lat: 6.518, lon: 7.562, radiusKm: 3.5 },
+  { name: "Coal City University", subtitle: "Emene, Enugu", lat: 6.471, lon: 7.575, radiusKm: 3.5 },
+  { name: "Godfrey Okoye University", subtitle: "Thinkers Corner, Enugu", lat: 6.467, lon: 7.534, radiusKm: 3.0 },
+  { name: "SUMAS (Medical & Applied Sci.)", subtitle: "Igbo-Eno, Enugu", lat: 6.942, lon: 7.468, radiusKm: 4.5 },
+  { name: "Maduka University", subtitle: "Ekwegbe-Nsukka, Enugu", lat: 6.782, lon: 7.426, radiusKm: 4.0 },
+  { name: "UNN Main Campus", subtitle: "Nsukka, Enugu", lat: 6.866, lon: 7.411, radiusKm: 5.0 },
+  { name: "UNEC Campus", subtitle: "Enugu Metropolis, Enugu", lat: 6.432, lon: 7.508, radiusKm: 3.5 },
+  { name: "ESUT Agbani Campus", subtitle: "Agbani, Enugu", lat: 6.353, lon: 7.531, radiusKm: 4.5 },
+  { name: "IMT Campus (Polytechnic)", subtitle: "Independence Layout, Enugu", lat: 6.452, lon: 7.525, radiusKm: 3.0 },
+  { name: "Fed. College of Dental Tech (FCDTT)", subtitle: "Trans-Ekulu, Enugu", lat: 6.472, lon: 7.498, radiusKm: 3.0 },
+  { name: "Enugu State Polytechnic", subtitle: "Iwollo, Enugu", lat: 6.418, lon: 7.289, radiusKm: 4.0 },
+  { name: "OSISATECH Polytechnic", subtitle: "Ogui, Enugu", lat: 6.441, lon: 7.501, radiusKm: 2.5 },
+  { name: "Renaissance University", subtitle: "Ugbawka, Enugu", lat: 6.291, lon: 7.585, radiusKm: 4.0 },
+  { name: "Peaceland College", subtitle: "Independence Layout, Enugu", lat: 6.448, lon: 7.518, radiusKm: 2.5 },
+  { name: "FCE Eha-Amufu", subtitle: "Eha-Amufu, Enugu", lat: 6.657, lon: 7.759, radiusKm: 4.0 },
+  { name: "Enugu Metropolis", subtitle: "Enugu State", lat: 6.458, lon: 7.546, radiusKm: 15.0 },
+
+  // --- Ebonyi State Campuses ---
   { name: "EBSU Ishieke Campus", subtitle: "Abakaliki, Ebonyi", lat: 6.415, lon: 8.156, radiusKm: 4.0 },
   { name: "EBSU CAS Campus", subtitle: "Abakaliki, Ebonyi", lat: 6.326, lon: 8.113, radiusKm: 3.0 },
   { name: "EBSU Presco Campus", subtitle: "Abakaliki, Ebonyi", lat: 6.318, lon: 8.098, radiusKm: 2.5 },
   { name: "AE-FUNAI Main Campus", subtitle: "Ikwo, Ebonyi", lat: 6.136, lon: 8.136, radiusKm: 5.0 },
-  { name: "UNN Main Campus", subtitle: "Nsukka, Enugu", lat: 6.866, lon: 7.411, radiusKm: 5.0 },
-  { name: "UNEC Campus", subtitle: "Enugu, Enugu", lat: 6.432, lon: 7.508, radiusKm: 3.5 },
-  { name: "ESUT Agbani Campus", subtitle: "Enugu, Enugu", lat: 6.353, lon: 7.531, radiusKm: 4.0 },
+  { name: "Federal Polytechnic Isu", subtitle: "Isu, Ebonyi", lat: 6.042, lon: 7.915, radiusKm: 4.0 },
+  { name: "College of Agriculture Ishiagu", subtitle: "Ishiagu, Ebonyi", lat: 5.947, lon: 7.568, radiusKm: 3.5 },
+  { name: "Abakaliki Urban", subtitle: "Ebonyi State", lat: 6.324, lon: 8.114, radiusKm: 15.0 },
+
+  // --- Anambra State Campuses ---
+  { name: "UNIZIK Main Campus", subtitle: "Awka, Anambra", lat: 6.248, lon: 7.121, radiusKm: 5.0 },
+  { name: "COOU Igbariam Campus", subtitle: "Igbariam, Anambra", lat: 6.342, lon: 6.945, radiusKm: 4.0 },
+  { name: "COOU Uli Campus", subtitle: "Uli, Anambra", lat: 5.782, lon: 6.871, radiusKm: 4.0 },
+  { name: "Federal Polytechnic Oko", subtitle: "Oko, Anambra", lat: 6.041, lon: 7.081, radiusKm: 4.0 },
+  { name: "Paul University", subtitle: "Awka, Anambra", lat: 6.216, lon: 7.069, radiusKm: 2.5 },
+  { name: "Tansian University", subtitle: "Umunya, Anambra", lat: 6.208, lon: 6.915, radiusKm: 3.5 },
+  { name: "Onitsha Metropolis", subtitle: "Anambra State", lat: 6.149, lon: 6.786, radiusKm: 12.0 },
+
+  // --- Imo & Abia State Campuses ---
+  { name: "FUTO Campus", subtitle: "Owerri, Imo", lat: 5.385, lon: 7.009, radiusKm: 4.5 },
+  { name: "IMSU Campus", subtitle: "Owerri, Imo", lat: 5.502, lon: 7.042, radiusKm: 3.5 },
+  { name: "Federal Polytechnic Nekede", subtitle: "Nekede, Owerri, Imo", lat: 5.438, lon: 7.028, radiusKm: 3.5 },
+  { name: "Alvan Ikoku Federal College", subtitle: "Owerri, Imo", lat: 5.492, lon: 7.025, radiusKm: 2.5 },
+  { name: "ABSU Uturu Campus", subtitle: "Uturu, Abia", lat: 5.828, lon: 7.408, radiusKm: 4.5 },
+  { name: "MOUAU Umudike Campus", subtitle: "Umudike, Umuahia, Abia", lat: 5.478, lon: 7.545, radiusKm: 4.5 },
+  { name: "Abia State Polytechnic", subtitle: "Aba, Abia", lat: 5.126, lon: 7.368, radiusKm: 3.0 },
+
+  // --- Lagos & South-West Campuses ---
   { name: "UNILAG Akoka Campus", subtitle: "Yaba, Lagos", lat: 6.518, lon: 3.398, radiusKm: 3.5 },
   { name: "YabaTech Campus", subtitle: "Yaba, Lagos", lat: 6.516, lon: 3.376, radiusKm: 2.5 },
-  { name: "FUTO Campus", subtitle: "Owerri, Imo", lat: 5.385, lon: 7.009, radiusKm: 4.5 },
+  { name: "LASU Ojo Campus", subtitle: "Ojo, Lagos", lat: 6.467, lon: 3.199, radiusKm: 4.5 },
+  { name: "Pan-Atlantic University (PAU)", subtitle: "Ibeju-Lekki, Lagos", lat: 6.486, lon: 3.829, radiusKm: 4.0 },
+  { name: "LASUSTECH Ikorodu", subtitle: "Ikorodu, Lagos", lat: 6.643, lon: 3.518, radiusKm: 4.0 },
   { name: "UI Main Campus", subtitle: "Ibadan, Oyo", lat: 7.444, lon: 3.9, radiusKm: 4.5 },
+  { name: "The Polytechnic Ibadan", subtitle: "Ibadan, Oyo", lat: 7.435, lon: 3.875, radiusKm: 3.5 },
   { name: "OAU Campus", subtitle: "Ile-Ife, Osun", lat: 7.518, lon: 4.526, radiusKm: 4.5 },
-  { name: "Abakaliki Urban", subtitle: "Ebonyi State", lat: 6.324, lon: 8.114, radiusKm: 15.0 },
-  { name: "Enugu Metropolis", subtitle: "Enugu State", lat: 6.458, lon: 7.546, radiusKm: 20.0 },
+  { name: "FUTA Campus", subtitle: "Akure, Ondo", lat: 7.302, lon: 5.138, radiusKm: 4.0 },
+  { name: "Covenant University", subtitle: "Ota, Ogun", lat: 6.672, lon: 3.158, radiusKm: 4.0 },
+  { name: "Babcock University", subtitle: "Ilishan-Remo, Ogun", lat: 6.892, lon: 3.718, radiusKm: 4.0 },
+  { name: "FUNAAB Campus", subtitle: "Abeokuta, Ogun", lat: 7.228, lon: 3.442, radiusKm: 4.5 },
+
+  // --- South-South & Northern Campuses ---
+  { name: "UNIBEN Ugbowo Campus", subtitle: "Benin City, Edo", lat: 6.398, lon: 5.614, radiusKm: 4.5 },
+  { name: "UNIPORT Choba Campus", subtitle: "Port Harcourt, Rivers", lat: 4.904, lon: 6.924, radiusKm: 4.5 },
+  { name: "Rivers State University (RSU)", subtitle: "Port Harcourt, Rivers", lat: 4.802, lon: 6.982, radiusKm: 3.5 },
+  { name: "DELSU Abraka Campus", subtitle: "Abraka, Delta", lat: 5.791, lon: 6.102, radiusKm: 4.0 },
+  { name: "FUPRE Effurun Campus", subtitle: "Effurun, Delta", lat: 5.568, lon: 5.795, radiusKm: 3.5 },
+  { name: "UNICAL Campus", subtitle: "Calabar, Cross River", lat: 4.952, lon: 8.349, radiusKm: 4.0 },
+  { name: "UniAbuja Main Campus", subtitle: "Gwagwalada, Abuja", lat: 8.981, lon: 7.078, radiusKm: 5.0 },
+  { name: "ABU Samaru Campus", subtitle: "Zaria, Kaduna", lat: 11.152, lon: 7.649, radiusKm: 5.0 },
+  { name: "FUTMINNA Main Campus", subtitle: "Gidan Kwano, Minna, Niger", lat: 9.532, lon: 6.449, radiusKm: 4.5 },
+  { name: "UNILORIN Main Campus", subtitle: "Ilorin, Kwara", lat: 8.479, lon: 4.672, radiusKm: 5.0 },
+  { name: "Kwara State Polytechnic", subtitle: "Ilorin, Kwara", lat: 8.542, lon: 4.618, radiusKm: 3.5 },
+  { name: "BUK New Campus", subtitle: "Kano, Kano", lat: 11.979, lon: 8.428, radiusKm: 5.0 },
+  { name: "UNIJOS Naraguta Campus", subtitle: "Jos, Plateau", lat: 9.956, lon: 8.895, radiusKm: 4.5 },
 ];
 
 function haversineDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {

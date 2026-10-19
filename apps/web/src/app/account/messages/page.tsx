@@ -38,7 +38,7 @@ export default async function Inbox() {
 
       {rows.length === 0 ? (
         <div className="empty-dashboard" style={{ background: "#ffffff", borderRadius: 20, border: "1px solid var(--line)" }}>
-          <span style={{ background: "var(--coral-soft)", color: "var(--coral-dark)" }}>💬</span>
+          <span style={{ background: "var(--coral-soft)", color: "var(--coral-dark)", display: "inline-flex", alignItems: "center", justifyContent: "center" }}><IconMessageSquare size={24} /></span>
           <b>No conversations yet</b>
           <p>When you visit a store or service on Fluo, tap "Message" to ask questions or place custom inquiries.</p>
           <Link href="/search" className="primary-button">

@@ -26,13 +26,7 @@ export function Header({ user, businessCount = 0, unreadCount = 0 }: HeaderProps
 
       {/* Desktop Navigation Links */}
       <nav
-        className="screen-only"
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 18,
-          marginLeft: 24,
-        }}
+        className="desktop-nav"
         aria-label="Desktop primary navigation"
       >
         <Link
@@ -121,7 +115,7 @@ export function Header({ user, businessCount = 0, unreadCount = 0 }: HeaderProps
         {businessCount > 0 ? (
           <Link
             href="/app"
-            className="secondary-button"
+            className="secondary-button desktop-cta"
             style={{ padding: "8px 14px", fontSize: 12, display: "inline-flex", alignItems: "center", gap: 6 }}
             title="Switch to your business workspaces"
           >
@@ -130,7 +124,7 @@ export function Header({ user, businessCount = 0, unreadCount = 0 }: HeaderProps
         ) : (
           <Link
             href="/app/new"
-            className="primary-button"
+            className="primary-button desktop-cta"
             style={{ padding: "8px 14px", fontSize: 12, display: "inline-flex", alignItems: "center", gap: 5 }}
             title="Open a store on Fluo with a 30-day free trial"
           >

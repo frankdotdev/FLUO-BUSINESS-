@@ -18,12 +18,12 @@ export const PRICE_BOOK: readonly PricePoint[] = [
   { planKey: "starter",  currency: "NGN", interval: "month", amountMinor: 300000n },    // N3,000
   { planKey: "growth",   currency: "NGN", interval: "month", amountMinor: 1000000n },   // N10,000
   { planKey: "business", currency: "NGN", interval: "month", amountMinor: 2500000n },   // N25,000
-  { planKey: "pro",      currency: "NGN", interval: "month", amountMinor: 2500000n },   // alias
+  { planKey: "pro",      currency: "NGN", interval: "month", amountMinor: 5000000n },   // N50,000 (Unlimited orders & 50 seats)
   // USD (international)
   { planKey: "starter",  currency: "USD", interval: "month", amountMinor: 500n },       // $5
   { planKey: "growth",   currency: "USD", interval: "month", amountMinor: 1500n },      // $15
   { planKey: "business", currency: "USD", interval: "month", amountMinor: 3500n },      // $35
-  { planKey: "pro",      currency: "USD", interval: "month", amountMinor: 3500n },
+  { planKey: "pro",      currency: "USD", interval: "month", amountMinor: 6500n },      // $65
 ];
 
 export interface OrderFeeCalculation {

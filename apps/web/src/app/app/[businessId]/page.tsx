@@ -28,6 +28,7 @@ import { env } from "@/server/env.ts";
 import { requireUser } from "@/server/session.ts";
 import { friendly } from "@/server/messages.ts";
 import * as A from "@/app/actions.ts";
+import { SubmitButton } from "@/components/submit-button.tsx";
 import {
   IconZap,
   IconReceipt,
@@ -40,6 +41,13 @@ import {
   IconCalendar,
   IconClock,
   IconPlus,
+  IconMessageSquare,
+  IconPackage,
+  IconLayoutDashboard,
+  IconCreditCard,
+  IconSettings,
+  IconHelpCircle,
+  IconTrendingUp,
 } from "@/components/icons.tsx";
 
 export const dynamic = "force-dynamic";
@@ -86,90 +94,157 @@ export default async function Dashboard({
     (o) => o.status === "awaiting_payment" || o.status === "paid" || o.status === "in_production" || o.status === "ready"
   ).length;
 
-  return (
-    <div style={{ maxWidth: 1200, margin: "0 auto", padding: "20px 16px 80px" }}>
-      {/* Workspace Header Top Chrome */}
-      <header style={{
-        background: "#ffffff",
-        border: "1px solid var(--line)",
-        borderRadius: 24,
-        padding: "clamp(20px, 4vw, 32px)",
-        boxShadow: "var(--shadow)",
-        marginBottom: 24,
-      }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <div style={{
-              width: 52,
-              height: 52,
-              borderRadius: 16,
-              background: "var(--coral-soft)",
-              color: "var(--coral-dark)",
-              fontFamily: "Manrope, sans-serif",
-              fontSize: 22,
-              fontWeight: 800,
-              display: "grid",
-              placeItems: "center",
-              border: "1px solid rgba(240, 120, 102, 0.2)",
-            }}>
-              {biz.name.charAt(0).toUpperCase()}
-            </div>
-            <div>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                <span className="section-kicker" style={{ margin: 0 }}>
-                  {type.label.toUpperCase()} WORKSPACE
-                </span>
-                <span className="open-badge" style={{ position: "static", background: biz.status === "active" ? "#edf6f0" : "#fef3c7", color: biz.status === "active" ? "var(--green)" : "#92400e" }}>
-                  <i style={{ background: biz.status === "active" ? "var(--green)" : "#d97706" }}></i>
-                  {biz.status === "active" ? "Live Storefront" : "Draft (Setup mode)"}
-                </span>
-                <span style={{ fontSize: 11, fontWeight: 700, color: "var(--coral-dark)", background: "var(--coral-soft)", padding: "3px 8px", borderRadius: 6 }}>
-                  Plan: {planKey.toUpperCase()}
-                </span>
-              </div>
-              <h1 style={{
-                fontFamily: "Manrope, sans-serif",
-                fontSize: "clamp(22px, 3.2vw, 32px)",
-                fontWeight: 800,
-                letterSpacing: "-0.8px",
-                margin: "4px 0 0",
-                color: "var(--ink)",
-              }}>
-                {biz.name}
-              </h1>
-            </div>
-          </div>
+  const todayStr = new Intl.DateTimeFormat("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    timeZone: biz.timezone,
+  }).format(new Date()).toUpperCase();
 
-          <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-            <Link
-              className="primary-button"
-              style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "10px 18px", fontSize: 13 }}
-              href={`/app/${businessId}/kiosk`}
-            >
-              <IconZap size={15} /> POS Counter Kiosk ↗
-            </Link>
-            {biz.status === "active" ? (
-              <Link
-                className="secondary-button"
-                style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "10px 18px", fontSize: 13 }}
-                href={`/b/${biz.slug}`}
-                target="_blank"
-              >
-                <IconStore size={15} /> Storefront ↗
-              </Link>
-            ) : null}
+  const activeModule = modules.find((m) => m.id === tab) || { id: "overview", label: "Overview" };
+
+  return (
+    <div className="admin-shell">
+      {/* Desktop Left Sidebar matching Screenshot 4 */}
+      <aside className="admin-sidebar">
+        {/* Workspace Profile Card */}
+        <div style={{
+          background: "#ffffff",
+          border: "1px solid var(--line)",
+          borderRadius: 18,
+          padding: "14px 16px",
+          display: "flex",
+          alignItems: "center",
+          gap: 12,
+        }}>
+          <div style={{
+            width: 42,
+            height: 42,
+            borderRadius: 12,
+            background: "var(--coral-soft)",
+            color: "var(--coral-dark)",
+            fontFamily: "Manrope, sans-serif",
+            fontSize: 18,
+            fontWeight: 800,
+            display: "grid",
+            placeItems: "center",
+            flexShrink: 0,
+          }}>
+            {biz.name.charAt(0).toUpperCase()}
+          </div>
+          <div style={{ minWidth: 0, flex: 1 }}>
+            <strong style={{ display: "block", fontSize: 14, fontWeight: 700, color: "var(--ink)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              {biz.name}
+            </strong>
+            <small style={{ color: "var(--muted)", fontSize: 11, display: "block" }}>
+              {type.label} workspace
+            </small>
           </div>
         </div>
 
-        {/* Tab Navigation Strip */}
+        {/* Sidebar Nav Links */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+          <span className="section-kicker" style={{ padding: "0 14px", margin: "10px 0 4px", fontSize: 10, letterSpacing: 1.2 }}>
+            WORKSPACE
+          </span>
+
+          {modules.map((m) => {
+            const isCurrent = m.id === tab;
+            let IconComponent = IconLayoutDashboard;
+            if (m.id === "orders") IconComponent = IconReceipt;
+            else if (m.id === "products") IconComponent = IconPackage;
+            else if (m.id === "bookings") IconComponent = IconCalendar;
+            else if (m.id === "events") IconComponent = IconReceipt;
+            else if (m.id === "messages") IconComponent = IconMessageSquare;
+            else if (m.id === "team") IconComponent = IconUsers;
+            else if (m.id === "payments") IconComponent = IconCreditCard;
+            else if (m.id === "billing") IconComponent = IconSparkles;
+
+            return (
+              <Link
+                key={m.id}
+                href={`/app/${businessId}?tab=${m.id}`}
+                className={`admin-nav-item ${isCurrent ? "active" : ""}`}
+              >
+                <IconComponent size={18} />
+                <span style={{ flex: 1 }}>{m.label}</span>
+                {m.id === "orders" && activeOrdersCount > 0 && (
+                  <span style={{
+                    background: isCurrent ? "var(--coral)" : "var(--coral-soft)",
+                    color: isCurrent ? "#ffffff" : "var(--coral-dark)",
+                    padding: "2px 7px",
+                    borderRadius: 6,
+                    fontSize: 11,
+                    fontWeight: 700,
+                  }}>
+                    {activeOrdersCount}
+                  </span>
+                )}
+              </Link>
+            );
+          })}
+
+          <Link
+            href={`/app/${businessId}/kiosk`}
+            className="admin-nav-item"
+            style={{ marginTop: 4 }}
+          >
+            <IconZap size={18} />
+            <span>POS register</span>
+          </Link>
+
+          {biz.status === "active" && (
+            <Link
+              href={`/b/${biz.slug}`}
+              target="_blank"
+              className="admin-nav-item"
+            >
+              <IconStore size={18} />
+              <span>Public Storefront</span>
+              <span style={{ fontSize: 11, color: "var(--muted)" }}>↗</span>
+            </Link>
+          )}
+        </div>
+      </aside>
+
+      {/* Main Admin Content */}
+      <div className="admin-main">
+        {/* Top Breadcrumbs & Mode Strip */}
+        <div style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: 16,
+          flexWrap: "wrap",
+          gap: 12,
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "var(--muted)", fontWeight: 500 }}>
+            <span>Workspace</span>
+            <span>/</span>
+            <strong style={{ color: "var(--ink)", fontWeight: 700 }}>{activeModule.label}</strong>
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <span className="open-badge" style={{ position: "static", background: biz.status === "active" ? "#edf6f0" : "#fef3c7", color: biz.status === "active" ? "var(--green)" : "#92400e" }}>
+              <i style={{ background: biz.status === "active" ? "var(--green)" : "#d97706" }}></i>
+              {biz.status === "active" ? "Live Storefront" : "Draft Setup"}
+            </span>
+            <span style={{ fontSize: 11, fontWeight: 700, color: "var(--coral-dark)", background: "var(--coral-soft)", padding: "3px 8px", borderRadius: 6 }}>
+              Plan: {planKey.toUpperCase()}
+            </span>
+          </div>
+        </div>
+
+        {/* Mobile Horizontal Tabs (hidden on desktop) */}
         <nav
+          className="mobile-admin-tabs"
           style={{
-            display: "flex",
+            display: "none",
             gap: 6,
             overflowX: "auto",
-            paddingTop: 20,
-            marginTop: 20,
-            borderTop: "1px solid var(--line)",
+            paddingBottom: 14,
+            marginBottom: 16,
+            borderBottom: "1px solid var(--line)",
             scrollbarWidth: "none",
           }}
           aria-label="Workspace modules"
@@ -181,110 +256,142 @@ export default async function Dashboard({
                 key={m.id}
                 href={`/app/${businessId}?tab=${m.id}`}
                 style={{
-                  padding: "8px 16px",
-                  borderRadius: 12,
+                  padding: "7px 14px",
+                  borderRadius: 10,
                   fontSize: 12,
                   fontWeight: 700,
                   textDecoration: "none",
                   whiteSpace: "nowrap",
-                  transition: "all 0.15s",
-                  background: isCurrent ? "var(--ink)" : "transparent",
+                  background: isCurrent ? "var(--ink)" : "var(--surface)",
                   color: isCurrent ? "#ffffff" : "var(--muted)",
-                  border: isCurrent ? "1px solid var(--ink)" : "1px solid transparent",
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 6,
+                  border: "1px solid var(--line)",
                 }}
               >
                 {m.label}
-                {m.id === "orders" && activeOrdersCount > 0 && (
-                  <span style={{
-                    background: isCurrent ? "var(--coral)" : "var(--coral-soft)",
-                    color: isCurrent ? "#ffffff" : "var(--coral-dark)",
-                    padding: "2px 6px",
-                    borderRadius: 6,
-                    fontSize: 10,
-                  }}>
-                    {activeOrdersCount}
-                  </span>
-                )}
               </Link>
             );
           })}
         </nav>
-      </header>
 
-      {msg && (
+        {/* Tab Header Banner */}
         <div style={{
-          padding: "12px 16px",
-          background: "var(--coral-soft)",
-          border: "1px solid var(--coral)",
-          borderRadius: 12,
-          color: "var(--coral-dark)",
-          marginBottom: 20,
-          fontSize: 13,
-          fontWeight: 600,
-        }} role="alert">
-          {msg}
-        </div>
-      )}
-
-      {sp.welcome && (
-        <div style={{
-          padding: "14px 18px",
-          background: "#edf6f0",
-          border: "1px solid #bfe3cc",
-          borderRadius: 16,
-          color: "var(--green)",
-          marginBottom: 20,
-          fontSize: 13,
-          fontWeight: 600,
           display: "flex",
-          alignItems: "center",
-          gap: 10,
+          justifyContent: "space-between",
+          alignItems: "flex-start",
+          marginBottom: 24,
+          flexWrap: "wrap",
+          gap: 14,
         }}>
-          <IconCheck size={18} />
-          <span>Your business workspace is created! Set up payments, add items, and publish to start selling.</span>
-        </div>
-      )}
+          <div>
+            <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.2, color: "var(--muted)", textTransform: "uppercase" }}>
+              {todayStr}
+            </span>
+            <h1 style={{
+              fontFamily: "Manrope, sans-serif",
+              fontSize: 28,
+              fontWeight: 800,
+              letterSpacing: "-0.6px",
+              margin: "4px 0 4px",
+              color: "var(--ink)",
+            }}>
+              {activeModule.label}
+            </h1>
+            <p style={{ margin: 0, fontSize: 13, color: "var(--muted)" }}>
+              {tab === "overview" && "Keep an eye on business performance, orders, and catalogue."}
+              {tab === "orders" && "Manage customer orders, fulfilment progress, and escrow releases."}
+              {tab === "products" && "Catalogue items, stock quantities, and product pricing."}
+              {tab === "payments" && "Direct bank transfer accounts and settlement status."}
+              {tab === "team" && "Manage staff access and workspace responsibilities."}
+              {tab === "billing" && "Subscription tier, active 30-day trial, and invoices."}
+              {tab === "messages" && "Customer inquiries and direct chats."}
+              {tab === "bookings" && "Calendar appointments and reservation slots."}
+              {tab === "events" && "Event tickets, attendee limits, and check-in scanner."}
+            </p>
+          </div>
 
-      {/* Main Tab View */}
-      <main style={{ minHeight: 400 }}>
-        {tab === "overview" && <Overview biz={biz} canManage={can("business.manage")} planKey={planKey} />}
-        {tab === "orders" && <Orders businessId={businessId} canWrite={can("orders.write")} canRefund={can("refunds.manage")} />}
-        {tab === "bookings" && (
-          <Bookings
-            currency={biz.currency}
-            businessId={businessId}
-            tz={biz.timezone}
-            canManage={can("bookings.manage")}
-            enabled={caps.includes("bookings") || caps.includes("resource_booking")}
-          />
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <Link
+              className="primary-button"
+              style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "10px 18px", fontSize: 13 }}
+              href={`/app/${businessId}/kiosk`}
+            >
+              <IconZap size={15} /> + New sale / POS Kiosk
+            </Link>
+          </div>
+        </div>
+
+        {msg && (
+          <div style={{
+            padding: "12px 16px",
+            background: "var(--coral-soft)",
+            border: "1px solid var(--coral)",
+            borderRadius: 12,
+            color: "var(--coral-dark)",
+            marginBottom: 20,
+            fontSize: 13,
+            fontWeight: 600,
+          }} role="alert">
+            {msg}
+          </div>
         )}
-        {tab === "events" && (
-          <Events
-            businessId={businessId}
-            tz={biz.timezone}
-            canManage={can("events.manage")}
-            canCheckIn={can("events.checkin")}
-            enabled={caps.includes("events_ticketing")}
-            checkin={sp.checkin}
-          />
+
+        {sp.welcome && (
+          <div style={{
+            padding: "14px 18px",
+            background: "#edf6f0",
+            border: "1px solid #bfe3cc",
+            borderRadius: 16,
+            color: "var(--green)",
+            marginBottom: 20,
+            fontSize: 13,
+            fontWeight: 600,
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+          }}>
+            <IconCheck size={18} />
+            <span>Your business workspace is ready! Set up your settlement bank account and add products to start trading.</span>
+          </div>
         )}
-        {tab === "messages" && (
-          <Messages businessId={businessId} tz={biz.timezone} bizName={biz.name} selected={sp.c} error={sp.error} />
-        )}
-        {tab === "team" && (
-          <Team businessId={businessId} isOwner={myRole === "owner"} canManage={can("members.manage")} invited={sp.invited} />
-        )}
-        {tab === "products" && (
-          <Products businessId={businessId} canWrite={can("catalogue.write")} enabled={caps.includes("catalogue")} currency={biz.currency} />
-        )}
-        {tab === "payments" && (
-          <Payments biz={biz} canManage={can("business.manage")} canBilling={can("billing.manage")} payout={sp.payout} />
-        )}
-        {tab === "billing" && <Billing biz={biz} canBilling={can("billing.manage")} />}
-      </main>
+
+        {/* Main Tab View */}
+        <main style={{ minHeight: 400 }}>
+          {tab === "overview" && <Overview biz={biz} canManage={can("business.manage")} planKey={planKey} />}
+          {tab === "orders" && <Orders businessId={businessId} canWrite={can("orders.write")} canRefund={can("refunds.manage")} />}
+          {tab === "bookings" && (
+            <Bookings
+              currency={biz.currency}
+              businessId={businessId}
+              tz={biz.timezone}
+              canManage={can("bookings.manage")}
+              enabled={caps.includes("bookings") || caps.includes("resource_booking")}
+            />
+          )}
+          {tab === "events" && (
+            <Events
+              businessId={businessId}
+              tz={biz.timezone}
+              canManage={can("events.manage")}
+              canCheckIn={can("events.checkin")}
+              enabled={caps.includes("events_ticketing")}
+              checkin={sp.checkin}
+            />
+          )}
+          {tab === "messages" && (
+            <Messages businessId={businessId} tz={biz.timezone} bizName={biz.name} selected={sp.c} error={sp.error} />
+          )}
+          {tab === "team" && (
+            <Team businessId={businessId} isOwner={myRole === "owner"} canManage={can("members.manage")} invited={sp.invited} />
+          )}
+          {tab === "products" && (
+            <Products businessId={businessId} canWrite={can("catalogue.write")} enabled={caps.includes("catalogue")} currency={biz.currency} />
+          )}
+          {tab === "payments" && (
+            <Payments biz={biz} canManage={can("business.manage")} canBilling={can("billing.manage")} payout={sp.payout} />
+          )}
+          {tab === "billing" && <Billing biz={biz} canBilling={can("billing.manage")} />}
+        </main>
+      </div>
     </div>
   );
 }
@@ -313,31 +420,252 @@ async function Overview({
   const hasProducts = products.length > 0;
   const isLive = biz.status === "active";
 
+  const recentOrders = orders.slice(0, 5);
+
   return (
     <div style={{ display: "grid", gap: 24 }}>
-      {/* Metric Cards Grid */}
-      <section className="metric-grid">
-        <div className="metric-card">
-          <span className="metric-label">TOTAL VOLUME</span>
-          <b>{fmtMoney(totalSalesMinor, "NGN")}</b>
-          <span className="metric-delta delta-up">↑ Recorded sales</span>
+      {/* 4 Metric Cards Grid matching Screenshot 4 */}
+      <section style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+        gap: 16,
+      }}>
+        {/* Card 1: Today's sales */}
+        <div style={{
+          background: "#ffffff",
+          border: "1px solid var(--line)",
+          borderRadius: 20,
+          padding: "20px 22px",
+          display: "flex",
+          flexDirection: "column",
+          gap: 10,
+          boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
+        }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span style={{ fontSize: 13, fontWeight: 600, color: "var(--muted)" }}>Today&apos;s sales</span>
+            <div style={{ width: 32, height: 32, borderRadius: 10, background: "var(--coral-soft)", color: "var(--coral-dark)", display: "grid", placeItems: "center" }}>
+              <IconCreditCard size={16} />
+            </div>
+          </div>
+          <div style={{ fontFamily: "Manrope, sans-serif", fontSize: 26, fontWeight: 800, color: "var(--ink)", letterSpacing: "-0.5px" }}>
+            {fmtMoney(totalSalesMinor, "NGN")}
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "var(--green)", fontWeight: 600 }}>
+            <IconTrendingUp size={14} />
+            <span>↑ Recorded sales</span>
+          </div>
         </div>
-        <div className="metric-card">
-          <span className="metric-label">ORDERS PROCESSED</span>
-          <b>{orders.length}</b>
-          <span className="metric-sub">{orders.filter((o) => o.status === "paid").length} fulfilled</span>
+
+        {/* Card 2: Orders to fulfil */}
+        <div style={{
+          background: "#ffffff",
+          border: "1px solid var(--line)",
+          borderRadius: 20,
+          padding: "20px 22px",
+          display: "flex",
+          flexDirection: "column",
+          gap: 10,
+          boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
+        }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span style={{ fontSize: 13, fontWeight: 600, color: "var(--muted)" }}>Orders to fulfil</span>
+            <div style={{ width: 32, height: 32, borderRadius: 10, background: "#eff6ff", color: "#2563eb", display: "grid", placeItems: "center" }}>
+              <IconReceipt size={16} />
+            </div>
+          </div>
+          <div style={{ fontFamily: "Manrope, sans-serif", fontSize: 26, fontWeight: 800, color: "var(--ink)", letterSpacing: "-0.5px" }}>
+            {orders.length}
+          </div>
+          <div style={{ fontSize: 12, color: "var(--muted)", fontWeight: 500 }}>
+            {orders.filter((o) => o.status === "paid").length} fulfilled • {orders.filter((o) => o.status === "awaiting_payment").length} awaiting
+          </div>
         </div>
-        <div className="metric-card">
-          <span className="metric-label">ACTIVE CATALOGUE</span>
-          <b>{products.length}</b>
-          <span className="metric-sub">Live products &amp; services</span>
+
+        {/* Card 3: Products in stock */}
+        <div style={{
+          background: "#ffffff",
+          border: "1px solid var(--line)",
+          borderRadius: 20,
+          padding: "20px 22px",
+          display: "flex",
+          flexDirection: "column",
+          gap: 10,
+          boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
+        }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span style={{ fontSize: 13, fontWeight: 600, color: "var(--muted)" }}>Products in stock</span>
+            <div style={{ width: 32, height: 32, borderRadius: 10, background: "#f0fdf4", color: "#16a34a", display: "grid", placeItems: "center" }}>
+              <IconPackage size={16} />
+            </div>
+          </div>
+          <div style={{ fontFamily: "Manrope, sans-serif", fontSize: 26, fontWeight: 800, color: "var(--ink)", letterSpacing: "-0.5px" }}>
+            {products.length}
+          </div>
+          <div style={{ fontSize: 12, color: "var(--green)", fontWeight: 600 }}>
+            Live in store catalogue
+          </div>
         </div>
-        <div className="metric-card">
-          <span className="metric-label">30-DAY TRIAL STATUS</span>
-          <b>{tState.status === "active" ? `${tState.daysLeft} days` : "Active"}</b>
-          <span className="metric-sub">{tState.status === "active" ? "Full access included" : "Business Plan"}</span>
+
+        {/* Card 4: 30-Day Trial Status */}
+        <div style={{
+          background: "#ffffff",
+          border: "1px solid var(--line)",
+          borderRadius: 20,
+          padding: "20px 22px",
+          display: "flex",
+          flexDirection: "column",
+          gap: 10,
+          boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
+        }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span style={{ fontSize: 13, fontWeight: 600, color: "var(--muted)" }}>30-Day Free Trial</span>
+            <div style={{ width: 32, height: 32, borderRadius: 10, background: "#faf5ff", color: "#9333ea", display: "grid", placeItems: "center" }}>
+              <IconSparkles size={16} />
+            </div>
+          </div>
+          <div style={{ fontFamily: "Manrope, sans-serif", fontSize: 26, fontWeight: 800, color: "var(--ink)", letterSpacing: "-0.5px" }}>
+            {tState.status === "active" ? `${tState.daysLeft} days` : "Active"}
+          </div>
+          <div style={{ fontSize: 12, color: "var(--coral-dark)", fontWeight: 600 }}>
+            {tState.status === "active" ? "Full access included" : "Business Plan"}
+          </div>
         </div>
       </section>
+
+      {/* Two-Column Dashboard Overview Section matching Screenshot 4 */}
+      <div style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fit, minmax(360px, 1fr))",
+        gap: 20,
+      }}>
+        {/* Left Column: Sales Overview with SVG Wave Chart */}
+        <div style={{
+          background: "#ffffff",
+          border: "1px solid var(--line)",
+          borderRadius: 20,
+          padding: 24,
+          boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+        }}>
+          <div>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+              <div>
+                <strong style={{ fontSize: 16, fontWeight: 800, color: "var(--ink)" }}>Sales overview</strong>
+                <p style={{ margin: "2px 0 0", fontSize: 12, color: "var(--muted)" }}>Keep an eye on your business performance.</p>
+              </div>
+              <span style={{ fontSize: 12, fontWeight: 600, color: "var(--muted)", padding: "4px 8px", background: "var(--canvas)", borderRadius: 8, border: "1px solid var(--line)" }}>
+                This week
+              </span>
+            </div>
+
+            <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 20 }}>
+              <span style={{ fontFamily: "Manrope, sans-serif", fontSize: 32, fontWeight: 800, color: "var(--ink)" }}>
+                {fmtMoney(totalSalesMinor, "NGN")}
+              </span>
+              <span style={{ fontSize: 12, color: "var(--green)", fontWeight: 700 }}>
+                ↑ 100%
+              </span>
+            </div>
+          </div>
+
+          {/* Clean SVG Trend Chart */}
+          <div style={{ width: "100%", height: 120, position: "relative" }}>
+            <svg viewBox="0 0 400 100" preserveAspectRatio="none" style={{ width: "100%", height: "100%" }}>
+              <defs>
+                <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="var(--coral)" stopOpacity="0.2" />
+                  <stop offset="100%" stopColor="var(--coral)" stopOpacity="0.0" />
+                </linearGradient>
+              </defs>
+              <path
+                d="M0,80 Q50,40 100,60 T200,30 T300,50 T400,20 L400,100 L0,100 Z"
+                fill="url(#chartGradient)"
+              />
+              <path
+                d="M0,80 Q50,40 100,60 T200,30 T300,50 T400,20"
+                fill="none"
+                stroke="var(--coral)"
+                strokeWidth="3"
+                strokeLinecap="round"
+              />
+            </svg>
+          </div>
+        </div>
+
+        {/* Right Column: Recent Orders matching Screenshot 4 */}
+        <div style={{
+          background: "#ffffff",
+          border: "1px solid var(--line)",
+          borderRadius: 20,
+          padding: 24,
+          boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
+        }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+            <div>
+              <strong style={{ fontSize: 16, fontWeight: 800, color: "var(--ink)" }}>Recent orders</strong>
+              <p style={{ margin: "2px 0 0", fontSize: 12, color: "var(--muted)" }}>What needs your attention.</p>
+            </div>
+            <Link href={`/app/${biz.id}?tab=orders`} style={{ fontSize: 12, fontWeight: 700, color: "var(--coral-dark)", textDecoration: "none" }}>
+              View all ↗
+            </Link>
+          </div>
+
+          {recentOrders.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "36px 12px", color: "var(--muted)", fontSize: 13 }}>
+              No orders placed yet. Share your storefront link or ring up a counter sale!
+            </div>
+          ) : (
+            <div style={{ display: "grid", gap: 12 }}>
+              {recentOrders.map((ord) => {
+                const customerInit = (ord.guest?.name || "Customer").charAt(0).toUpperCase();
+                return (
+                  <div
+                    key={ord.id}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      padding: "10px 12px",
+                      borderRadius: 12,
+                      background: "var(--canvas)",
+                      border: "1px solid var(--line)",
+                    }}
+                  >
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <div style={{
+                        width: 34,
+                        height: 34,
+                        borderRadius: 10,
+                        background: "var(--surface)",
+                        color: "var(--ink)",
+                        fontWeight: 700,
+                        fontSize: 12,
+                        display: "grid",
+                        placeItems: "center",
+                      }}>
+                        {customerInit}
+                      </div>
+                      <div>
+                        <strong style={{ display: "block", fontSize: 13, color: "var(--ink)" }}>
+                          #FL-{ord.id.slice(0, 4).toUpperCase()} • {ord.guest?.name || "Customer"}
+                        </strong>
+                        <span style={{ fontSize: 11, color: "var(--muted)" }}>
+                          {ord.status}
+                        </span>
+                      </div>
+                    </div>
+                    <div style={{ fontFamily: "Manrope, sans-serif", fontSize: 13, fontWeight: 800, color: "var(--ink)" }}>
+                      {fmtMoney(ord.totalMinor, ord.currency)}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
 
       {/* Setup Checklist Banner if not fully live */}
       {!isLive && (
@@ -363,83 +691,40 @@ async function Overview({
         </section>
       )}
 
-      {/* Overview Panels */}
+      {/* Store Identity & Policy */}
       <div style={{
-        display: "grid",
-        gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
-        gap: 24,
+        background: "#ffffff",
+        border: "1px solid var(--line)",
+        borderRadius: 20,
+        padding: 24,
+        boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
       }}>
-        {/* Brand & Store Identity Card */}
-        <div style={{
-          background: "#ffffff",
-          border: "1px solid var(--line)",
-          borderRadius: 20,
-          padding: 24,
-          boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
-        }}>
-          <span className="section-kicker">STORE IDENTITY</span>
-          <h2 style={{ fontFamily: "Manrope, sans-serif", fontSize: 18, fontWeight: 800, margin: "4px 0 16px" }}>
-            Storefront Logo &amp; Details
-          </h2>
-          {canManage && (
-            <div style={{ marginBottom: 16 }}>
-              <ImageUpload businessId={biz.id} target={{ kind: "business" }} label="Upload or Change Logo" />
-            </div>
-          )}
-          <div style={{ fontSize: 13, color: "var(--muted)", lineHeight: 1.6 }}>
-            <strong style={{ color: "var(--ink)", display: "block", marginBottom: 2 }}>Customer Refund Policy:</strong>
-            {describePolicy(biz.refundPolicy)}
+        <span className="section-kicker">STORE IDENTITY</span>
+        <h2 style={{ fontFamily: "Manrope, sans-serif", fontSize: 18, fontWeight: 800, margin: "4px 0 16px" }}>
+          Storefront Logo &amp; Details
+        </h2>
+        {canManage && (
+          <div style={{ marginBottom: 16 }}>
+            <ImageUpload businessId={biz.id} target={{ kind: "business" }} label="Upload or Change Logo" />
           </div>
-
-          {biz.status === "draft" && canManage && (
-            <form action={A.publishAction} style={{ marginTop: 20 }}>
-              {H(biz.id)}
-              <button className="primary-button" type="submit" style={{ width: "100%", justifyContent: "center" }}>
-                Publish Storefront Now <span>↗</span>
-              </button>
-              <p style={{ fontSize: 11, color: "var(--muted)", textAlign: "center", margin: "8px 0 0" }}>
-                Publishing starts your free 30 days with every business feature unlocked.
-              </p>
-            </form>
-          )}
+        )}
+        <div style={{ fontSize: 13, color: "var(--muted)", lineHeight: 1.6 }}>
+          <strong style={{ color: "var(--ink)", display: "block", marginBottom: 2 }}>Customer Refund Policy:</strong>
+          {describePolicy(biz.refundPolicy)}
         </div>
 
-        {/* Quick Operational Shortcuts */}
-        <div style={{
-          background: "#ffffff",
-          border: "1px solid var(--line)",
-          borderRadius: 20,
-          padding: 24,
-          boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
-        }}>
-          <span className="section-kicker">OPERATIONAL SHORTCUTS</span>
-          <h2 style={{ fontFamily: "Manrope, sans-serif", fontSize: 18, fontWeight: 800, margin: "4px 0 16px" }}>
-            Common Actions
-          </h2>
-          <div style={{ display: "grid", gap: 10 }}>
-            <Link
-              href={`/app/${biz.id}/kiosk`}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                padding: "12px 16px",
-                borderRadius: 14,
-                border: "1px solid var(--line)",
-                textDecoration: "none",
-                color: "inherit",
-                background: "var(--canvas)",
-              }}
-            >
-              <div>
-                <strong style={{ display: "block", fontSize: 13, color: "var(--ink)" }}>Open Counter POS Register</strong>
-                <small style={{ color: "var(--muted)", fontSize: 11 }}>Ring up cash, card, and QR sales at the checkout counter</small>
-              </div>
-              <span style={{ color: "var(--coral-dark)", fontWeight: 700 }}>↗</span>
-            </Link>
-
-            <Link
-              href={`/app/${biz.id}?tab=products`}
+        {biz.status === "draft" && canManage && (
+          <form action={A.publishAction} style={{ marginTop: 20 }}>
+            {H(biz.id)}
+            <button className="primary-button" type="submit" style={{ width: "fit-content", padding: "10px 24px" }}>
+              Publish Storefront Now <span>↗</span>
+            </button>
+            <p style={{ fontSize: 11, color: "var(--muted)", margin: "8px 0 0" }}>
+              Publishing starts your free 30 days with every business feature unlocked.
+            </p>
+          </form>
+        )}
+      </div>
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -767,9 +1052,9 @@ async function Products({
               <span>Publish and make visible on public storefront immediately</span>
             </label>
 
-            <button className="primary-button" type="submit" style={{ width: "fit-content", padding: "10px 20px" }}>
+            <SubmitButton loadingText="Adding Item..." style={{ width: "fit-content", padding: "10px 20px" }}>
               Add to Catalogue <span>↗</span>
-            </button>
+            </SubmitButton>
           </form>
         </div>
       )}
@@ -857,14 +1142,29 @@ async function Products({
                       </td>
                       <td style={{ padding: "14px" }}>
                         {canWrite && (
-                          <form action={A.setProductStatusAction}>
-                            {H(businessId)}
-                            <input type="hidden" name="productId" value={p.id} />
-                            <input type="hidden" name="status" value={p.status === "active" ? "paused" : "active"} />
-                            <button className="secondary-button" style={{ padding: "6px 12px", fontSize: 11 }} type="submit">
-                              {p.status === "active" ? "Pause" : "Make Live"}
-                            </button>
-                          </form>
+                          <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                            <form action={A.setProductStatusAction}>
+                              {H(businessId)}
+                              <input type="hidden" name="productId" value={p.id} />
+                              <input type="hidden" name="status" value={p.status === "active" ? "paused" : "active"} />
+                              <button className="secondary-button" style={{ padding: "6px 12px", fontSize: 11 }} type="submit">
+                                {p.status === "active" ? "Pause" : "Make Live"}
+                              </button>
+                            </form>
+                            <form action={A.setProductStatusAction}>
+                              {H(businessId)}
+                              <input type="hidden" name="productId" value={p.id} />
+                              <input type="hidden" name="status" value="archived" />
+                              <button
+                                className="secondary-button"
+                                style={{ padding: "6px 12px", fontSize: 11, color: "var(--error)" }}
+                                type="submit"
+                                title="Delete item"
+                              >
+                                Delete
+                              </button>
+                            </form>
+                          </div>
                         )}
                       </td>
                     </tr>
@@ -1240,7 +1540,7 @@ async function Messages({
 
         {rows.length === 0 ? (
           <div className="empty-dashboard" style={{ padding: "36px 10px" }}>
-            <span>💬</span>
+            <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center" }}><IconMessageSquare size={24} /></span>
             <b>No customer messages yet</b>
             <p>Customers can initiate private inquiries directly from your public storefront.</p>
           </div>
@@ -1597,7 +1897,7 @@ async function Billing({
     <div style={{ display: "grid", gap: 24 }}>
       {/* 30-Day Trial Status Banner */}
       <div style={{
-        background: "linear-gradient(135deg, #fff5f3 0%, #ffece8 100%)",
+        background: "var(--coral-soft)",
         border: "1.5px solid #fcdcd7",
         borderRadius: 24,
         padding: "24px 28px",
@@ -1671,9 +1971,15 @@ async function Billing({
                   <h3 style={{ textTransform: "capitalize", fontFamily: "Manrope, sans-serif", fontSize: 18, fontWeight: 800, margin: "0 0 4px" }}>
                     {pk}
                   </h3>
-                  <div style={{ fontFamily: "Manrope, sans-serif", fontSize: 22, fontWeight: 800, color: "var(--ink)", marginBottom: 12 }}>
+                  <div style={{ fontFamily: "Manrope, sans-serif", fontSize: 22, fontWeight: 800, color: "var(--ink)", marginBottom: 8 }}>
                     {fmtMoney(price.amountMinor, biz.currency)} <small style={{ fontSize: 12, fontWeight: 500, color: "var(--muted)" }}>/ mo</small>
                   </div>
+                  <p style={{ fontSize: 12, color: "var(--muted)", margin: "0 0 16px", lineHeight: 1.5 }}>
+                    {pk === "starter" && "100 listings • 100 orders included • 3 staff seats"}
+                    {pk === "growth" && "500 listings • 300 orders included • 6 staff seats"}
+                    {pk === "business" && "Unlimited listings • 1,000 orders included • 15 staff • Custom domain"}
+                    {pk === "pro" && "Unlimited listings • Unlimited orders • 50 staff • 0% overage fee"}
+                  </p>
                 </div>
 
                 {canBilling && (

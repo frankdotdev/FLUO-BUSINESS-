@@ -1,6 +1,6 @@
 import { fmtLocal, type MessageRecord } from "@fluo/core";
 import { sendMessageAction } from "@/app/actions.ts";
-import { IconArrowRight } from "@/components/icons.tsx";
+import { IconArrowRight, IconMessageSquare } from "@/components/icons.tsx";
 
 /** A chat thread with a reply box. `viewer` decides which side the viewer is; bubbles for the viewer sit on the right. */
 export function Thread({
@@ -35,7 +35,7 @@ export function Thread({
         <div style={{ display: "grid", gap: 14, alignContent: "start", marginBottom: 20 }}>
           {messages.length === 0 ? (
             <div className="empty-dashboard" style={{ padding: "40px 10px" }}>
-              <span>💬</span>
+              <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center" }}><IconMessageSquare size={24} /></span>
               <b>Start the conversation</b>
               <p>Ask about custom orders, availability, reservations, or delivery timing.</p>
             </div>
