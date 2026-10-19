@@ -42,7 +42,7 @@ export default async function Home() {
       ? p.galleryAssetIds.length
       : p.imageAssetId ? 1 : 0;
     const discount = (p.compareAtPriceMinor && p.compareAtPriceMinor > p.priceMinor)
-      ? Math.round(Number((p.compareAtPriceMinor - p.priceMinor) * 100n / p.compareAtPriceMinor))
+      ? Math.round((Number(p.compareAtPriceMinor - p.priceMinor) * 100) / Number(p.compareAtPriceMinor))
       : null;
     return {
       id: p.id,

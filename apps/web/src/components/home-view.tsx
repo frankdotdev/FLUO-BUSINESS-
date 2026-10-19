@@ -95,7 +95,7 @@ export function HomeView({
         photoClass: photoStyle,
         acceptsAutomatic: b.acceptsAutomatic,
         allowsTransfer: b.allowsTransfer,
-        createdAt: b.createdAt,
+        publishedAtMs: b.publishedAtMs,
         searchTags: `${b.name} ${typeName} ${b.slug}`.toLowerCase(),
         isOpen: openStatus.isOpen,
       };
@@ -121,7 +121,7 @@ export function HomeView({
 
   // Fresh arrivals / new businesses
   const newStores = useMemo(() => {
-    return [...storeCards].reverse().slice(0, 8);
+    return [...storeCards].sort((a, b) => (b.publishedAtMs ?? 0) - (a.publishedAtMs ?? 0)).slice(0, 8);
   }, [storeCards]);
 
   // Client-side filtering logic for the Explore All grid

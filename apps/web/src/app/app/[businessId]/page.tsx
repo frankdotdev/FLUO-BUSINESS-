@@ -308,7 +308,7 @@ export default async function Dashboard({
                   Publish Storefront Now ↗
                 </button>
               </form>
-              {canManage && (
+              {myRole === "owner" && (
                 <form action={A.deleteDraftBusinessAction}>
                   <input type="hidden" name="businessId" value={biz.id} />
                   <button
