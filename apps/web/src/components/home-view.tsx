@@ -43,7 +43,7 @@ export interface HomeEventItem {
 }
 
 export interface HomeViewProps {
-  initialBusinesses: BusinessRecord[];
+  initialBusinesses: (BusinessRecord & { logoUrl?: string | null })[];
   initialProducts?: HomeProductItem[];
   initialEvents?: HomeEventItem[];
   favoriteIds?: string[];
@@ -93,6 +93,7 @@ export function HomeView({
         tag: b.allowsTransfer ? "Available" : "Verified",
         tagClass: "delivery-tag",
         photoClass: photoStyle,
+        logoUrl: (b as any).logoUrl ?? null,
         acceptsAutomatic: b.acceptsAutomatic,
         allowsTransfer: b.allowsTransfer,
         publishedAtMs: b.publishedAtMs,
@@ -369,10 +370,18 @@ export function HomeView({
                         <IconHeart size={14} fill={isSaved ? "var(--coral-dark)" : "none"} color={isSaved ? "var(--coral-dark)" : "currentColor"} />
                       </button>
                     </form>
-                    <div className="photo-caption" style={{ fontSize: 22 }}>
-                      {store.name.slice(0, 2).toUpperCase()}
-                      <span>.</span>
-                    </div>
+                    {store.logoUrl ? (
+                      <img
+                        src={store.logoUrl}
+                        alt={store.name}
+                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                      />
+                    ) : (
+                      <div className="photo-caption" style={{ fontSize: 22 }}>
+                        {store.name.slice(0, 2).toUpperCase()}
+                        <span>.</span>
+                      </div>
+                    )}
                   </div>
                   <div style={{ padding: "14px 16px", flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
                     <div>
@@ -770,10 +779,18 @@ export function HomeView({
                       <IconHeart size={14} fill={isSaved ? "var(--coral-dark)" : "none"} color={isSaved ? "var(--coral-dark)" : "currentColor"} />
                     </button>
                   </form>
-                  <div className="photo-caption" style={{ fontSize: 26 }}>
-                    {store.name.slice(0, 2).toUpperCase()}
-                    <span>.</span>
-                  </div>
+                  {store.logoUrl ? (
+                    <img
+                      src={store.logoUrl}
+                      alt={store.name}
+                      style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                    />
+                  ) : (
+                    <div className="photo-caption" style={{ fontSize: 26 }}>
+                      {store.name.slice(0, 2).toUpperCase()}
+                      <span>.</span>
+                    </div>
+                  )}
                 </div>
 
                 <div className="store-details">
@@ -830,10 +847,18 @@ export function HomeView({
                         <IconHeart size={14} fill={isSaved ? "var(--coral-dark)" : "none"} color={isSaved ? "var(--coral-dark)" : "currentColor"} />
                       </button>
                     </form>
-                    <div className="photo-caption" style={{ fontSize: 26 }}>
-                      {store.name.slice(0, 2).toUpperCase()}
-                      <span>.</span>
-                    </div>
+                    {store.logoUrl ? (
+                      <img
+                        src={store.logoUrl}
+                        alt={store.name}
+                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                      />
+                    ) : (
+                      <div className="photo-caption" style={{ fontSize: 26 }}>
+                        {store.name.slice(0, 2).toUpperCase()}
+                        <span>.</span>
+                      </div>
+                    )}
                   </div>
 
                   <div className="store-details">

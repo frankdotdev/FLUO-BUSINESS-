@@ -88,7 +88,30 @@ const paymentParams = (p: PaymentRecord): unknown[] => [p.id, p.businessId, p.pu
  *  as UUIDs before they reach SQL; state changes are compare-and-set UPDATEs; multi-row writes run in one transaction. */
 export class PgStore implements Store {
   private readonly pool: PoolLike;
+  private schemaChecked = false;
   constructor(pool: PoolLike) { this.pool = pool; }
+
+  async ensureSchema(): Promise<void> {
+    if (this.schemaChecked) return;
+    try {
+      await this.pool.query(`
+        alter table products add column if not exists gallery_asset_ids text[] not null default '{}';
+        alter table products add column if not exists compare_at_price_minor bigint;
+        alter table products add column if not exists promo_badge text;
+        create table if not exists customer_favorite_businesses (
+          customer_user_id text not null references users(id),
+          business_id uuid not null references businesses(id),
+          created_at timestamptz not null default now(),
+          primary key (customer_user_id, business_id)
+        );
+        create index if not exists customer_favorite_businesses_biz on customer_favorite_businesses(business_id);
+        create index if not exists customer_favorite_businesses_customer on customer_favorite_businesses(customer_user_id);
+      `);
+      this.schemaChecked = true;
+    } catch (e) {
+      console.warn("PgStore ensureSchema warning:", e);
+    }
+  }
 
   private async tx<T>(fn: (c: Db) => Promise<T>): Promise<T> {
     const c = await this.pool.connect();
@@ -102,6 +125,7 @@ export class PgStore implements Store {
   // ---- businesses, members, invites ----
   async slugTaken(slug: string) { return (await this.one("select 1 from businesses where slug = $1", [slug])) !== null; }
   async insertBusiness(b: BusinessRecord, owner: Membership, caps: readonly Capability[]) {
+    await this.ensureSchema();
     await this.tx(async (c) => {
       await c.query(`insert into businesses (id, slug, name, business_type_id, business_type_ver, country_code, currency, timezone, status, verification_status, allows_transfer, accepts_automatic, refund_policy)
         values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)`, [b.id, b.slug, b.name, b.typeId, b.typeVersion, b.countryCode, b.currency, b.timezone, b.status, b.verificationStatus, b.allowsTransfer, b.acceptsAutomatic, JSON.stringify(b.refundPolicy)]);
@@ -144,6 +168,15 @@ export class PgStore implements Store {
   }
   async markInviteUsed(hash: Buffer, atMs: number) { return this.changed("update member_invites set used_at = $2 where token_hash = $1 and used_at is null", [hash, d(atMs)]); }
   async capabilitiesOf(businessId: string) { return isUuid(businessId) ? (await this.pool.query("select capability from business_capabilities where business_id = $1", [businessId])).rows.map((r) => r.capability) : []; }
+  async setCapabilities(businessId: string, caps: readonly Capability[]): Promise<void> {
+    if (!isUuid(businessId)) return;
+    await this.tx(async (c) => {
+      await c.query("delete from business_capabilities where business_id = $1", [businessId]);
+      for (const cap of caps) {
+        await c.query("insert into business_capabilities (business_id, capability) values ($1,$2) on conflict do nothing", [businessId, cap]);
+      }
+    });
+  }
   async getUserContact(userId: string): Promise<UserContact | null> { const r = await this.one("select email, name from users where id = $1", [userId]); return r ? { email: r.email, name: r.name } : null; }
 
   // ---- trials, subscriptions, audit ----
@@ -195,9 +228,19 @@ export class PgStore implements Store {
     return out;
   }
   async insertProduct(p: ProductRecord) {
-    return this.changed(`insert into products (id, business_id, short_id, slug, name, description, price_minor, currency, fulfilment, lead_time_hours, max_per_order, status, created_at, stock_quantity, compare_at_price_minor, promo_badge, gallery_asset_ids)
+    const run = () => this.changed(`insert into products (id, business_id, short_id, slug, name, description, price_minor, currency, fulfilment, lead_time_hours, max_per_order, status, created_at, stock_quantity, compare_at_price_minor, promo_badge, gallery_asset_ids)
       values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17) on conflict (short_id) do nothing`,
       [p.id, p.businessId, p.shortId, p.slug, p.name, p.description, p.priceMinor.toString(), p.currency, p.fulfilment, p.leadTimeHours, p.maxPerOrder, p.status, d(p.createdAtMs), p.stockQuantity ?? null, p.compareAtPriceMinor ? p.compareAtPriceMinor.toString() : null, p.promoBadge ?? null, p.galleryAssetIds ? [...p.galleryAssetIds] : []]);
+    try {
+      return await run();
+    } catch (e: any) {
+      if (e?.code === "42703") { // undefined_column
+        this.schemaChecked = false;
+        await this.ensureSchema();
+        return await run();
+      }
+      throw e;
+    }
   }
   async getProduct(businessId: string, id: string) { return isUuid(id) && isUuid(businessId) ? (r => (r ? mProduct(r) : null))(await this.one("select * from products where id = $1 and business_id = $2", [id, businessId])) : null; }
   async patchProduct(businessId: string, id: string, patch: Partial<ProductRecord>) {
@@ -207,7 +250,18 @@ export class PgStore implements Store {
     };
     const sets: string[] = [], vals: unknown[] = [id, businessId];
     for (const [k, v] of Object.entries(patch)) { const c = cols[k]; if (c) { vals.push(c[1](v)); sets.push(`${c[0]} = $${vals.length}`); } }
-    return sets.length > 0 && isUuid(id) && isUuid(businessId) ? this.changed(`update products set ${sets.join(", ")} where id = $1 and business_id = $2`, vals) : false;
+    if (sets.length === 0 || !isUuid(id) || !isUuid(businessId)) return false;
+    const run = () => this.changed(`update products set ${sets.join(", ")} where id = $1 and business_id = $2`, vals);
+    try {
+      return await run();
+    } catch (e: any) {
+      if (e?.code === "42703") {
+        this.schemaChecked = false;
+        await this.ensureSchema();
+        return await run();
+      }
+      throw e;
+    }
   }
   async listProducts(businessId: string, statuses: readonly ProductStatus[], limit: number, offset: number) {
     return isUuid(businessId) ? (await this.pool.query("select * from products where business_id = $1 and status = any($2::text[]) order by created_at desc limit $3 offset $4", [businessId, statuses, limit, offset])).rows.map(mProduct) : [];

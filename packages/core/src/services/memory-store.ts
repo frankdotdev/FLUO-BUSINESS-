@@ -209,6 +209,7 @@ export class MemoryStore implements Store {
   async getPayoutAccount(businessId: string) { return this.payouts.get(businessId) ?? null; }
   async savePayoutAccount(r: PayoutAccountRecord) { this.payouts.set(r.businessId, r); }
   async capabilitiesOf(businessId: string) { return [...(this.caps.get(businessId) ?? [])]; }
+  async setCapabilities(businessId: string, caps: readonly Capability[]) { this.caps.set(businessId, [...caps]); }
   async getUserContact(userId: string) { return this.contacts.get(userId) ?? null; }
   async insertProduct(p: ProductRecord) { if ([...this.products.values()].some((x) => x.shortId === p.shortId)) return false; this.products.set(p.id, p); return true; }
   async getProduct(businessId: string, id: string) { const p = this.products.get(id); return p && p.businessId === businessId ? p : null; }

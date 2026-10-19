@@ -16,7 +16,7 @@ export default async function NewBusiness({ searchParams }: { searchParams: Prom
   );
 
   return (
-    <div style={{ maxWidth: 620, margin: "32px auto 80px", padding: "0 16px" }}>
+    <div style={{ maxWidth: 780, margin: "32px auto 80px", padding: "0 16px" }}>
       {/* 30-Day Free Trial Highlight */}
       <div style={{
         background: "var(--coral-soft)",

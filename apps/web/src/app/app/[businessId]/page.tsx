@@ -91,11 +91,19 @@ export default async function Dashboard({
   const tab: ModuleId = modules.some((m) => m.id === sp.tab) ? (sp.tab as ModuleId) : "overview";
   const myRole = mine.find((m) => m.businessId === businessId && m.status === "active")?.role;
 
-  // Real orders count for badge
-  const recentOrders = await d.store.listOrders(businessId, 20, 0).catch(() => []);
+  // Real counts for badges & notifications
+  const [recentOrders, conversations, refundRequests] = await Promise.all([
+    d.store.listOrders(businessId, 50, 0).catch(() => []),
+    d.store.listConversationsForBusiness(businessId, 50).catch(() => []),
+    d.store.listRefundRequests(businessId, "requested").catch(() => []),
+  ]);
   const activeOrdersCount = recentOrders.filter(
     (o) => o.status === "awaiting_payment" || o.status === "paid" || o.status === "in_production" || o.status === "ready"
   ).length;
+  const awaitingPaymentCount = recentOrders.filter((o) => o.status === "awaiting_payment").length;
+  const unreadMessagesCount = conversations.reduce((acc, c) => acc + (c.businessUnread || 0), 0);
+  const pendingRefundsCount = refundRequests.length;
+  const totalAlertsCount = awaitingPaymentCount + unreadMessagesCount + pendingRefundsCount;
 
   const todayStr = new Intl.DateTimeFormat("en-US", {
     weekday: "long",
@@ -181,6 +189,18 @@ export default async function Dashboard({
                     fontWeight: 700,
                   }}>
                     {activeOrdersCount}
+                  </span>
+                )}
+                {m.id === "messages" && unreadMessagesCount > 0 && (
+                  <span style={{
+                    background: isCurrent ? "var(--coral)" : "#eff6ff",
+                    color: isCurrent ? "#ffffff" : "#2563eb",
+                    padding: "2px 7px",
+                    borderRadius: 6,
+                    fontSize: 11,
+                    fontWeight: 700,
+                  }}>
+                    {unreadMessagesCount}
                   </span>
                 )}
               </Link>
@@ -271,6 +291,30 @@ export default async function Dashboard({
                 }}
               >
                 {m.label}
+                {m.id === "orders" && activeOrdersCount > 0 && (
+                  <span style={{
+                    marginLeft: 6,
+                    padding: "1px 6px",
+                    borderRadius: 6,
+                    fontSize: 10,
+                    background: isCurrent ? "var(--coral)" : "var(--coral-soft)",
+                    color: isCurrent ? "#ffffff" : "var(--coral-dark)",
+                  }}>
+                    {activeOrdersCount}
+                  </span>
+                )}
+                {m.id === "messages" && unreadMessagesCount > 0 && (
+                  <span style={{
+                    marginLeft: 6,
+                    padding: "1px 6px",
+                    borderRadius: 6,
+                    fontSize: 10,
+                    background: isCurrent ? "var(--coral)" : "#eff6ff",
+                    color: isCurrent ? "#ffffff" : "#2563eb",
+                  }}>
+                    {unreadMessagesCount}
+                  </span>
+                )}
               </Link>
             );
           })}
@@ -327,6 +371,87 @@ export default async function Dashboard({
                     Discard Draft
                   </button>
                 </form>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Real-time In-App Notifications & Activity Hub */}
+        {totalAlertsCount > 0 && (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              flexWrap: "wrap",
+              gap: 12,
+              padding: "16px 20px",
+              background: "#eff6ff",
+              border: "1.5px solid #bfdbfe",
+              borderRadius: 16,
+              marginBottom: 20,
+              boxShadow: "0 2px 10px rgba(59, 130, 246, 0.08)",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+              <div
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: 12,
+                  background: "#2563eb",
+                  color: "#ffffff",
+                  display: "grid",
+                  placeItems: "center",
+                  fontWeight: 800,
+                  fontSize: 16,
+                  flexShrink: 0,
+                }}
+              >
+                {totalAlertsCount}
+              </div>
+              <div>
+                <strong style={{ fontSize: 14, color: "#1e3a8a", display: "block" }}>
+                  Workspace Activity &amp; In-App Notifications
+                </strong>
+                <span style={{ fontSize: 12, color: "#2563eb" }}>
+                  {[
+                    awaitingPaymentCount > 0 && `${awaitingPaymentCount} order${awaitingPaymentCount > 1 ? "s" : ""} awaiting payment/transfer verification`,
+                    unreadMessagesCount > 0 && `${unreadMessagesCount} unread customer message${unreadMessagesCount > 1 ? "s" : ""} / quote inquiries`,
+                    pendingRefundsCount > 0 && `${pendingRefundsCount} refund request${pendingRefundsCount > 1 ? "s" : ""} needing review`,
+                  ]
+                    .filter(Boolean)
+                    .join(" • ")}
+                </span>
+              </div>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+              {awaitingPaymentCount > 0 && (
+                <Link
+                  href={`/app/${businessId}?tab=orders`}
+                  className="secondary-button"
+                  style={{ padding: "8px 14px", fontSize: 12, background: "#ffffff", borderColor: "#bfdbfe" }}
+                >
+                  Verify Payments ↗
+                </Link>
+              )}
+              {unreadMessagesCount > 0 && (
+                <Link
+                  href={`/app/${businessId}?tab=messages`}
+                  className="secondary-button"
+                  style={{ padding: "8px 14px", fontSize: 12, background: "#ffffff", borderColor: "#bfdbfe" }}
+                >
+                  Reply to Inquiries ↗
+                </Link>
+              )}
+              {pendingRefundsCount > 0 && (
+                <Link
+                  href={`/app/${businessId}?tab=orders`}
+                  className="secondary-button"
+                  style={{ padding: "8px 14px", fontSize: 12, background: "#ffffff", borderColor: "#bfdbfe" }}
+                >
+                  Review Refunds ↗
+                </Link>
               )}
             </div>
           </div>
@@ -425,7 +550,7 @@ export default async function Dashboard({
 
         {/* Main Tab View */}
         <main style={{ minHeight: 400 }}>
-          {tab === "overview" && <Overview biz={biz} canManage={can("business.manage")} planKey={planKey} />}
+          {tab === "overview" && <Overview biz={biz} canManage={can("business.manage")} planKey={planKey} caps={caps} />}
           {tab === "orders" && <Orders businessId={businessId} canWrite={can("orders.write")} canRefund={can("refunds.manage")} />}
           {tab === "bookings" && (
             <Bookings
@@ -469,10 +594,12 @@ async function Overview({
   biz,
   canManage,
   planKey,
+  caps = [],
 }: {
   biz: { id: string; name: string; status: string; acceptsAutomatic: boolean; allowsTransfer: boolean; refundPolicy: Parameters<typeof describePolicy>[0] };
   canManage: boolean;
   planKey: string;
+  caps?: readonly string[];
 }) {
   const d = deps();
   const [orders, products, trial] = await Promise.all([
@@ -793,6 +920,245 @@ async function Overview({
             </p>
           </form>
         )}
+      </div>
+
+      {/* Workspace Engines & Hybrid Tools Selector */}
+      <div style={{
+        background: "#ffffff",
+        border: "1px solid var(--line)",
+        borderRadius: 20,
+        padding: 24,
+        boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
+      }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12, marginBottom: 16 }}>
+          <div>
+            <span className="section-kicker">HYBRID WORKSPACE ENGINES</span>
+            <h2 style={{ fontFamily: "Manrope, sans-serif", fontSize: 18, fontWeight: 800, margin: "4px 0 6px" }}>
+              Tailor Your Business Tools &amp; Machines
+            </h2>
+            <p style={{ margin: 0, fontSize: 13, color: "var(--muted)", maxWidth: 640 }}>
+              Whether you fix phones, sell retail goods, take salon appointments, or host events — enable or disable any engine below at any time. For example, a phone repair technician can offer repair quotes AND sell phone cases/accessories simultaneously.
+            </p>
+          </div>
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 14 }}>
+          {/* Engine 1: Products & Catalogue */}
+          <div style={{
+            padding: 16,
+            borderRadius: 16,
+            border: caps.includes("catalogue") ? "1.5px solid var(--coral)" : "1px solid var(--line)",
+            background: caps.includes("catalogue") ? "var(--coral-soft)" : "var(--canvas)",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
+            gap: 12,
+          }}>
+            <div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                <strong style={{ fontSize: 14, color: "var(--ink)" }}>Products &amp; Catalogue</strong>
+                <span style={{
+                  fontSize: 11,
+                  fontWeight: 700,
+                  padding: "2px 8px",
+                  borderRadius: 6,
+                  background: caps.includes("catalogue") ? "var(--coral)" : "#e2e8f0",
+                  color: caps.includes("catalogue") ? "#ffffff" : "#64748b",
+                }}>
+                  {caps.includes("catalogue") ? "Active" : "Inactive"}
+                </span>
+              </div>
+              <p style={{ margin: 0, fontSize: 12, color: "var(--muted)", lineHeight: 1.5 }}>
+                Sell physical items, phones, laptop accessories, parts, food, or store merchandise with inventory tracking.
+              </p>
+            </div>
+            {canManage && (
+              <form action={A.toggleEngineAction}>
+                <input type="hidden" name="businessId" value={biz.id} />
+                <input type="hidden" name="engine" value="catalogue" />
+                <input type="hidden" name="enable" value={caps.includes("catalogue") ? "false" : "true"} />
+                <button
+                  type="submit"
+                  style={{
+                    width: "100%",
+                    padding: "8px 12px",
+                    borderRadius: 10,
+                    fontSize: 12,
+                    fontWeight: 700,
+                    border: "1px solid var(--line)",
+                    background: caps.includes("catalogue") ? "#ffffff" : "var(--ink)",
+                    color: caps.includes("catalogue") ? "var(--ink)" : "#ffffff",
+                    cursor: "pointer",
+                  }}
+                >
+                  {caps.includes("catalogue") ? "Disable Product Sales" : "Enable Product Sales"}
+                </button>
+              </form>
+            )}
+          </div>
+
+          {/* Engine 2: Services & Bookings */}
+          <div style={{
+            padding: 16,
+            borderRadius: 16,
+            border: caps.includes("services") || caps.includes("bookings") ? "1.5px solid var(--coral)" : "1px solid var(--line)",
+            background: caps.includes("services") || caps.includes("bookings") ? "var(--coral-soft)" : "var(--canvas)",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
+            gap: 12,
+          }}>
+            <div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                <strong style={{ fontSize: 14, color: "var(--ink)" }}>Services &amp; Appointments</strong>
+                <span style={{
+                  fontSize: 11,
+                  fontWeight: 700,
+                  padding: "2px 8px",
+                  borderRadius: 6,
+                  background: caps.includes("services") || caps.includes("bookings") ? "var(--coral)" : "#e2e8f0",
+                  color: caps.includes("services") || caps.includes("bookings") ? "#ffffff" : "#64748b",
+                }}>
+                  {caps.includes("services") || caps.includes("bookings") ? "Active" : "Inactive"}
+                </span>
+              </div>
+              <p style={{ margin: 0, fontSize: 12, color: "var(--muted)", lineHeight: 1.5 }}>
+                Offer device repairs, tech maintenance, artisan trades, beauty styling, or scheduled calendar reservations.
+              </p>
+            </div>
+            {canManage && (
+              <form action={A.toggleEngineAction}>
+                <input type="hidden" name="businessId" value={biz.id} />
+                <input type="hidden" name="engine" value="services" />
+                <input type="hidden" name="enable" value={caps.includes("services") || caps.includes("bookings") ? "false" : "true"} />
+                <button
+                  type="submit"
+                  style={{
+                    width: "100%",
+                    padding: "8px 12px",
+                    borderRadius: 10,
+                    fontSize: 12,
+                    fontWeight: 700,
+                    border: "1px solid var(--line)",
+                    background: caps.includes("services") || caps.includes("bookings") ? "#ffffff" : "var(--ink)",
+                    color: caps.includes("services") || caps.includes("bookings") ? "var(--ink)" : "#ffffff",
+                    cursor: "pointer",
+                  }}
+                >
+                  {caps.includes("services") || caps.includes("bookings") ? "Disable Services & Bookings" : "Enable Services & Bookings"}
+                </button>
+              </form>
+            )}
+          </div>
+
+          {/* Engine 3: Customer Inquiries & Quotes Chat */}
+          <div style={{
+            padding: 16,
+            borderRadius: 16,
+            border: caps.includes("messaging") ? "1.5px solid var(--coral)" : "1px solid var(--line)",
+            background: caps.includes("messaging") ? "var(--coral-soft)" : "var(--canvas)",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
+            gap: 12,
+          }}>
+            <div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                <strong style={{ fontSize: 14, color: "var(--ink)" }}>Inquiries &amp; Custom Quotes</strong>
+                <span style={{
+                  fontSize: 11,
+                  fontWeight: 700,
+                  padding: "2px 8px",
+                  borderRadius: 6,
+                  background: caps.includes("messaging") ? "var(--coral)" : "#e2e8f0",
+                  color: caps.includes("messaging") ? "#ffffff" : "#64748b",
+                }}>
+                  {caps.includes("messaging") ? "Active" : "Inactive"}
+                </span>
+              </div>
+              <p style={{ margin: 0, fontSize: 12, color: "var(--muted)", lineHeight: 1.5 }}>
+                Direct messaging thread with customers on your storefront to discuss repair issues, quote prices, and share invoices.
+              </p>
+            </div>
+            {canManage && (
+              <form action={A.toggleEngineAction}>
+                <input type="hidden" name="businessId" value={biz.id} />
+                <input type="hidden" name="engine" value="messaging" />
+                <input type="hidden" name="enable" value={caps.includes("messaging") ? "false" : "true"} />
+                <button
+                  type="submit"
+                  style={{
+                    width: "100%",
+                    padding: "8px 12px",
+                    borderRadius: 10,
+                    fontSize: 12,
+                    fontWeight: 700,
+                    border: "1px solid var(--line)",
+                    background: caps.includes("messaging") ? "#ffffff" : "var(--ink)",
+                    color: caps.includes("messaging") ? "var(--ink)" : "#ffffff",
+                    cursor: "pointer",
+                  }}
+                >
+                  {caps.includes("messaging") ? "Disable Customer Messaging" : "Enable Customer Messaging"}
+                </button>
+              </form>
+            )}
+          </div>
+
+          {/* Engine 4: Events & Experience Ticketing */}
+          <div style={{
+            padding: 16,
+            borderRadius: 16,
+            border: caps.includes("events_ticketing") ? "1.5px solid var(--coral)" : "1px solid var(--line)",
+            background: caps.includes("events_ticketing") ? "var(--coral-soft)" : "var(--canvas)",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
+            gap: 12,
+          }}>
+            <div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                <strong style={{ fontSize: 14, color: "var(--ink)" }}>Events &amp; Ticketing</strong>
+                <span style={{
+                  fontSize: 11,
+                  fontWeight: 700,
+                  padding: "2px 8px",
+                  borderRadius: 6,
+                  background: caps.includes("events_ticketing") ? "var(--coral)" : "#e2e8f0",
+                  color: caps.includes("events_ticketing") ? "#ffffff" : "#64748b",
+                }}>
+                  {caps.includes("events_ticketing") ? "Active" : "Inactive"}
+                </span>
+              </div>
+              <p style={{ margin: 0, fontSize: 12, color: "var(--muted)", lineHeight: 1.5 }}>
+                Sell tickets with QR check-in scanner. No monthly subscription required; only a standard 2% fee per ticket sold.
+              </p>
+            </div>
+            {canManage && (
+              <form action={A.toggleEngineAction}>
+                <input type="hidden" name="businessId" value={biz.id} />
+                <input type="hidden" name="engine" value="events_ticketing" />
+                <input type="hidden" name="enable" value={caps.includes("events_ticketing") ? "false" : "true"} />
+                <button
+                  type="submit"
+                  style={{
+                    width: "100%",
+                    padding: "8px 12px",
+                    borderRadius: 10,
+                    fontSize: 12,
+                    fontWeight: 700,
+                    border: "1px solid var(--line)",
+                    background: caps.includes("events_ticketing") ? "#ffffff" : "var(--ink)",
+                    color: caps.includes("events_ticketing") ? "var(--ink)" : "#ffffff",
+                    cursor: "pointer",
+                  }}
+                >
+                  {caps.includes("events_ticketing") ? "Disable Events & Ticketing" : "Enable Events & Ticketing"}
+                </button>
+              </form>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Quick Operations Card */}

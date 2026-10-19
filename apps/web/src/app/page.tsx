@@ -72,9 +72,14 @@ export default async function Home() {
     businessSlug: b.slug,
   }));
 
+  const formattedBusinesses = businesses.map((b) => ({
+    ...b,
+    logoUrl: photo(b.id, b.logoAssetId, "card"),
+  }));
+
   return (
     <HomeView
-      initialBusinesses={businesses}
+      initialBusinesses={formattedBusinesses}
       initialProducts={products}
       initialEvents={events}
       favoriteIds={favorites.map((b) => b.id)}

@@ -160,6 +160,7 @@ export interface Store {
   getPayoutAccount(businessId: string): Promise<PayoutAccountRecord | null>;
   savePayoutAccount(r: PayoutAccountRecord): Promise<void>;
   capabilitiesOf(businessId: string): Promise<Capability[]>;
+  setCapabilities(businessId: string, caps: readonly Capability[]): Promise<void>;
   getUserContact(userId: string): Promise<UserContact | null>;
   // catalogue
   insertProduct(p: ProductRecord): Promise<boolean>;                                  // false if short_id collides

@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { BUSINESS_TYPES, PLAN_ENTITLEMENTS, PRICE_BOOK, ServiceError, attachMedia, completeUpload, requestUpload, type MediaTarget, type ImagePurpose, acceptInvite, inviteMember, isTypeReady, removeMember, sendMessage, startConversation, type Role, addTicketType, checkInTicket, createEvent, createResourceGroup, holdBooking, purchaseTickets, setEventStatus, stayToInterval, type PolicyKind, cancelBooking, cancelSubscription, cancelUnpaidOrder, confirmBookingTransfer, confirmTransfer, createBusiness, createProduct,
   initializeProviderCheckout, isCustomerOf, markBookingTransferSent, markTransferSent, parseLocalDate, parseLocalTime, parseMajor, placeOrder, publishBusiness, deleteDraftBusiness, resolveEntitlements, resolveRefund,
   resumeSubscription, setPaymentModes, setPayoutAccount, setProductStatus, setTransferAccount, startSubscriptionPayment, zonedToInstant, type Capability, type CustomerProof, type ProductStatus,
-  generateEscrowSecrets, verifyEscrowPin, verifyEscrowQr, calculateGroupCartTotal, type GroupCartSession, type GroupCartItem, type GroupContribution, type SplitKind } from "@fluo/core";
+  generateEscrowSecrets, verifyEscrowPin, verifyEscrowQr, calculateGroupCartTotal, type GroupCartSession, type GroupCartItem, type GroupContribution, type SplitKind, authorize, withDependencies } from "@fluo/core";
 import { rateLimited } from "@/server/rate.ts";
 import { scheduleFlush } from "@/server/flush.ts";
 import { container, deps } from "@/server/container.ts";
@@ -173,6 +173,28 @@ export async function deleteDraftBusinessAction(f: FormData): Promise<void> {
   revalidatePath("/app");
   revalidatePath("/");
   redirect("/app");
+}
+export async function toggleEngineAction(f: FormData): Promise<void> {
+  const user = await requireUser();
+  const id = str(f, "businessId");
+  const engine = str(f, "engine") as Capability;
+  const enable = str(f, "enable") === "1" || str(f, "enable") === "true";
+  const d = deps();
+  const mine = await d.store.membershipsForUser(user.id);
+  if (!authorize(mine, user.id, id, "business.manage").allowed) {
+    redirect(withParam(back(id, "overview"), "error", "forbidden"));
+  }
+  const current = await d.store.capabilitiesOf(id);
+  let next: Capability[];
+  if (enable) {
+    next = withDependencies([...current, engine]);
+  } else {
+    next = current.filter((c) => c !== engine);
+  }
+  await d.store.setCapabilities(id, next);
+  revalidatePath(`/app/${id}`);
+  revalidatePath("/");
+  redirect(back(id, "overview"));
 }
 export async function saveTransferAccountAction(f: FormData): Promise<void> {
   const user = await requireUser(); const id = str(f, "businessId");

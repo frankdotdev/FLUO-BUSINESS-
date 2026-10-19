@@ -34,9 +34,9 @@ export const BUSINESS_TYPES: readonly BusinessType[] = [
   t("retail", "retail", "Retail shop", "mvp", ["catalogue", "inventory", "orders"], ["delivery", "promotions", "staff"]),
   t("restaurant", "food", "Restaurant / café", "mvp", ["catalogue", "orders"], ["resource_booking", "delivery", "staff", "promotions"]),
   t("bakery", "food", "Bakery / made-to-order food", "mvp", ["catalogue", "custom_orders"], ["delivery", "promotions"]),
-  t("salon_barber", "beauty", "Barber / salon / beauty", "mvp", ["services", "bookings"], ["staff", "memberships", "promotions"]),
+  t("salon_barber", "beauty", "Barber / salon / beauty", "mvp", ["services", "bookings"], ["catalogue", "orders", "staff", "memberships", "promotions"]),
   t("technician", "home_services", "Repair / technician", "mvp", ["services", "job_cards", "quotes", "bookings"], ["catalogue", "inventory", "staff"]),
-  t("event_organiser", "events", "Event organiser", "mvp", ["events_ticketing"], ["staff", "promotions"]),
+  t("event_organiser", "events", "Event organiser", "mvp", ["events_ticketing"], ["catalogue", "orders", "staff", "promotions"]),
   t("general", "general", "General business", "mvp", ["enquiries"], ["catalogue", "orders", "services", "bookings", "staff"]),
   // Food, groceries
   t("supermarket", "retail", "Supermarket / mini-mart", "launch", ["catalogue", "inventory", "orders", "delivery"], ["batch_expiry", "promotions", "staff"]),
@@ -105,7 +105,8 @@ export const BUSINESS_TYPES: readonly BusinessType[] = [
   t("digital_creator", "creative", "Digital creator / products", "launch", ["catalogue", "orders", "documents"], ["memberships"]),
   t("sports_facility", "wellness", "Sports facility / courts", "launch", ["resource_booking", "memberships"], ["staff"]),
   // Additional everyday businesses (completing the catalogue)
-  t("phone_repair_retail", "everyday", "Phone / computer repair & sales", "mvp", ["services", "job_cards", "quotes", "bookings", "catalogue", "inventory", "orders"], ["staff"]),
+  t("phone_repair_retail", "services", "Phone, Laptop & Electronics Repair / Tech Hub", "mvp", ["services", "bookings", "catalogue", "inventory", "orders", "enquiries", "messaging"], ["staff", "quotes", "job_cards"]),
+  t("artisan_services", "home_services", "Artisan & Home Services (Plumbing, Electrical, AC, Carpentry)", "mvp", ["services", "bookings", "orders", "enquiries", "messaging"], ["catalogue", "inventory", "staff", "quotes", "job_cards"]),
   t("electronics_store", "retail", "Electronics & appliance store", "launch", ["catalogue", "inventory", "orders"], ["delivery", "job_cards"]),
   t("bookshop_stationery", "retail", "Bookshop / stationery", "launch", ["catalogue", "inventory", "orders"], ["delivery"]),
   t("art_craft", "retail", "Art gallery / craft seller", "launch", ["catalogue", "orders", "custom_orders"], ["events_ticketing"]),
