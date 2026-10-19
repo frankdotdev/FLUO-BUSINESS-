@@ -24,7 +24,7 @@ export function env(): Env {
     keyId = "k1";
   }
   let appUrl = (e["APP_URL"] ?? "").trim();
-  if (!appUrl || appUrl.includes("your-project-name")) {
+  if (!appUrl || appUrl.includes("your-project-name") || (e["VERCEL"] && appUrl.includes("localhost"))) {
     appUrl = e["VERCEL_PROJECT_PRODUCTION_URL"]
       ? `https://${e["VERCEL_PROJECT_PRODUCTION_URL"]}`
       : e["VERCEL_URL"]
