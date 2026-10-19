@@ -315,6 +315,9 @@ export default async function Storefront({
               const imgUrl = photo(b.id, p.imageAssetId, "card");
               const isSoldOut = p.stockQuantity === 0;
               const isLowStock = p.stockQuantity != null && p.stockQuantity > 0 && p.stockQuantity <= 5;
+              const totalPhotos = (p.galleryAssetIds && p.galleryAssetIds.length > 0)
+                ? p.galleryAssetIds.length
+                : p.imageAssetId ? 1 : 0;
               return (
                 <Link
                   key={p.id}
@@ -360,6 +363,40 @@ export default async function Storefront({
                         {b.name}
                       </div>
                     )}
+                    {p.promoBadge && (
+                      <span style={{
+                        position: "absolute",
+                        top: 10,
+                        left: 10,
+                        background: "var(--coral-dark)",
+                        color: "#ffffff",
+                        fontSize: 10,
+                        fontWeight: 800,
+                        letterSpacing: "0.5px",
+                        textTransform: "uppercase",
+                        padding: "3px 7px",
+                        borderRadius: 6,
+                        zIndex: 2,
+                      }}>
+                        {p.promoBadge}
+                      </span>
+                    )}
+                    {totalPhotos > 1 && (
+                      <span style={{
+                        position: "absolute",
+                        bottom: 8,
+                        right: 8,
+                        background: "rgba(0,0,0,0.65)",
+                        color: "#ffffff",
+                        fontSize: 10,
+                        fontWeight: 700,
+                        padding: "2px 6px",
+                        borderRadius: 6,
+                        zIndex: 2,
+                      }}>
+                        {totalPhotos} photos
+                      </span>
+                    )}
                     {isSoldOut ? (
                       <span className="open-badge" style={{ background: "rgba(220, 38, 38, 0.9)" }}>Sold out</span>
                     ) : isLowStock ? (
@@ -395,15 +432,38 @@ export default async function Storefront({
                         </p>
                       )}
                     </div>
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 12 }}>
-                      <strong style={{
-                        fontFamily: "Manrope, sans-serif",
-                        fontSize: 17,
-                        fontWeight: 800,
-                        color: "var(--ink)",
-                      }}>
-                        {fmtMoney(p.priceMinor, p.currency)}
-                      </strong>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 12, gap: 8 }}>
+                      <div style={{ display: "flex", alignItems: "baseline", gap: 6, flexWrap: "wrap" }}>
+                        <strong style={{
+                          fontFamily: "Manrope, sans-serif",
+                          fontSize: 17,
+                          fontWeight: 800,
+                          color: "var(--ink)",
+                        }}>
+                          {fmtMoney(p.priceMinor, p.currency)}
+                        </strong>
+                        {p.compareAtPriceMinor != null && p.compareAtPriceMinor > p.priceMinor && (
+                          <>
+                            <span style={{
+                              fontSize: 12,
+                              color: "var(--muted)",
+                              textDecoration: "line-through",
+                            }}>
+                              {fmtMoney(p.compareAtPriceMinor, p.currency)}
+                            </span>
+                            <span style={{
+                              fontSize: 10,
+                              fontWeight: 700,
+                              color: "var(--coral-dark)",
+                              background: "var(--coral-soft)",
+                              padding: "1px 5px",
+                              borderRadius: 4,
+                            }}>
+                              {Math.round(Number((p.compareAtPriceMinor - p.priceMinor) * 100n / p.compareAtPriceMinor))}% OFF
+                            </span>
+                          </>
+                        )}
+                      </div>
                       <span style={{
                         display: "inline-flex",
                         alignItems: "center",
@@ -411,6 +471,7 @@ export default async function Storefront({
                         color: "var(--coral-dark)",
                         fontSize: 12,
                         fontWeight: 700,
+                        flexShrink: 0,
                       }}>
                         Order <IconArrowRight size={13} />
                       </span>

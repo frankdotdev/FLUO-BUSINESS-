@@ -83,6 +83,9 @@ export interface ProductRecord {
   readonly maxPerOrder: number; readonly status: ProductStatus; readonly createdAtMs: number;
   readonly stockQuantity?: number | null;      // null or missing = not tracked (made to order, services, unlimited)
   readonly imageAssetId?: string | null;
+  readonly galleryAssetIds?: readonly string[];
+  readonly compareAtPriceMinor?: bigint | null;
+  readonly promoBadge?: string | null;
 }
 export interface RefundRequestRecord {
   readonly id: string; readonly businessId: string; readonly paymentId: string; readonly subjectKind: "booking" | "order"; readonly subjectId: string;
@@ -165,9 +168,11 @@ export interface Store {
   listProducts(businessId: string, statuses: readonly ProductStatus[], limit: number, offset: number): Promise<ProductRecord[]>;
   countProducts(businessId: string, statuses: readonly ProductStatus[]): Promise<number>;
   pauseNewestActiveProducts(businessId: string, keep: number): Promise<number>;       // over-limit items are paused, never deleted
+  deleteDraftBusiness(businessId: string): Promise<boolean>;
   // public reads (active businesses and active products only)
   getPublicBusinessBySlug(slug: string): Promise<BusinessRecord | null>;
   listPublicBusinesses(limit: number, offset: number, countryCode?: string, typeIds?: readonly string[]): Promise<BusinessRecord[]>;
+  listPublicProducts(limit: number, offset?: number): Promise<{ product: ProductRecord; business: BusinessRecord }[]>;
   /** Text search over live businesses (by name), active items (name, description) and upcoming published events (name). `needle` is plain text, never a pattern. */
   searchPublic(needle: string, limit: number): Promise<{ businesses: BusinessRecord[]; products: { product: ProductRecord; business: BusinessRecord }[]; events: { event: EventRecord; business: BusinessRecord }[] }>;
   getPublicProductByShortId(shortId: string): Promise<{ product: ProductRecord; business: BusinessRecord } | null>;

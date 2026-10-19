@@ -50,6 +50,7 @@ import {
   IconHelpCircle,
   IconTrendingUp,
   IconSparkles,
+  IconExternalLink,
 } from "@/components/icons.tsx";
 
 export const dynamic = "force-dynamic";
@@ -275,6 +276,62 @@ export default async function Dashboard({
           })}
         </nav>
 
+        {/* Prominent Draft Status Banner when storefront is unlaunched */}
+        {biz.status === "draft" && (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              flexWrap: "wrap",
+              gap: 12,
+              padding: "16px 20px",
+              background: "#fffbeb",
+              border: "1.5px solid #fcd34d",
+              borderRadius: 16,
+              marginBottom: 20,
+              boxShadow: "0 2px 10px rgba(245, 158, 11, 0.08)",
+            }}
+          >
+            <div>
+              <strong style={{ fontSize: 14, color: "#92400e", display: "block" }}>
+                Storefront is currently in Draft mode
+              </strong>
+              <span style={{ fontSize: 12, color: "#b45309" }}>
+                Your business, products, and services are hidden from Fluo Explore until you publish.
+              </span>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <form action={A.publishAction}>
+                <input type="hidden" name="businessId" value={biz.id} />
+                <button className="primary-button" type="submit" style={{ padding: "8px 18px", fontSize: 13 }}>
+                  Publish Storefront Now ↗
+                </button>
+              </form>
+              {canManage && (
+                <form action={A.deleteDraftBusinessAction}>
+                  <input type="hidden" name="businessId" value={biz.id} />
+                  <button
+                    type="submit"
+                    style={{
+                      padding: "8px 14px",
+                      fontSize: 13,
+                      background: "none",
+                      border: "1px solid #fecaca",
+                      color: "#dc2626",
+                      borderRadius: 10,
+                      cursor: "pointer",
+                      fontWeight: 600,
+                    }}
+                  >
+                    Discard Draft
+                  </button>
+                </form>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Tab Header Banner */}
         <div style={{
           display: "flex",
@@ -307,11 +364,21 @@ export default async function Dashboard({
               {tab === "billing" && "Subscription tier, active 30-day trial, and invoices."}
               {tab === "messages" && "Customer inquiries and direct chats."}
               {tab === "bookings" && "Calendar appointments and reservation slots."}
-              {tab === "events" && "Event tickets, attendee limits, and check-in scanner."}
+              {tab === "events" && "Event tickets, attendee limits, and check-in scanner. (Zero subscription required, 2% platform fee per ticket)"}
             </p>
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            {biz.status === "active" && (
+              <Link
+                href={`/b/${biz.slug}`}
+                target="_blank"
+                className="secondary-button"
+                style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "10px 18px", fontSize: 13 }}
+              >
+                View Live Storefront <IconExternalLink size={14} />
+              </Link>
+            )}
             <Link
               className="primary-button"
               style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "10px 18px", fontSize: 13 }}
@@ -1042,6 +1109,28 @@ async function Products({
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
               <label style={{ display: "grid", gap: 6, fontSize: 12, fontWeight: 700, color: "var(--ink)" }}>
+                Original / Compare Price ({currency}) (Optional)
+                <input
+                  id="compareAtPrice"
+                  name="compareAtPrice"
+                  inputMode="decimal"
+                  placeholder="e.g. 3500 (shows strikethrough discount)"
+                  style={{ padding: "10px 12px", borderRadius: 10, border: "1px solid var(--line)", fontSize: 13 }}
+                />
+              </label>
+              <label style={{ display: "grid", gap: 6, fontSize: 12, fontWeight: 700, color: "var(--ink)" }}>
+                Promotional Badge (Optional)
+                <input
+                  id="promoBadge"
+                  name="promoBadge"
+                  placeholder="e.g. Black Friday, Birthday Promo, 20% OFF"
+                  style={{ padding: "10px 12px", borderRadius: 10, border: "1px solid var(--line)", fontSize: 13 }}
+                />
+              </label>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              <label style={{ display: "grid", gap: 6, fontSize: 12, fontWeight: 700, color: "var(--ink)" }}>
                 Fulfilment Mode
                 <select id="fulfilment" name="fulfilment" style={{ padding: "10px 12px", borderRadius: 10, border: "1px solid var(--line)", fontSize: 13, background: "#ffffff" }}>
                   <option value="stock">Ready in stock / immediate</option>
@@ -1129,17 +1218,34 @@ async function Products({
                             </div>
                           )}
                           <div>
-                            <strong style={{ color: "var(--ink)", display: "block" }}>{p.name}</strong>
+                            <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+                              <strong style={{ color: "var(--ink)" }}>{p.name}</strong>
+                              {p.promoBadge && (
+                                <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 6px", borderRadius: 6, background: "var(--coral-soft)", color: "var(--coral-dark)" }}>
+                                  {p.promoBadge}
+                                </span>
+                              )}
+                            </div>
                             {canWrite && (
-                              <div style={{ marginTop: 4 }}>
-                                <ImageUpload businessId={businessId} target={{ kind: "product", id: p.id }} label={p.imageAssetId ? "Change photo" : "Add photo"} />
+                              <div style={{ marginTop: 6, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                                <ImageUpload businessId={businessId} target={{ kind: "product", id: p.id }} label="+ Add Photo" />
+                                {p.galleryAssetIds && p.galleryAssetIds.length > 1 && (
+                                  <span style={{ fontSize: 11, color: "var(--muted)", fontWeight: 600 }}>
+                                    {p.galleryAssetIds.length} photos
+                                  </span>
+                                )}
                               </div>
                             )}
                           </div>
                         </div>
                       </td>
-                      <td style={{ padding: "14px", fontFamily: "Manrope, sans-serif", fontWeight: 800 }}>
-                        {fmtMoney(p.priceMinor, p.currency)}
+                      <td style={{ padding: "14px", fontFamily: "Manrope, sans-serif" }}>
+                        <div style={{ fontWeight: 800 }}>{fmtMoney(p.priceMinor, p.currency)}</div>
+                        {p.compareAtPriceMinor && (
+                          <div style={{ fontSize: 11, color: "var(--muted)", textDecoration: "line-through" }}>
+                            {fmtMoney(p.compareAtPriceMinor, p.currency)}
+                          </div>
+                        )}
                       </td>
                       <td style={{ padding: "14px" }}>
                         {p.stockQuantity == null ? (

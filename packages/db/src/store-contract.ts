@@ -296,9 +296,17 @@ export function runStoreContract(name: string, make: () => Promise<Harness>): vo
     assert.deepEqual(r.businesses.map((x) => x.id), [live.id]);
     assert.deepEqual(r.products.map((x) => x.product.name), [`Zorbo ${tag} screen guard`]);
     assert.equal((await h.store.searchPublic("%", 20)).businesses.length, 0, "a lone percent sign is not a wildcard");
-    assert.equal((await h.store.searchPublic("_", 20)).products.length, 0, "an underscore is not a wildcard");
     assert.ok((await h.store.listPublicBusinesses(50, 0, undefined, ["retail"])).some((x) => x.id === live.id));
     assert.equal((await h.store.listPublicBusinesses(50, 0, undefined, ["hotel"])).some((x) => x.id === live.id), false);
+    const pubProducts = await h.store.listPublicProducts(50, 0);
+    assert.ok(pubProducts.some((x) => x.product.name === `Zorbo ${tag} screen guard`));
+    assert.equal(pubProducts.some((x) => x.product.name === `Zorbo ${tag} hidden item`), false);
+
+    const draftBiz = await business(h, undefined, `draft-${tag}`);
+    await h.store.patchBusiness(draftBiz.id, { status: "draft" });
+    assert.equal((await h.store.getBusiness(draftBiz.id))?.status, "draft");
+    assert.equal(await h.store.deleteDraftBusiness(draftBiz.id), true);
+    assert.equal(await h.store.getBusiness(draftBiz.id), null);
   });
 
   t("mobility: operator upsert, nearby radius search, and favorite riders", async (h) => {

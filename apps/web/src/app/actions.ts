@@ -3,7 +3,7 @@ import { randomUUID } from "node:crypto";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { BUSINESS_TYPES, PLAN_ENTITLEMENTS, PRICE_BOOK, ServiceError, attachMedia, completeUpload, requestUpload, type MediaTarget, type ImagePurpose, acceptInvite, inviteMember, isTypeReady, removeMember, sendMessage, startConversation, type Role, addTicketType, checkInTicket, createEvent, createResourceGroup, holdBooking, purchaseTickets, setEventStatus, stayToInterval, type PolicyKind, cancelBooking, cancelSubscription, cancelUnpaidOrder, confirmBookingTransfer, confirmTransfer, createBusiness, createProduct,
-  initializeProviderCheckout, isCustomerOf, markBookingTransferSent, markTransferSent, parseLocalDate, parseLocalTime, parseMajor, placeOrder, publishBusiness, resolveEntitlements, resolveRefund,
+  initializeProviderCheckout, isCustomerOf, markBookingTransferSent, markTransferSent, parseLocalDate, parseLocalTime, parseMajor, placeOrder, publishBusiness, deleteDraftBusiness, resolveEntitlements, resolveRefund,
   resumeSubscription, setPaymentModes, setPayoutAccount, setProductStatus, setTransferAccount, startSubscriptionPayment, zonedToInstant, type Capability, type CustomerProof, type ProductStatus,
   generateEscrowSecrets, verifyEscrowPin, verifyEscrowQr, calculateGroupCartTotal, type GroupCartSession, type GroupCartItem, type GroupContribution, type SplitKind } from "@fluo/core";
 import { rateLimited } from "@/server/rate.ts";
@@ -149,7 +149,14 @@ export async function createBusinessAction(f: FormData): Promise<void> {
   const hours = Number(str(f, "refundHours") || 0);
   const refundPolicy = str(f, "refundKind") === "full_until" ? { kind: "full_until" as const, hoursBefore: hours } : { kind: "none" as const };
   const b = await guarded("/app/new", () => createBusiness(deps(), user.id, { name: str(f, "name"), typeId, optionalCapabilities: optional, countryCode: "NG", currency: "NGN", timezone: "Africa/Lagos", allowsTransfer: true, acceptsAutomatic: false, refundPolicy }));
-  redirect(`/app/${b.id}?tab=payments&welcome=1`);
+
+  // Auto-publish standard businesses so they appear publicly immediately on Explore
+  if (!type.requiresVerification) {
+    await publishBusiness(deps(), user.id, b.id).catch(() => undefined);
+  }
+  revalidatePath("/app");
+  revalidatePath("/");
+  redirect(`/app/${b.id}?welcome=1`);
 }
 
 const back = (businessId: string, tab: string): string => `/app/${businessId}?tab=${tab}`;
@@ -157,7 +164,15 @@ const back = (businessId: string, tab: string): string => `/app/${businessId}?ta
 export async function publishAction(f: FormData): Promise<void> {
   const user = await requireUser(); const id = str(f, "businessId");
   await guarded(back(id, "overview"), () => publishBusiness(deps(), user.id, id));
-  revalidatePath(`/app/${id}`); redirect(back(id, "overview"));
+  revalidatePath(`/app/${id}`); revalidatePath("/app"); revalidatePath("/"); redirect(back(id, "overview"));
+}
+export async function deleteDraftBusinessAction(f: FormData): Promise<void> {
+  const user = await requireUser("/app");
+  const businessId = str(f, "businessId");
+  await guarded("/app", () => deleteDraftBusiness(deps(), user.id, businessId));
+  revalidatePath("/app");
+  revalidatePath("/");
+  redirect("/app");
 }
 export async function saveTransferAccountAction(f: FormData): Promise<void> {
   const user = await requireUser(); const id = str(f, "businessId");
@@ -178,9 +193,21 @@ export async function createProductAction(f: FormData): Promise<void> {
   const user = await requireUser(); const id = str(f, "businessId"), tab = back(id, "products");
   let price: bigint;
   try { price = parseMajor(str(f, "price") || "0", "NGN").amountMinor; } catch { return redirect(withParam(tab, "error", "invalid_price")); }
+  let compareAtPriceMinor: bigint | null = null;
+  const compStr = str(f, "compareAtPrice");
+  if (compStr) {
+    try { compareAtPriceMinor = parseMajor(compStr, "NGN").amountMinor; } catch {}
+  }
+  const promoBadge = str(f, "promoBadge") || null;
   const d = deps(); const { entitlements } = await resolveEntitlements(d, id, PLAN_ENTITLEMENTS);
-  await guarded(tab, () => createProduct(d, user.id, id, { name: str(f, "name"), priceMinor: price, fulfilment: str(f, "fulfilment") === "made_to_order" ? "made_to_order" : "stock", leadTimeHours: Number(str(f, "leadTimeHours") || 0), publish: f.get("publish") === "on", ...(str(f, "stock") !== "" ? { stockQuantity: Number(str(f, "stock")) } : {}), ...(str(f, "description") ? { description: str(f, "description") } : {}) }, entitlements));
-  revalidatePath(`/app/${id}`); redirect(tab);
+  await guarded(tab, () => createProduct(d, user.id, id, {
+    name: str(f, "name"), priceMinor: price, fulfilment: str(f, "fulfilment") === "made_to_order" ? "made_to_order" : "stock",
+    leadTimeHours: Number(str(f, "leadTimeHours") || 0), publish: f.get("publish") === "on",
+    ...(str(f, "stock") !== "" ? { stockQuantity: Number(str(f, "stock")) } : {}),
+    ...(str(f, "description") ? { description: str(f, "description") } : {}),
+    compareAtPriceMinor, promoBadge,
+  }, entitlements));
+  revalidatePath(`/app/${id}`); revalidatePath("/"); redirect(tab);
 }
 export async function setProductStatusAction(f: FormData): Promise<void> {
   const user = await requireUser(); const id = str(f, "businessId"), tab = back(id, "products");

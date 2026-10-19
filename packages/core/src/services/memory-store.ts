@@ -221,9 +221,24 @@ export class MemoryStore implements Store {
     const active = [...this.products.values()].filter((p) => p.businessId === businessId && p.status === "active").sort((a, b) => a.createdAtMs - b.createdAtMs);
     const extra = active.slice(keep); for (const p of extra) this.products.set(p.id, { ...p, status: "paused" }); return extra.length;
   }
+  async deleteDraftBusiness(businessId: string) {
+    const b = this.businesses.get(businessId);
+    if (!b || b.status !== "draft") return false;
+    this.businesses.delete(businessId);
+    return true;
+  }
   async getPublicBusinessBySlug(slug: string) { const b = [...this.businesses.values()].find((x) => x.slug === slug); return b && b.status === "active" ? b : null; }
   async listPublicBusinesses(limit: number, offset: number, countryCode?: string, typeIds?: readonly string[]) {
     return [...this.businesses.values()].filter((b) => b.status === "active" && (!countryCode || b.countryCode === countryCode) && (!typeIds || typeIds.includes(b.typeId))).sort((a, b) => (b.publishedAtMs ?? 0) - (a.publishedAtMs ?? 0)).slice(offset, offset + limit);
+  }
+  async listPublicProducts(limit: number, offset: number = 0) {
+    const live = (id: string) => { const b = this.businesses.get(id); return b && b.status === "active" ? b : null; };
+    const out: { product: ProductRecord; business: BusinessRecord }[] = [];
+    for (const p of this.products.values()) {
+      const b = live(p.businessId);
+      if (b && p.status === "active") out.push({ product: p, business: b });
+    }
+    return out.sort((a, b) => b.product.createdAtMs - a.product.createdAtMs).slice(offset, offset + limit);
   }
   async searchPublic(needle: string, limit: number) {
     const q = needle.toLowerCase(); const live = (id: string) => { const b = this.businesses.get(id); return b && b.status === "active" ? b : null; };

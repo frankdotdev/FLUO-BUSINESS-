@@ -3,6 +3,7 @@ import { BUSINESS_TYPES, isTypeReady } from "@fluo/core";
 import { requireUser } from "@/server/session.ts";
 import { friendly } from "@/server/messages.ts";
 import { createBusinessAction } from "@/app/actions.ts";
+import { NewBusinessForm } from "@/components/new-business-form.tsx";
 import { IconCheck, IconShield, IconSparkles, IconArrowRight } from "@/components/icons.tsx";
 
 export const metadata = { title: "Start Your Business — Fluo" };
@@ -116,109 +117,7 @@ export default async function NewBusiness({ searchParams }: { searchParams: Prom
           </div>
         )}
 
-        <form action={createBusinessAction} style={{ display: "grid", gap: 18 }}>
-          <label style={{ display: "grid", gap: 6, fontSize: 12, fontWeight: 700, color: "var(--ink)" }}>
-            Business Name
-            <input
-              id="name"
-              name="name"
-              required
-              minLength={2}
-              maxLength={80}
-              placeholder="e.g. Mama Chichi Bites, Corner Market, The Studio"
-              style={{
-                padding: "12px 14px",
-                borderRadius: 12,
-                border: "1px solid var(--line)",
-                fontSize: 14,
-                outline: "none",
-              }}
-            />
-          </label>
-
-          <label style={{ display: "grid", gap: 6, fontSize: 12, fontWeight: 700, color: "var(--ink)" }}>
-            What kind of business do you run?
-            <select
-              id="typeId"
-              name="typeId"
-              required
-              defaultValue=""
-              style={{
-                padding: "12px 14px",
-                borderRadius: 12,
-                border: "1px solid var(--line)",
-                fontSize: 14,
-                background: "#ffffff",
-                outline: "none",
-              }}
-            >
-              <option value="" disabled>
-                Choose your business vertical
-              </option>
-              {types.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.label}
-                </option>
-              ))}
-            </select>
-            <span style={{ fontSize: 11, color: "var(--muted)", fontWeight: 400, marginTop: 2 }}>
-              Fluo customizes your workspace layout and tools to fit your operations automatically.
-            </span>
-          </label>
-
-          <label style={{ display: "grid", gap: 6, fontSize: 12, fontWeight: 700, color: "var(--ink)" }}>
-            Customer Refund Policy
-            <select
-              id="refundKind"
-              name="refundKind"
-              defaultValue="none"
-              style={{
-                padding: "12px 14px",
-                borderRadius: 12,
-                border: "1px solid var(--line)",
-                fontSize: 14,
-                background: "#ffffff",
-                outline: "none",
-              }}
-            >
-              <option value="none">No refunds (all sales final)</option>
-              <option value="full_until">Full refund if cancelled before cutoff window</option>
-            </select>
-          </label>
-
-          <label style={{ display: "grid", gap: 6, fontSize: 12, fontWeight: 700, color: "var(--ink)" }}>
-            Cancellation Notice Cutoff (Hours before appointment / order)
-            <input
-              id="refundHours"
-              name="refundHours"
-              type="number"
-              min={0}
-              max={720}
-              defaultValue={24}
-              style={{
-                padding: "12px 14px",
-                borderRadius: 12,
-                border: "1px solid var(--line)",
-                fontSize: 14,
-                outline: "none",
-              }}
-            />
-          </label>
-
-          <button
-            className="primary-button"
-            type="submit"
-            style={{
-              width: "100%",
-              justifyContent: "center",
-              padding: "14px 20px",
-              fontSize: 15,
-              marginTop: 10,
-            }}
-          >
-            Create my workspace &amp; start free trial <span>↗</span>
-          </button>
-        </form>
+        <NewBusinessForm types={types} action={createBusinessAction} />
       </div>
     </div>
   );

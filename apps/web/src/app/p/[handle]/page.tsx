@@ -5,8 +5,9 @@ import { deps } from "@/server/container.ts";
 import { getSession } from "@/server/session.ts";
 import { friendly } from "@/server/messages.ts";
 import { photo } from "@/server/media.ts";
-import { placeOrderAction } from "@/app/actions.ts";
+import { placeOrderAction, startChatAction } from "@/app/actions.ts";
 import { IconShield, IconArrowRight, IconClock, IconStore, IconCheck } from "@/components/icons.tsx";
+import { ProductGallery } from "@/components/product-gallery.tsx";
 
 export const dynamic = "force-dynamic";
 
@@ -60,7 +61,11 @@ export default async function ProductPage({
   });
   const back = `/p/${handle}`;
   const msg = friendly((await searchParams).error);
-  const photoUrl = photo(b.id, p.imageAssetId, "detail");
+  const assetIds = [
+    ...(p.imageAssetId ? [p.imageAssetId] : []),
+    ...(p.galleryAssetIds || []).filter((id) => id !== p.imageAssetId),
+  ];
+  const photoUrls = assetIds.map((id) => photo(b.id, id, "detail")).filter((url): url is string => Boolean(url));
 
   return (
     <div style={{ maxWidth: 1100, margin: "0 auto", padding: "24px 16px 80px" }}>
@@ -99,44 +104,14 @@ export default async function ProductPage({
       }}>
         {/* Visuals & Details Column */}
         <div>
-          <div style={{
-            background: "#ffffff",
-            border: "1px solid var(--line)",
-            borderRadius: 24,
-            overflow: "hidden",
-            boxShadow: "var(--shadow)",
-            position: "relative",
-          }}>
-            {photoUrl ? (
-              <img
-                src={photoUrl}
-                alt={p.name}
-                width={1200}
-                height={900}
-                style={{ width: "100%", height: "auto", display: "block", maxHeight: 480, objectFit: "cover" }}
-              />
-            ) : (
-              <div style={{
-                height: 320,
-                display: "grid",
-                placeItems: "center",
-                background: "var(--canvas)",
-                color: "var(--muted)",
-                fontFamily: "Manrope, sans-serif",
-                fontSize: 18,
-                fontWeight: 700,
-              }}>
-                {p.name}
-              </div>
-            )}
-            {soldOut ? (
-              <span className="open-badge" style={{ background: "#dc2626" }}>Sold out</span>
-            ) : p.stockQuantity != null && p.stockQuantity > 0 && p.stockQuantity <= 5 ? (
-              <span className="open-badge" style={{ background: "#d97706" }}>Only {p.stockQuantity} left</span>
-            ) : p.fulfilment === "made_to_order" ? (
-              <span className="open-badge" style={{ background: "var(--ink)" }}>Made to order</span>
-            ) : null}
-          </div>
+          <ProductGallery
+            photos={photoUrls}
+            productName={p.name}
+            promoBadge={p.promoBadge}
+            soldOut={soldOut}
+            stockLeft={p.stockQuantity}
+            fulfilment={p.fulfilment}
+          />
 
           <div style={{ marginTop: 24 }}>
             <span className="section-kicker">SOLD BY <Link href={`/b/${b.slug}`} style={{ color: "var(--coral-dark)", textDecoration: "none" }}>{b.name.toUpperCase()}</Link></span>
@@ -150,14 +125,58 @@ export default async function ProductPage({
             }}>
               {p.name}
             </h1>
-            <div style={{
-              fontFamily: "Manrope, sans-serif",
-              fontSize: 28,
-              fontWeight: 800,
-              color: "var(--ink)",
-              marginBottom: 16,
-            }}>
-              {fmtMoney(p.priceMinor, p.currency)}
+
+            {/* Price & Discounts */}
+            <div style={{ marginBottom: 16 }}>
+              {p.promoBadge && (
+                <div style={{
+                  display: "inline-block",
+                  fontSize: 11,
+                  fontWeight: 800,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.5px",
+                  color: "var(--coral-dark)",
+                  background: "var(--coral-soft)",
+                  border: "1px solid var(--coral)",
+                  padding: "4px 9px",
+                  borderRadius: 6,
+                  marginBottom: 10,
+                }}>
+                  {p.promoBadge}
+                </div>
+              )}
+              <div style={{ display: "flex", alignItems: "baseline", gap: 12, flexWrap: "wrap" }}>
+                <span style={{
+                  fontFamily: "Manrope, sans-serif",
+                  fontSize: 32,
+                  fontWeight: 800,
+                  color: "var(--ink)",
+                }}>
+                  {fmtMoney(p.priceMinor, p.currency)}
+                </span>
+                {p.compareAtPriceMinor != null && p.compareAtPriceMinor > p.priceMinor && (
+                  <>
+                    <span style={{
+                      fontFamily: "Manrope, sans-serif",
+                      fontSize: 20,
+                      color: "var(--muted)",
+                      textDecoration: "line-through",
+                    }}>
+                      {fmtMoney(p.compareAtPriceMinor, p.currency)}
+                    </span>
+                    <span style={{
+                      fontSize: 12,
+                      fontWeight: 700,
+                      padding: "4px 8px",
+                      borderRadius: 8,
+                      background: "var(--coral-soft)",
+                      color: "var(--coral-dark)",
+                    }}>
+                      {Math.round(Number((p.compareAtPriceMinor - p.priceMinor) * 100n / p.compareAtPriceMinor))}% OFF
+                    </span>
+                  </>
+                )}
+              </div>
             </div>
 
             {p.fulfilment === "made_to_order" && (
@@ -197,9 +216,42 @@ export default async function ProductPage({
               fontSize: 12,
               color: "var(--muted)",
               lineHeight: 1.6,
+              marginBottom: 16,
             }}>
               <strong style={{ color: "var(--ink)", display: "block", marginBottom: 4 }}>Merchant Refund Policy:</strong>
               {describePolicy(b.refundPolicy)}
+            </div>
+
+            {/* Inquire / Chat with Seller */}
+            <div style={{
+              padding: "16px 18px",
+              borderRadius: 16,
+              background: "#ffffff",
+              border: "1px solid var(--line)",
+            }}>
+              <span style={{ display: "block", fontSize: 13, fontWeight: 700, color: "var(--ink)", marginBottom: 4 }}>
+                Have a question about this item?
+              </span>
+              <p style={{ margin: "0 0 12px", fontSize: 12, color: "var(--muted)", lineHeight: 1.5 }}>
+                Chat directly with {b.name} for custom requirements, stock checks, or enquiries.
+              </p>
+              <form action={startChatAction}>
+                <input type="hidden" name="businessId" value={b.id} />
+                <input type="hidden" name="topic" value={`Inquiry: ${p.name}`} />
+                <input type="hidden" name="back" value={back} />
+                <button
+                  type="submit"
+                  className="secondary-button"
+                  style={{
+                    width: "100%",
+                    justifyContent: "center",
+                    fontSize: 13,
+                    padding: "10px 14px",
+                  }}
+                >
+                  Ask Questions / Chat with Seller ↗
+                </button>
+              </form>
             </div>
           </div>
         </div>

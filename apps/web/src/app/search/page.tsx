@@ -34,16 +34,21 @@ export default async function SearchPage({
     favoriteBusinesses = await d.store.listFavoriteBusinesses(session.user.id).catch(() => []);
   }
 
-  const found = group
-    ? {
-        query: "",
-        businesses: await d.store.listPublicBusinesses(50, 0, undefined, typeIdsInGroup(group.group)),
-        products: [],
-        events: [],
-      }
-    : sp.filter === "favorites"
-    ? { query: "", businesses: favoriteBusinesses, products: [], events: [] }
-    : await searchMarketplace(d, sp.q ?? "");
+  let found: { query: string; businesses: any[]; products: any[]; events: any[] };
+  if (sp.filter === "products") {
+    const prods = await d.store.listPublicProducts(60, 0).catch(() => []);
+    found = { query: "", businesses: [], products: prods, events: [] };
+  } else if (sp.filter === "events") {
+    const evts = await d.store.listPublicEvents(50).catch(() => []);
+    found = { query: "", businesses: [], products: [], events: evts };
+  } else if (group) {
+    const biz = await d.store.listPublicBusinesses(50, 0, undefined, typeIdsInGroup(group.group)).catch(() => []);
+    found = { query: "", businesses: biz, products: [], events: [] };
+  } else if (sp.filter === "favorites") {
+    found = { query: "", businesses: favoriteBusinesses, products: [], events: [] };
+  } else {
+    found = await searchMarketplace(d, sp.q ?? "");
+  }
 
   const empty = found.businesses.length + found.products.length + found.events.length === 0;
 
@@ -52,7 +57,7 @@ export default async function SearchPage({
       {/* Header & Search Bar */}
       <div style={{ marginBottom: 24 }}>
         <span className="section-kicker">
-          {sp.filter === "favorites" ? "SAVED PLACES" : group ? "CATEGORY" : "DISCOVER"}
+          {sp.filter === "favorites" ? "SAVED PLACES" : sp.filter === "products" ? "ALL ITEMS & MENU" : sp.filter === "events" ? "COMMUNITY EXPERIENCES" : group ? "CATEGORY" : "DISCOVER"}
         </span>
         <h1 style={{
           fontFamily: "Manrope, sans-serif",
@@ -64,6 +69,10 @@ export default async function SearchPage({
         }}>
           {sp.filter === "favorites"
             ? "Your Regular Spots"
+            : sp.filter === "products"
+            ? "Trending Products & Services"
+            : sp.filter === "events"
+            ? "Upcoming & Trending Events"
             : group
             ? group.label
             : sp.q

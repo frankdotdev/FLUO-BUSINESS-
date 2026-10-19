@@ -76,9 +76,22 @@ export async function attachMedia(d: Deps, actor: string, businessId: string, as
   if (!asset || asset.status !== "ready") return fail("not_found");
   if (asset.purpose !== TARGET_PURPOSE[target.kind]) return fail("wrong_image_kind");
   await guard(d, actor, businessId, asset.purpose as ImagePurpose);
-  const ok = target.kind === "product" ? await d.store.patchProduct(businessId, target.id, { imageAssetId: assetId })
-    : target.kind === "event" ? await d.store.patchEvent(businessId, target.id, { coverAssetId: assetId })
-    : (await d.store.patchBusiness(businessId, { logoAssetId: assetId }), true);
+  let ok = false;
+  if (target.kind === "product") {
+    const prod = await d.store.getProduct(businessId, target.id);
+    if (!prod) return fail("not_found");
+    const existing = prod.galleryAssetIds ?? [];
+    const galleryAssetIds = existing.includes(assetId) ? existing : [...existing, assetId];
+    ok = await d.store.patchProduct(businessId, target.id, {
+      imageAssetId: prod.imageAssetId ?? assetId,
+      galleryAssetIds,
+    });
+  } else if (target.kind === "event") {
+    ok = await d.store.patchEvent(businessId, target.id, { coverAssetId: assetId });
+  } else {
+    await d.store.patchBusiness(businessId, { logoAssetId: assetId });
+    ok = true;
+  }
   if (!ok) return fail("not_found");
   await d.store.appendAudit({ businessId, actorUserId: actor, action: "media.attached", targetId: assetId, atMs: d.now() });
 }

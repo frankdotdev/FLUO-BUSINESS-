@@ -24,7 +24,7 @@ const mMember = (r: any): Membership => ({ userId: r.user_id, businessId: r.busi
 const guestOf = (r: any) => (r.guest_contact_id ? { name: r.g_name, email: r.g_email, ...(r.g_phone ? { phone: r.g_phone } : {}) } : null);
 const mOrder = (r: any): OrderRecord => ({ id: r.id, businessId: r.business_id, userId: r.user_id, guest: guestOf(r), kind: r.kind, status: r.status, currency: r.currency, totalMinor: big(r.total_minor), requiredByMs: ms(r.required_by), note: r.customer_note, refundPolicy: r.refund_policy });
 const mPayment = (r: any): PaymentRecord => ({ id: r.id, businessId: r.business_id, orderId: r.subject_id, purpose: r.purpose, method: r.method, status: r.status, amountMinor: big(r.amount_minor), currency: r.currency, reference: r.transfer_reference, expiresAtMs: ms(r.expires_at), provider: r.provider, providerReference: r.provider_reference, platformFeeMinor: big(r.platform_fee_minor), ...(r.plan_key ? { planKey: r.plan_key } : {}), ...(r.billing_interval ? { interval: r.billing_interval } : {}) });
-const mProduct = (r: any): ProductRecord => ({ id: r.id, businessId: r.business_id, shortId: r.short_id, slug: r.slug, name: r.name, description: r.description, priceMinor: big(r.price_minor), currency: r.currency, fulfilment: r.fulfilment, leadTimeHours: r.lead_time_hours, maxPerOrder: r.max_per_order, status: r.status, createdAtMs: r.created_at.getTime(), stockQuantity: r.stock_quantity, imageAssetId: r.image_asset_id ?? null });
+const mProduct = (r: any): ProductRecord => ({ id: r.id, businessId: r.business_id, shortId: r.short_id, slug: r.slug, name: r.name, description: r.description, priceMinor: big(r.price_minor), currency: r.currency, fulfilment: r.fulfilment, leadTimeHours: r.lead_time_hours, maxPerOrder: r.max_per_order, status: r.status, createdAtMs: r.created_at.getTime(), stockQuantity: r.stock_quantity, imageAssetId: r.image_asset_id ?? null, galleryAssetIds: r.gallery_asset_ids ?? (r.image_asset_id ? [r.image_asset_id] : []), compareAtPriceMinor: r.compare_at_price_minor ? big(r.compare_at_price_minor) : null, promoBadge: r.promo_badge ?? null });
 const mBooking = (r: any): BookingRecord => ({ id: r.id, businessId: r.business_id, resourceId: r.resource_id, groupId: r.group_id, userId: r.user_id, guest: guestOf(r), startMs: r.start_at.getTime(), endMs: r.end_at.getTime(), status: r.status, holdExpiresMs: ms(r.hold_expires_at), paymentId: r.payment_id, refundPolicy: r.refund_policy });
 const mTicket = (r: any): TicketRecord => ({ id: r.id, businessId: r.business_id, eventId: r.event_id, ticketTypeId: r.ticket_type_id, paymentId: r.payment_id, holderName: r.holder_name, holderEmail: r.holder_email, status: r.status, usedAtMs: ms(r.used_at), holdExpiresMs: ms(r.hold_expires_at), checkedInBy: r.checked_in_by });
 const mRefund = (r: any): RefundRequestRecord => ({ id: r.id, businessId: r.business_id, paymentId: r.payment_id, subjectKind: r.subject_kind, subjectId: r.subject_id, amountMinor: big(r.amount_minor), currency: r.currency, status: r.status, reason: r.reason, createdAtMs: r.created_at.getTime(), resolvedAtMs: ms(r.resolved_at) });
@@ -195,12 +195,16 @@ export class PgStore implements Store {
     return out;
   }
   async insertProduct(p: ProductRecord) {
-    return this.changed(`insert into products (id, business_id, short_id, slug, name, description, price_minor, currency, fulfilment, lead_time_hours, max_per_order, status, created_at, stock_quantity)
-      values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) on conflict (short_id) do nothing`, [p.id, p.businessId, p.shortId, p.slug, p.name, p.description, p.priceMinor.toString(), p.currency, p.fulfilment, p.leadTimeHours, p.maxPerOrder, p.status, d(p.createdAtMs), p.stockQuantity ?? null]);
+    return this.changed(`insert into products (id, business_id, short_id, slug, name, description, price_minor, currency, fulfilment, lead_time_hours, max_per_order, status, created_at, stock_quantity, compare_at_price_minor, promo_badge, gallery_asset_ids)
+      values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17) on conflict (short_id) do nothing`,
+      [p.id, p.businessId, p.shortId, p.slug, p.name, p.description, p.priceMinor.toString(), p.currency, p.fulfilment, p.leadTimeHours, p.maxPerOrder, p.status, d(p.createdAtMs), p.stockQuantity ?? null, p.compareAtPriceMinor ? p.compareAtPriceMinor.toString() : null, p.promoBadge ?? null, p.galleryAssetIds ? [...p.galleryAssetIds] : []]);
   }
   async getProduct(businessId: string, id: string) { return isUuid(id) && isUuid(businessId) ? (r => (r ? mProduct(r) : null))(await this.one("select * from products where id = $1 and business_id = $2", [id, businessId])) : null; }
   async patchProduct(businessId: string, id: string, patch: Partial<ProductRecord>) {
-    const cols: Record<string, [string, (v: any) => unknown]> = { name: ["name", (v) => v], slug: ["slug", (v) => v], description: ["description", (v) => v], priceMinor: ["price_minor", (v) => v.toString()], stockQuantity: ["stock_quantity", (v) => v], imageAssetId: ["image_asset_id", (v) => v], fulfilment: ["fulfilment", (v) => v], leadTimeHours: ["lead_time_hours", (v) => v], maxPerOrder: ["max_per_order", (v) => v], status: ["status", (v) => v] };
+    const cols: Record<string, [string, (v: any) => unknown]> = {
+      name: ["name", (v) => v], slug: ["slug", (v) => v], description: ["description", (v) => v], priceMinor: ["price_minor", (v) => v.toString()], stockQuantity: ["stock_quantity", (v) => v], imageAssetId: ["image_asset_id", (v) => v], fulfilment: ["fulfilment", (v) => v], leadTimeHours: ["lead_time_hours", (v) => v], maxPerOrder: ["max_per_order", (v) => v], status: ["status", (v) => v],
+      compareAtPriceMinor: ["compare_at_price_minor", (v) => (v === null ? null : v.toString())], promoBadge: ["promo_badge", (v) => v], galleryAssetIds: ["gallery_asset_ids", (v) => [...v]],
+    };
     const sets: string[] = [], vals: unknown[] = [id, businessId];
     for (const [k, v] of Object.entries(patch)) { const c = cols[k]; if (c) { vals.push(c[1](v)); sets.push(`${c[0]} = $${vals.length}`); } }
     return sets.length > 0 && isUuid(id) && isUuid(businessId) ? this.changed(`update products set ${sets.join(", ")} where id = $1 and business_id = $2`, vals) : false;
@@ -213,11 +217,21 @@ export class PgStore implements Store {
     const r = await this.pool.query(`update products set status = 'paused' where id in (select id from products where business_id = $1 and status = 'active' order by created_at asc offset $2)`, [businessId, keep]);
     return r.rowCount ?? 0;
   }
+  async deleteDraftBusiness(businessId: string) {
+    if (!isUuid(businessId)) return false;
+    const r = await this.pool.query("update businesses set deleted_at = now(), status = 'archived' where id = $1 and status = 'draft'", [businessId]);
+    return (r.rowCount ?? 0) > 0;
+  }
 
   // ---- public reads ----
   async getPublicBusinessBySlug(slug: string) { const r = await this.one("select * from businesses where slug = $1 and status = 'active' and deleted_at is null", [slug]); return r ? mBusiness(r) : null; }
   async listPublicBusinesses(limit: number, offset: number, countryCode?: string, typeIds?: readonly string[]) {
     return (await this.pool.query("select * from businesses where status = 'active' and deleted_at is null and ($3::text is null or country_code = $3) and ($4::text[] is null or business_type_id = any($4)) order by published_at desc nulls last limit $1 offset $2", [limit, offset, countryCode ?? null, typeIds ? [...typeIds] : null])).rows.map(mBusiness);
+  }
+  async listPublicProducts(limit: number, offset: number = 0) {
+    const bizOf = (r: any) => mBusiness({ ...r.biz, published_at: r.biz.published_at ? new Date(r.biz.published_at) : null });
+    const rows = (await this.pool.query("select p.*, row_to_json(b) as biz from products p join businesses b on b.id = p.business_id where p.status = 'active' and b.status = 'active' and b.deleted_at is null order by p.created_at desc limit $1 offset $2", [limit, offset])).rows;
+    return rows.map((r: any) => ({ product: mProduct(r), business: bizOf(r) }));
   }
   async searchPublic(needle: string, limit: number) {
     const like = `%${needle.replace(/[\\%_]/g, "\\$&")}%`;                                   // the search text is data: wildcard characters are escaped

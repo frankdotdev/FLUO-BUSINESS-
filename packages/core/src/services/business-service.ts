@@ -65,3 +65,15 @@ export async function publishBusiness(d: Deps, actorUserId: string, businessId: 
   await d.store.appendAudit({ businessId: b.id, actorUserId, action: "business.published", targetId: b.id, atMs: now });
   return { ...b, status: "active", publishedAtMs: now };
 }
+
+/** Owners can delete/discard an unlaunched draft workspace (e.g. accidental duplicate or testing). */
+export async function deleteDraftBusiness(d: Deps, actorUserId: string, businessId: string): Promise<void> {
+  const memberships = await d.store.membershipsForUser(actorUserId);
+  const owner = memberships.find((m) => m.businessId === businessId && m.role === "owner");
+  if (!owner) return fail("forbidden");
+  const b = await d.store.getBusiness(businessId);
+  if (!b) return fail("not_found");
+  if (b.status !== "draft") return fail("cannot_delete_active_business");
+  await d.store.deleteDraftBusiness(businessId);
+  await d.store.appendAudit({ businessId, actorUserId, action: "business.draft_deleted", targetId: businessId, atMs: d.now() });
+}
