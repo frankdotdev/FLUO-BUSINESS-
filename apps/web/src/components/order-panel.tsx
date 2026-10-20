@@ -53,16 +53,22 @@ export async function OrderPanel({
   if (
     payment &&
     payment.method === "provider" &&
-    (payment.status === "pending" || payment.status === "created" || subject?.status === "awaiting_payment" || subject?.status === "held")
+    (payment.status === "pending" || payment.status === "created" || subject.status === "awaiting_payment" || subject.status === "held")
   ) {
     const verified = await syncOrderPayment(businessId, subjectId, payment.providerReference);
     if (verified) {
-      order = await d.store.getOrder(businessId, subjectId);
-      booking = order ? null : await d.store.getBooking(businessId, subjectId);
-      subject = order ?? booking;
+      const refreshedOrder = await d.store.getOrder(businessId, subjectId);
+      const refreshedBooking = refreshedOrder ? null : await d.store.getBooking(businessId, subjectId);
+      if (refreshedOrder || refreshedBooking) {
+        order = refreshedOrder;
+        booking = refreshedBooking;
+        subject = refreshedOrder ?? refreshedBooking;
+      }
       payment = await d.store.getPaymentForOrder(businessId, subjectId);
     }
   }
+
+  if (!subject) notFound();
 
   const kind = order ? "order" : "booking";
   const [statusText, bgTone, textTone] = LABEL[subject.status] ?? [subject.status, "#f6f7f7", "var(--ink)"];

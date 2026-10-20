@@ -36,7 +36,6 @@ export async function syncOrderPayment(
           providerReference: providerRef,
           type: "payment.succeeded",
           amount: v.amount,
-          atMs: Date.now(),
         },
         async () => ({
           status: v.status,
