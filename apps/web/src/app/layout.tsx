@@ -5,6 +5,7 @@ import { Header } from "@/components/header.tsx";
 import { BottomNav } from "@/components/bottom-nav.tsx";
 import { SplashScreen } from "@/components/splash-screen.tsx";
 import { InstallPrompt } from "@/components/install-prompt.tsx";
+import { trackVisit } from "@/server/analytics.ts";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -36,6 +37,18 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const session = await getSession();
   let businessCount = 0;
   let unreadCount = 0;
+
+  // Track visit non-blockingly
+  trackVisit("/", null, session?.user?.id).catch(() => {});
+
+  const adminEmails = (process.env.ADMIN_EMAILS || "")
+    .split(",")
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean);
+  const isAdmin = Boolean(
+    session?.user?.email &&
+      (adminEmails.length === 0 || adminEmails.includes(session.user.email.toLowerCase()))
+  );
 
   if (session?.user?.id) {
     try {
@@ -69,6 +82,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             user={session?.user}
             businessCount={businessCount}
             unreadCount={unreadCount}
+            isAdmin={isAdmin}
           />
           <InstallPrompt />
           <main id="main-content">{children}</main>

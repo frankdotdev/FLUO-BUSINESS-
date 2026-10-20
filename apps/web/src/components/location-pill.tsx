@@ -246,6 +246,9 @@ export function LocationPill() {
   const saveLocation = (name: string) => {
     setLocationName(name);
     localStorage.setItem("fluo_user_location", name);
+    try {
+      document.cookie = `fluo_user_location=${encodeURIComponent(name)}; path=/; max-age=31536000; SameSite=Lax`;
+    } catch {}
     // Dispatch custom event so any active feed components can react
     window.dispatchEvent(new CustomEvent("fluo:location-change", { detail: { location: name } }));
     setIsOpen(false);

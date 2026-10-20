@@ -6,9 +6,10 @@ interface HeaderProps {
   user?: { name: string; email: string } | null;
   businessCount?: number;
   unreadCount?: number;
+  isAdmin?: boolean;
 }
 
-export function Header({ user, businessCount = 0, unreadCount = 0 }: HeaderProps) {
+export function Header({ user, businessCount = 0, unreadCount = 0, isAdmin = false }: HeaderProps) {
   const avatarLetter = user?.name ? user.name.trim().charAt(0).toUpperCase() : "F";
 
   return (
@@ -112,6 +113,28 @@ export function Header({ user, businessCount = 0, unreadCount = 0 }: HeaderProps
 
       {/* Top Actions */}
       <div className="top-actions">
+        {isAdmin && (
+          <Link
+            href="/admin"
+            className="desktop-cta"
+            style={{
+              padding: "6px 12px",
+              fontSize: 12,
+              fontWeight: 800,
+              background: "var(--ink)",
+              color: "#ffffff",
+              borderRadius: 10,
+              textDecoration: "none",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 4,
+            }}
+            title="Fluo Platform Founder Admin"
+          >
+            ⚡ Platform Admin
+          </Link>
+        )}
+
         {businessCount > 0 ? (
           <Link
             href="/app"

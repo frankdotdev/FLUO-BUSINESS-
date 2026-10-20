@@ -8,6 +8,7 @@ import { photo } from "@/server/media.ts";
 import { friendly } from "@/server/messages.ts";
 import { IconShield, IconHeart, IconUsers, IconMessageSquare, IconStar, IconArrowRight } from "@/components/icons.tsx";
 import { ShareModal } from "@/components/share-modal.tsx";
+import { StoreCatalogue } from "@/components/store-catalogue.tsx";
 
 export const dynamic = "force-dynamic";
 
@@ -53,6 +54,31 @@ export default async function Storefront({
   const type = BUSINESS_TYPES.find((t) => t.id === b.typeId)?.label ?? "Business";
   const openStatus = isBusinessOpenNow(null, b.timezone);
   const logoUrl = photo(b.id, b.logoAssetId, "card");
+
+  const serializedProducts = products.map((p) => {
+    const imgUrl = photo(b.id, p.imageAssetId, "card");
+    const isSoldOut = p.stockQuantity === 0;
+    const isLowStock = p.stockQuantity != null && p.stockQuantity > 0 && p.stockQuantity <= 5;
+    const totalPhotos = (p.galleryAssetIds && p.galleryAssetIds.length > 0)
+      ? p.galleryAssetIds.length
+      : p.imageAssetId ? 1 : 0;
+    return {
+      id: p.id,
+      name: p.name,
+      description: p.description,
+      shortId: p.shortId,
+      url: resourcePath("p", p.name, p.shortId),
+      priceFormatted: fmtMoney(p.priceMinor, p.currency),
+      priceMinor: Number(p.priceMinor),
+      currency: p.currency,
+      photoUrl: imgUrl,
+      isSoldOut,
+      isLowStock,
+      stockQuantity: p.stockQuantity ?? null,
+      promoBadge: p.promoBadge ?? null,
+      photoCount: totalPhotos,
+    };
+  });
 
   return (
     <div style={{ maxWidth: 1100, margin: "0 auto", padding: "24px 16px 80px" }}>
@@ -319,181 +345,11 @@ export default async function Storefront({
             </form>
           </div>
         ) : (
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
-            gap: 20,
-          }}>
-            {products.map((p) => {
-              const imgUrl = photo(b.id, p.imageAssetId, "card");
-              const isSoldOut = p.stockQuantity === 0;
-              const isLowStock = p.stockQuantity != null && p.stockQuantity > 0 && p.stockQuantity <= 5;
-              const totalPhotos = (p.galleryAssetIds && p.galleryAssetIds.length > 0)
-                ? p.galleryAssetIds.length
-                : p.imageAssetId ? 1 : 0;
-              return (
-                <Link
-                  key={p.id}
-                  href={resourcePath("p", p.name, p.shortId)}
-                  style={{
-                    background: "#ffffff",
-                    border: "1px solid var(--line)",
-                    borderRadius: 20,
-                    overflow: "hidden",
-                    textDecoration: "none",
-                    color: "inherit",
-                    display: "flex",
-                    flexDirection: "column",
-                    transition: "transform 0.2s, box-shadow 0.2s, border-color 0.2s",
-                  }}
-                  className="store-card"
-                >
-                  <div style={{
-                    height: 180,
-                    background: "var(--canvas)",
-                    position: "relative",
-                    overflow: "hidden",
-                    display: "grid",
-                    placeItems: "center",
-                  }}>
-                    {imgUrl ? (
-                      <img
-                        src={imgUrl}
-                        alt={p.name}
-                        width={480}
-                        height={360}
-                        loading="lazy"
-                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                      />
-                    ) : (
-                      <div style={{
-                        color: "var(--muted)",
-                        fontFamily: "Manrope, sans-serif",
-                        fontWeight: 700,
-                        fontSize: 14,
-                        opacity: 0.5,
-                      }}>
-                        {b.name}
-                      </div>
-                    )}
-                    {p.promoBadge && (
-                      <span style={{
-                        position: "absolute",
-                        top: 10,
-                        left: 10,
-                        background: "var(--coral-dark)",
-                        color: "#ffffff",
-                        fontSize: 10,
-                        fontWeight: 800,
-                        letterSpacing: "0.5px",
-                        textTransform: "uppercase",
-                        padding: "3px 7px",
-                        borderRadius: 6,
-                        zIndex: 2,
-                      }}>
-                        {p.promoBadge}
-                      </span>
-                    )}
-                    {totalPhotos > 1 && (
-                      <span style={{
-                        position: "absolute",
-                        bottom: 8,
-                        right: 8,
-                        background: "rgba(0,0,0,0.65)",
-                        color: "#ffffff",
-                        fontSize: 10,
-                        fontWeight: 700,
-                        padding: "2px 6px",
-                        borderRadius: 6,
-                        zIndex: 2,
-                      }}>
-                        {totalPhotos} photos
-                      </span>
-                    )}
-                    {isSoldOut ? (
-                      <span className="open-badge" style={{ background: "rgba(220, 38, 38, 0.9)" }}>Sold out</span>
-                    ) : isLowStock ? (
-                      <span className="open-badge" style={{ background: "rgba(217, 119, 6, 0.9)" }}>Only {p.stockQuantity} left</span>
-                    ) : p.fulfilment === "made_to_order" ? (
-                      <span className="open-badge" style={{ background: "rgba(23, 33, 38, 0.85)" }}>Made to order</span>
-                    ) : null}
-                  </div>
-                  <div style={{ padding: "16px 18px", flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-                    <div>
-                      <h3 style={{
-                        margin: "0 0 6px",
-                        fontFamily: "Manrope, sans-serif",
-                        fontSize: 16,
-                        fontWeight: 700,
-                        letterSpacing: "-0.4px",
-                        color: "var(--ink)",
-                      }}>
-                        {p.name}
-                      </h3>
-                      {p.description && (
-                        <p style={{
-                          margin: "0 0 10px",
-                          fontSize: 12,
-                          color: "var(--muted)",
-                          lineHeight: 1.5,
-                          display: "-webkit-box",
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: "vertical",
-                          overflow: "hidden",
-                        }}>
-                          {p.description}
-                        </p>
-                      )}
-                    </div>
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 12, gap: 8 }}>
-                      <div style={{ display: "flex", alignItems: "baseline", gap: 6, flexWrap: "wrap" }}>
-                        <strong style={{
-                          fontFamily: "Manrope, sans-serif",
-                          fontSize: 17,
-                          fontWeight: 800,
-                          color: "var(--ink)",
-                        }}>
-                          {fmtMoney(p.priceMinor, p.currency)}
-                        </strong>
-                        {p.compareAtPriceMinor != null && p.compareAtPriceMinor > p.priceMinor && (
-                          <>
-                            <span style={{
-                              fontSize: 12,
-                              color: "var(--muted)",
-                              textDecoration: "line-through",
-                            }}>
-                              {fmtMoney(p.compareAtPriceMinor, p.currency)}
-                            </span>
-                            <span style={{
-                              fontSize: 10,
-                              fontWeight: 700,
-                              color: "var(--coral-dark)",
-                              background: "var(--coral-soft)",
-                              padding: "1px 5px",
-                              borderRadius: 4,
-                            }}>
-                              {Math.round(Number((p.compareAtPriceMinor - p.priceMinor) * 100n / p.compareAtPriceMinor))}% OFF
-                            </span>
-                          </>
-                        )}
-                      </div>
-                      <span style={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: 3,
-                        color: "var(--coral-dark)",
-                        fontSize: 12,
-                        fontWeight: 700,
-                        flexShrink: 0,
-                      }}>
-                        Order <IconArrowRight size={13} />
-                      </span>
-                    </div>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
+          <StoreCatalogue
+            products={serializedProducts}
+            businessName={b.name}
+            businessSlug={b.slug}
+          />
         )}
       </section>
 

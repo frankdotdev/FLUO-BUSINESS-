@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { cookies } from "next/headers";
 import { BUSINESS_TYPES, categories, fmtLocal, fmtMoney, resourcePath, searchMarketplace, typeIdsInGroup } from "@fluo/core";
 import { deps } from "@/server/container.ts";
 import { rateLimited } from "@/server/rate.ts";
@@ -25,13 +26,17 @@ export default async function SearchPage({
 
   const d = deps();
   const session = await getSession();
+  const c = await cookies();
+  const userCampus = c.get("fluo_user_location")?.value || "";
   const cats = categories();
-  const group = cats.find((c) => c.group === sp.group);
+  const group = cats.find((cat) => cat.group === sp.group);
   const label = new Map(BUSINESS_TYPES.map((t) => [t.id, t.label]));
 
   let favoriteBusinesses: any[] = [];
-  if (sp.filter === "favorites" && session) {
+  let favoriteBusinessIds = new Set<string>();
+  if (session) {
     favoriteBusinesses = await d.store.listFavoriteBusinesses(session.user.id).catch(() => []);
+    favoriteBusinessIds = new Set(favoriteBusinesses.map((b) => b.id));
   }
 
   let found: { query: string; businesses: any[]; products: any[]; events: any[] };
@@ -50,15 +55,50 @@ export default async function SearchPage({
     found = await searchMarketplace(d, sp.q ?? "");
   }
 
+  // Prioritize search results: favorites first, then user's selected campus / location
+  found.products.sort((a, b) => {
+    const aFav = favoriteBusinessIds.has(a.business.id) ? 1 : 0;
+    const bFav = favoriteBusinessIds.has(b.business.id) ? 1 : 0;
+    if (aFav !== bFav) return bFav - aFav;
+
+    if (userCampus) {
+      const aCamp = a.business.address?.toLowerCase().includes(userCampus.toLowerCase()) ? 1 : 0;
+      const bCamp = b.business.address?.toLowerCase().includes(userCampus.toLowerCase()) ? 1 : 0;
+      if (aCamp !== bCamp) return bCamp - aCamp;
+    }
+    return 0;
+  });
+
+  found.businesses.sort((a, b) => {
+    const aFav = favoriteBusinessIds.has(a.id) ? 1 : 0;
+    const bFav = favoriteBusinessIds.has(b.id) ? 1 : 0;
+    if (aFav !== bFav) return bFav - aFav;
+
+    if (userCampus) {
+      const aCamp = a.address?.toLowerCase().includes(userCampus.toLowerCase()) ? 1 : 0;
+      const bCamp = b.address?.toLowerCase().includes(userCampus.toLowerCase()) ? 1 : 0;
+      if (aCamp !== bCamp) return bCamp - aCamp;
+    }
+    return 0;
+  });
+
   const empty = found.businesses.length + found.products.length + found.events.length === 0;
 
   return (
     <div style={{ maxWidth: 1100, margin: "0 auto", padding: "24px 16px 80px" }}>
       {/* Header & Search Bar */}
       <div style={{ marginBottom: 24 }}>
-        <span className="section-kicker">
-          {sp.filter === "favorites" ? "SAVED PLACES" : sp.filter === "products" ? "ALL ITEMS & MENU" : sp.filter === "events" ? "COMMUNITY EXPERIENCES" : group ? "CATEGORY" : "DISCOVER"}
-        </span>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 10 }}>
+          <span className="section-kicker">
+            {sp.filter === "favorites" ? "SAVED PLACES" : sp.filter === "products" ? "ALL ITEMS & MENU" : sp.filter === "events" ? "COMMUNITY EXPERIENCES" : group ? "CATEGORY" : "DISCOVER"}
+          </span>
+          {userCampus && (
+            <span style={{ fontSize: 11, fontWeight: 700, color: "var(--muted)", display: "inline-flex", alignItems: "center", gap: 4 }}>
+              📍 Prioritizing near <strong>{userCampus}</strong>
+            </span>
+          )}
+        </div>
+
         <h1 style={{
           fontFamily: "Manrope, sans-serif",
           fontSize: "clamp(24px, 3.5vw, 36px)",
@@ -148,23 +188,19 @@ export default async function SearchPage({
           <span>♥</span>
           <b>Keep track of your regular spots</b>
           <p>Sign in to save your favorite campus food joints, stores, and services for quick one-tap access.</p>
-          <Link href="/sign-in" className="primary-button">
-            Sign In to Save Favorites <span>↗</span>
+          <Link href="/sign-in?next=/search?filter=favorites" className="primary-button">
+            Sign In <span>↗</span>
           </Link>
         </div>
       )}
 
-      {empty && (found.query.length >= 2 || group || sp.filter === "favorites") && (
-        <div className="empty-dashboard" style={{ background: "#ffffff", borderRadius: 20, border: "1px solid var(--line)", margin: "24px 0" }}>
-          <span>▧</span>
-          <b>No matching results found</b>
-          <p>
-            {sp.filter === "favorites"
-              ? "You haven't saved any regular spots yet. Tap the heart icon on any business page to add it here!"
-              : `We couldn't find matches for "${found.query || group?.label}". Try another search or explore all categories.`}
-          </p>
-          <Link href="/search" className="secondary-button">
-            View all businesses ↗
+      {empty && (
+        <div className="empty-dashboard" style={{ background: "#ffffff", borderRadius: 20, border: "1px solid var(--line)", margin: "32px 0" }}>
+          <span>🔍</span>
+          <b>Nothing found {sp.q ? `for "${sp.q}"` : ""}</b>
+          <p>Try searching for popular everyday staples like "iPhone", "charger", "shawarma", or "haircut".</p>
+          <Link href="/search" className="primary-button">
+            Clear Search &amp; Discover All <span>↗</span>
           </Link>
         </div>
       )}
@@ -183,6 +219,8 @@ export default async function SearchPage({
           <div className="store-grid">
             {found.businesses.map((b) => {
               const logoUrl = photo(b.id, b.logoAssetId, "card");
+              const isFav = favoriteBusinessIds.has(b.id);
+              const isOnCampus = userCampus && b.address?.toLowerCase().includes(userCampus.toLowerCase());
               return (
                 <Link
                   key={b.id}
@@ -209,16 +247,28 @@ export default async function SearchPage({
                         {b.name.charAt(0).toUpperCase()}
                       </div>
                     )}
-                    <span className="open-badge"><i></i> Open now</span>
+                    <div style={{ position: "absolute", top: 8, left: 7, display: "flex", gap: 4, zIndex: 2 }}>
+                      <span className="open-badge" style={{ position: "static" }}><i></i> Open now</span>
+                      {isFav && (
+                        <span style={{ background: "#ffffff", color: "var(--coral-dark)", fontSize: 9, fontWeight: 800, padding: "3px 6px", borderRadius: 8, boxShadow: "0 2px 4px rgba(0,0,0,0.1)" }}>
+                          ♥ Saved
+                        </span>
+                      )}
+                      {isOnCampus && (
+                        <span style={{ background: "var(--ink)", color: "#ffffff", fontSize: 9, fontWeight: 800, padding: "3px 6px", borderRadius: 8 }}>
+                          📍 Nearby
+                        </span>
+                      )}
+                    </div>
                   </div>
                   <div className="store-details">
                     <div className="store-title-row">
                       <h3>{b.name}</h3>
-                      <span className="rating"><IconStar size={11} style={{ fill: "#f59e0b", color: "#f59e0b" }} /> 4.8</span>
+                      <span className="rating"><IconStar size={11} style={{ fill: "#f59e0b", color: "#f59e0b" }} /> 4.9</span>
                     </div>
                     <p>{label.get(b.typeId) ?? "Local Business"}</p>
                     <div className="store-meta">
-                      <span>Abakaliki · Verified</span>
+                      <span>{b.address || "Verified Store"}</span>
                       <span className="delivery-tag">Visit Store</span>
                     </div>
                   </div>
@@ -229,7 +279,7 @@ export default async function SearchPage({
         </section>
       )}
 
-      {/* Items & Dishes Results */}
+      {/* Items & Dishes Results (Clean 2-Column Responsive Grid on Mobile) */}
       {found.products.length > 0 && (
         <section style={{ margin: "40px 0" }}>
           <div className="section-heading" style={{ marginBottom: 16 }}>
@@ -240,47 +290,65 @@ export default async function SearchPage({
             <span style={{ fontSize: 13, color: "var(--muted)" }}>{found.products.length} found</span>
           </div>
 
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))",
-            gap: 20,
-          }}>
+          <div className="products-2col-grid">
             {found.products.map(({ product: p, business: b }) => {
               const imgUrl = photo(b.id, p.imageAssetId, "card");
+              const isFav = favoriteBusinessIds.has(b.id);
+              const isOnCampus = userCampus && b.address?.toLowerCase().includes(userCampus.toLowerCase());
               return (
                 <Link
                   key={p.id}
                   href={resourcePath("p", p.name, p.shortId)}
-                  className="store-card"
-                  style={{
-                    textDecoration: "none",
-                    color: "inherit",
-                    background: "#ffffff",
-                    borderRadius: 20,
-                    border: "1px solid var(--line)",
-                    overflow: "hidden",
-                    display: "flex",
-                    flexDirection: "column",
-                  }}
+                  className="product-card-compact"
                 >
-                  <div style={{ height: 160, background: "var(--canvas)", position: "relative", overflow: "hidden", display: "grid", placeItems: "center" }}>
+                  <div className="product-card-thumb">
                     {imgUrl ? (
-                      <img src={imgUrl} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                      <img src={imgUrl} alt={p.name} loading="lazy" />
                     ) : (
-                      <div style={{ color: "var(--muted)", fontWeight: 700, fontSize: 13 }}>{b.name}</div>
+                      <div style={{ color: "var(--muted)", fontWeight: 700, fontSize: 12, textAlign: "center", padding: "0 8px" }}>
+                        {b.name}
+                      </div>
                     )}
-                  </div>
-                  <div style={{ padding: "14px 16px", flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-                    <div>
-                      <h3 style={{ margin: "0 0 4px", fontSize: 15, fontFamily: "Manrope, sans-serif", fontWeight: 700 }}>{p.name}</h3>
-                      <p style={{ margin: "0 0 8px", fontSize: 12, color: "var(--muted)" }}>{b.name}</p>
+                    <div style={{ position: "absolute", top: 8, left: 8, display: "flex", flexDirection: "column", gap: 4, zIndex: 2 }}>
+                      {isFav && (
+                        <span style={{
+                          background: "#ffffff",
+                          color: "var(--coral-dark)",
+                          padding: "2px 7px",
+                          borderRadius: 6,
+                          fontSize: 9,
+                          fontWeight: 800,
+                          boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                        }}>
+                          ♥ Saved Spot
+                        </span>
+                      )}
+                      {isOnCampus && (
+                        <span style={{
+                          background: "var(--ink)",
+                          color: "#ffffff",
+                          padding: "2px 7px",
+                          borderRadius: 6,
+                          fontSize: 9,
+                          fontWeight: 800,
+                          boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                        }}>
+                          📍 On Campus
+                        </span>
+                      )}
                     </div>
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 8 }}>
-                      <strong style={{ fontFamily: "Manrope, sans-serif", fontSize: 16, fontWeight: 800 }}>
+                  </div>
+                  <div className="product-card-body">
+                    <div>
+                      <h3 className="product-card-title">{p.name}</h3>
+                      <p className="product-card-subtitle">{b.name}</p>
+                    </div>
+                    <div className="product-card-price-row">
+                      <strong className="product-card-price">
                         {fmtMoney(p.priceMinor, p.currency)}
                       </strong>
-                      <span style={{ fontSize: 12, color: "var(--coral-dark)", fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 3 }}>
-                        Order <IconArrowRight size={12} />
+                      <span className="product-card-cta">
+                        Order <IconArrowRight size={10} />
                       </span>
                     </div>
                   </div>
@@ -318,27 +386,26 @@ export default async function SearchPage({
                   background: "#ffffff",
                   borderRadius: 20,
                   border: "1px solid var(--line)",
-                  padding: 20,
+                  overflow: "hidden",
                   display: "flex",
                   flexDirection: "column",
-                  justifyContent: "space-between",
                 }}
               >
-                <div>
-                  <span className="open-badge" style={{ position: "static", display: "inline-block", marginBottom: 12 }}>
-                    Tickets on sale
+                <div style={{ height: 160, background: "linear-gradient(135deg, #172126 0%, #26363f 100%)", color: "#ffffff", padding: 20, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: "#f07866", textTransform: "uppercase", letterSpacing: "1px" }}>
+                    Verified Event
                   </span>
-                  <h3 style={{ margin: "0 0 6px", fontFamily: "Manrope, sans-serif", fontSize: 18, fontWeight: 800 }}>
-                    {e.name}
-                  </h3>
-                  <p style={{ margin: "0 0 12px", fontSize: 12, color: "var(--muted)", display: "flex", alignItems: "center", gap: 5 }}>
-                    <IconCalendar size={13} /> {fmtLocal(e.startsAtMs, b.timezone)}
-                  </p>
+                  <div>
+                    <h3 style={{ margin: 0, fontSize: 18, fontFamily: "Manrope, sans-serif", fontWeight: 800 }}>{e.name}</h3>
+                    <p style={{ margin: "4px 0 0", fontSize: 12, color: "#9db0b7" }}>{b.name}</p>
+                  </div>
                 </div>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: 14, borderTop: "1px solid var(--line)" }}>
-                  <span style={{ fontSize: 12, fontWeight: 600, color: "var(--ink)" }}>{b.name}</span>
+                <div style={{ padding: "14px 16px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <span style={{ fontSize: 12, color: "var(--muted)", display: "inline-flex", alignItems: "center", gap: 5 }}>
+                    <IconCalendar size={13} /> {fmtLocal(e.startMs, b.timezone)}
+                  </span>
                   <span style={{ fontSize: 12, color: "var(--coral-dark)", fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 3 }}>
-                    Get Tickets <IconArrowRight size={13} />
+                    Tickets <IconArrowRight size={12} />
                   </span>
                 </div>
               </Link>

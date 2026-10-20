@@ -329,29 +329,27 @@ export function HomeView({
             </Link>
           </div>
 
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))",
-            gap: 16,
-          }}>
+          {/* Horizontal Snap Scroll on Mobile / Multi-column on Desktop */}
+          <div className="horizontal-snap-row" style={{ marginTop: 12 }}>
             {regularSpots.map((store) => {
               const isSaved = savedIds.has(store.id);
               return (
-                <Link
-                  key={store.id}
-                  href={`/${store.slug}`}
-                  className="store-card"
-                  style={{
-                    textDecoration: "none",
-                    color: "inherit",
-                    display: "flex",
-                    flexDirection: "column",
-                    background: "#ffffff",
-                    borderRadius: 20,
-                    border: "1px solid var(--line)",
-                    overflow: "hidden",
-                  }}
-                >
+                <div key={store.id} className="horizontal-snap-card">
+                  <Link
+                    href={`/${store.slug}`}
+                    className="store-card"
+                    style={{
+                      textDecoration: "none",
+                      color: "inherit",
+                      display: "flex",
+                      flexDirection: "column",
+                      background: "#ffffff",
+                      borderRadius: 20,
+                      border: "1px solid var(--line)",
+                      overflow: "hidden",
+                      height: "100%",
+                    }}
+                  >
                   <div className={`store-image ${store.photoClass}`} style={{ height: 130 }}>
                     <span className="open-badge">
                       <i></i> {store.isOpen ? "Open now" : "Closed"}
@@ -421,8 +419,9 @@ export function HomeView({
                     </div>
                   </div>
                 </Link>
-              );
-            })}
+              </div>
+            );
+          })}
           </div>
         </section>
       ) : !isAuthenticated ? (
@@ -476,32 +475,14 @@ export function HomeView({
             </Link>
           </div>
 
-          <div className="store-grid">
-            {initialProducts.slice(0, 6).map((p) => (
+          <div className="products-2col-grid">
+            {initialProducts.slice(0, 8).map((p) => (
               <Link
                 key={p.id}
                 href={p.url}
-                className="store-card"
-                style={{
-                  background: "#ffffff",
-                  border: "1px solid var(--line)",
-                  borderRadius: 20,
-                  overflow: "hidden",
-                  textDecoration: "none",
-                  color: "inherit",
-                  display: "flex",
-                  flexDirection: "column",
-                  transition: "transform 0.2s, box-shadow 0.2s, border-color 0.2s",
-                }}
+                className="product-card-compact"
               >
-                <div style={{
-                  height: "clamp(130px, 28vw, 180px)",
-                  background: "var(--canvas)",
-                  position: "relative",
-                  overflow: "hidden",
-                  display: "grid",
-                  placeItems: "center",
-                }}>
+                <div className="product-card-thumb">
                   {p.photoUrl ? (
                     <img
                       src={p.photoUrl}
@@ -509,21 +490,22 @@ export function HomeView({
                       width={480}
                       height={360}
                       loading="lazy"
-                      style={{ width: "100%", height: "100%", objectFit: "cover" }}
                     />
                   ) : (
                     <div style={{
                       color: "var(--muted)",
                       fontFamily: "Manrope, sans-serif",
                       fontWeight: 700,
-                      fontSize: 14,
-                      opacity: 0.6,
+                      fontSize: 12,
+                      opacity: 0.7,
+                      textAlign: "center",
+                      padding: "0 8px",
                     }}>
                       {p.businessName}
                     </div>
                   )}
 
-                  <div style={{ position: "absolute", top: 10, right: 10, zIndex: 3 }}>
+                  <div style={{ position: "absolute", top: 8, right: 8, zIndex: 3 }}>
                     <ShareModal
                       title={p.name}
                       subtitle={`Available from ${p.businessName} • ${p.priceFormatted}`}
@@ -536,8 +518,8 @@ export function HomeView({
                       variant="icon"
                       label={`Share ${p.name}`}
                       style={{
-                        width: 28,
-                        height: 28,
+                        width: 26,
+                        height: 26,
                         borderRadius: "50%",
                         background: "rgba(255, 255, 255, 0.92)",
                         backdropFilter: "blur(8px)",
@@ -550,15 +532,15 @@ export function HomeView({
                   {p.promoBadge && (
                     <span style={{
                       position: "absolute",
-                      top: 10,
-                      left: 10,
+                      top: 8,
+                      left: 8,
                       background: "var(--coral-dark)",
                       color: "#ffffff",
-                      fontSize: 10,
+                      fontSize: 9,
                       fontWeight: 800,
                       letterSpacing: "0.5px",
                       textTransform: "uppercase",
-                      padding: "3px 7px",
+                      padding: "2px 6px",
                       borderRadius: 6,
                       zIndex: 2,
                     }}>
@@ -569,14 +551,14 @@ export function HomeView({
                   {p.photoCount > 1 && (
                     <span style={{
                       position: "absolute",
-                      bottom: 8,
-                      right: 8,
+                      bottom: 6,
+                      right: 6,
                       background: "rgba(0,0,0,0.65)",
                       color: "#ffffff",
-                      fontSize: 10,
+                      fontSize: 9,
                       fontWeight: 700,
-                      padding: "2px 6px",
-                      borderRadius: 6,
+                      padding: "2px 5px",
+                      borderRadius: 5,
                       zIndex: 2,
                     }}>
                       {p.photoCount} photos
@@ -584,61 +566,18 @@ export function HomeView({
                   )}
                 </div>
 
-                <div style={{ padding: "12px 14px", flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                <div className="product-card-body">
                   <div>
-                    <span style={{ fontSize: 10, fontWeight: 700, color: "var(--coral-dark)", textTransform: "uppercase", letterSpacing: "0.4px" }}>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: "var(--coral-dark)", textTransform: "uppercase", letterSpacing: "0.4px", display: "block", marginBottom: 2 }}>
                       {p.businessName}
                     </span>
-                    <h3 style={{
-                      margin: "3px 0 5px",
-                      fontFamily: "Manrope, sans-serif",
-                      fontSize: 14,
-                      fontWeight: 700,
-                      letterSpacing: "-0.3px",
-                      color: "var(--ink)",
-                      display: "-webkit-box",
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: "vertical",
-                      overflow: "hidden",
-                    }}>
-                      {p.name}
-                    </h3>
+                    <h3 className="product-card-title">{p.name}</h3>
                   </div>
 
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 8, gap: 6, flexWrap: "wrap" }}>
-                    <div style={{ display: "flex", alignItems: "baseline", gap: 5, flexWrap: "wrap" }}>
-                      <strong style={{
-                        fontFamily: "Manrope, sans-serif",
-                        fontSize: 15,
-                        fontWeight: 800,
-                        color: "var(--ink)",
-                      }}>
-                        {p.priceFormatted}
-                      </strong>
-                      {p.compareAtPriceFormatted && p.discountPercent && (
-                        <span style={{
-                          fontSize: 9,
-                          fontWeight: 700,
-                          color: "var(--coral-dark)",
-                          background: "var(--coral-soft)",
-                          padding: "1px 4px",
-                          borderRadius: 4,
-                        }}>
-                          {p.discountPercent}% OFF
-                        </span>
-                      )}
-                    </div>
-
-                    <span style={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: 2,
-                      color: "var(--coral-dark)",
-                      fontSize: 11,
-                      fontWeight: 700,
-                      flexShrink: 0,
-                    }}>
-                      Order <IconArrowRight size={11} />
+                  <div className="product-card-price-row">
+                    <strong className="product-card-price">{p.priceFormatted}</strong>
+                    <span className="product-card-cta">
+                      Order <IconArrowRight size={10} />
                     </span>
                   </div>
                 </div>
@@ -967,8 +906,9 @@ export function HomeView({
                     </div>
                   </div>
                 </Link>
-              );
-            })}
+              </div>
+            );
+          })}
           </div>
 
           {filteredStores.length === 0 && storeCards.length > 0 && (

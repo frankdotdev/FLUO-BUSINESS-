@@ -17,3 +17,19 @@ export async function requireUser(next = "/app") {
   if (!s) redirect(`/sign-in?next=${encodeURIComponent(next)}`);
   return s.user;
 }
+
+/** Server-side gate for the Platform Founder / Super Admin Dashboard. */
+export async function requirePlatformAdmin(next = "/admin") {
+  const user = await requireUser(next);
+  const adminEmails = (process.env.ADMIN_EMAILS || "")
+    .split(",")
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean);
+
+  if (adminEmails.length > 0) {
+    if (!adminEmails.includes(user.email.toLowerCase())) {
+      redirect("/?error=admin_unauthorized");
+    }
+  }
+  return user;
+}
