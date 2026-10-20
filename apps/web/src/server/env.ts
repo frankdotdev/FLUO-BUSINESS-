@@ -108,10 +108,10 @@ export function env(): Env {
     keyId,
     eventFeeBps: fee,
     email: {
-      ...(e["RESEND_API_KEY"] ? { RESEND_API_KEY: e["RESEND_API_KEY"] } : {}),
-      ...(e["EMAIL_FROM"] ? { EMAIL_FROM: e["EMAIL_FROM"] } : {}),
-      ...(e["GMAIL_USER"] ? { GMAIL_USER: e["GMAIL_USER"] } : {}),
-      ...(e["GMAIL_APP_PASSWORD"] ? { GMAIL_APP_PASSWORD: e["GMAIL_APP_PASSWORD"] } : {}),
+      ...(e["RESEND_API_KEY"] ? { RESEND_API_KEY: e["RESEND_API_KEY"].trim() } : {}),
+      ...(e["EMAIL_FROM"] ? { EMAIL_FROM: e["EMAIL_FROM"].trim() } : {}),
+      ...(e["GMAIL_USER"] ? { GMAIL_USER: e["GMAIL_USER"].trim().replace(/^["']|["']$/g, "") } : {}),
+      ...(e["GMAIL_APP_PASSWORD"] ? { GMAIL_APP_PASSWORD: e["GMAIL_APP_PASSWORD"].replace(/\s+/g, "").replace(/^["']|["']$/g, "") } : {}),
     },
     google:
       e["GOOGLE_CLIENT_ID"] && e["GOOGLE_CLIENT_SECRET"]

@@ -17,9 +17,31 @@ export function container(): Container {
   const pool = createPool({ url: e.DATABASE_URL, max: 10 });
   let email: EmailProvider;
   try {
-    email = createEmailProvider(e.email, (user, pass) => nodemailer.createTransport({ host: "smtp.gmail.com", port: 465, secure: true, auth: { user, pass } }));
-  } catch {
-    email = { async send(m) { console.warn(`[Fluo Email Simulated] To: ${m.to} | Subject: ${m.subject}`); } };
+    email = createEmailProvider(e.email, (user, pass) => {
+      const cleanUser = user.trim().replace(/^["']|["']$/g, "");
+      const cleanPass = pass.replace(/\s+/g, "").replace(/^["']|["']$/g, "");
+      const transport = nodemailer.createTransport({
+        service: "gmail",
+        auth: { user: cleanUser, pass: cleanPass },
+      });
+      return {
+        async sendMail(msg) {
+          try {
+            return await transport.sendMail(msg);
+          } catch (err: any) {
+            console.error("[Fluo Gmail SMTP Delivery Error]", err?.message || err);
+            throw err;
+          }
+        },
+      };
+    });
+  } catch (err: any) {
+    console.warn("[Fluo Email Provider Configuration Warning]", err?.message || err);
+    email = {
+      async send(m) {
+        console.warn(`[Fluo Email Simulated - Check GMAIL_USER / GMAIL_APP_PASSWORD env vars] To: ${m.to} | Subject: ${m.subject}`);
+      },
+    };
   }
   g.__fluo = {
     pool, email,

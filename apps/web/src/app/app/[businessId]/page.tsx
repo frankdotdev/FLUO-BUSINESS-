@@ -24,6 +24,7 @@ import { Scanner } from "@/components/scanner.tsx";
 import { Thread } from "@/components/thread.tsx";
 import { ImageUpload } from "@/components/image-upload.tsx";
 import { ShareModal } from "@/components/share-modal.tsx";
+import { syncOrderPayment } from "@/server/paystack-sync.ts";
 import { photo } from "@/server/media.ts";
 import { deps } from "@/server/container.ts";
 import { env } from "@/server/env.ts";
@@ -93,11 +94,22 @@ export default async function Dashboard({
   const myRole = mine.find((m) => m.businessId === businessId && m.status === "active")?.role;
 
   // Real counts for badges & notifications
-  const [recentOrders, conversations, refundRequests] = await Promise.all([
+  let [recentOrders, conversations, refundRequests] = await Promise.all([
     d.store.listOrders(businessId, 50, 0).catch(() => []),
     d.store.listConversationsForBusiness(businessId, 50).catch(() => []),
     d.store.listRefundRequests(businessId, "requested").catch(() => []),
   ]);
+
+  // Sync any awaiting_payment orders that were completed via Paystack
+  const pendingOrders = recentOrders.filter((o) => o.status === "awaiting_payment");
+  if (pendingOrders.length > 0) {
+    const syncResults = await Promise.allSettled(
+      pendingOrders.map((o) => syncOrderPayment(businessId, o.id))
+    );
+    if (syncResults.some((r) => r.status === "fulfilled" && r.value)) {
+      recentOrders = await d.store.listOrders(businessId, 50, 0).catch(() => recentOrders);
+    }
+  }
   const activeOrdersCount = recentOrders.filter(
     (o) => o.status === "awaiting_payment" || o.status === "paid" || o.status === "in_production" || o.status === "ready"
   ).length;

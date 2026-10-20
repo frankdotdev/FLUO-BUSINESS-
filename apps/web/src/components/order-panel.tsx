@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import QRCode from "qrcode";
 import { describePolicy, fmtLocal, fmtMoney, getTransferInstructions, isCustomerOf, generateEscrowSecrets, type CustomerProof } from "@fluo/core";
 import { deps } from "@/server/container.ts";
+import { syncOrderPayment } from "@/server/paystack-sync.ts";
 import { env } from "@/server/env.ts";
 import { friendly } from "@/server/messages.ts";
 import { cancelAction, disputeEscrowAction, markSentAction, payNowAction } from "@/app/actions.ts";
@@ -41,12 +42,28 @@ export async function OrderPanel({
   error?: string;
 }) {
   const d = deps();
-  const order = await d.store.getOrder(businessId, subjectId);
-  const booking = order ? null : await d.store.getBooking(businessId, subjectId);
-  const subject = order ?? booking;
+  let order = await d.store.getOrder(businessId, subjectId);
+  let booking = order ? null : await d.store.getBooking(businessId, subjectId);
+  let subject = order ?? booking;
   if (!subject || !(await isCustomerOf(d, subject, proof))) notFound();
   const biz = (await d.store.getBusiness(businessId))!;
-  const payment = await d.store.getPaymentForOrder(businessId, subjectId);
+  let payment = await d.store.getPaymentForOrder(businessId, subjectId);
+
+  // Auto-verify with Paystack if returning from payment or still marked awaiting payment
+  if (
+    payment &&
+    payment.method === "provider" &&
+    (payment.status === "pending" || payment.status === "created" || subject?.status === "awaiting_payment" || subject?.status === "held")
+  ) {
+    const verified = await syncOrderPayment(businessId, subjectId, payment.providerReference);
+    if (verified) {
+      order = await d.store.getOrder(businessId, subjectId);
+      booking = order ? null : await d.store.getBooking(businessId, subjectId);
+      subject = order ?? booking;
+      payment = await d.store.getPaymentForOrder(businessId, subjectId);
+    }
+  }
+
   const kind = order ? "order" : "booking";
   const [statusText, bgTone, textTone] = LABEL[subject.status] ?? [subject.status, "#f6f7f7", "var(--ink)"];
   const items = order ? await d.store.getOrderItems(businessId, subjectId) : [];
