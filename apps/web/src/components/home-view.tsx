@@ -476,12 +476,8 @@ export function HomeView({
             </Link>
           </div>
 
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))",
-            gap: 20,
-          }}>
-            {initialProducts.slice(0, 8).map((p) => (
+          <div className="store-grid">
+            {initialProducts.slice(0, 6).map((p) => (
               <Link
                 key={p.id}
                 href={p.url}
@@ -499,7 +495,7 @@ export function HomeView({
                 }}
               >
                 <div style={{
-                  height: 180,
+                  height: "clamp(130px, 28vw, 180px)",
                   background: "var(--canvas)",
                   position: "relative",
                   overflow: "hidden",
@@ -588,76 +584,61 @@ export function HomeView({
                   )}
                 </div>
 
-                <div style={{ padding: "16px 18px", flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                <div style={{ padding: "12px 14px", flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
                   <div>
-                    <span style={{ fontSize: 11, fontWeight: 700, color: "var(--coral-dark)", textTransform: "uppercase", letterSpacing: "0.4px" }}>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: "var(--coral-dark)", textTransform: "uppercase", letterSpacing: "0.4px" }}>
                       {p.businessName}
                     </span>
                     <h3 style={{
-                      margin: "4px 0 6px",
+                      margin: "3px 0 5px",
                       fontFamily: "Manrope, sans-serif",
-                      fontSize: 16,
+                      fontSize: 14,
                       fontWeight: 700,
-                      letterSpacing: "-0.4px",
+                      letterSpacing: "-0.3px",
                       color: "var(--ink)",
+                      display: "-webkit-box",
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: "vertical",
+                      overflow: "hidden",
                     }}>
                       {p.name}
                     </h3>
-                    {p.description && (
-                      <p style={{
-                        margin: "0 0 10px",
-                        fontSize: 12,
-                        color: "var(--muted)",
-                        lineHeight: 1.5,
-                        display: "-webkit-box",
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: "vertical",
-                        overflow: "hidden",
-                      }}>
-                        {p.description}
-                      </p>
-                    )}
                   </div>
 
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 12, gap: 8 }}>
-                    <div style={{ display: "flex", alignItems: "baseline", gap: 6, flexWrap: "wrap" }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 8, gap: 6, flexWrap: "wrap" }}>
+                    <div style={{ display: "flex", alignItems: "baseline", gap: 5, flexWrap: "wrap" }}>
                       <strong style={{
                         fontFamily: "Manrope, sans-serif",
-                        fontSize: 17,
+                        fontSize: 15,
                         fontWeight: 800,
                         color: "var(--ink)",
                       }}>
                         {p.priceFormatted}
                       </strong>
                       {p.compareAtPriceFormatted && p.discountPercent && (
-                        <>
-                          <span style={{ fontSize: 12, color: "var(--muted)", textDecoration: "line-through" }}>
-                            {p.compareAtPriceFormatted}
-                          </span>
-                          <span style={{
-                            fontSize: 10,
-                            fontWeight: 700,
-                            color: "var(--coral-dark)",
-                            background: "var(--coral-soft)",
-                            padding: "1px 5px",
-                            borderRadius: 4,
-                          }}>
-                            {p.discountPercent}% OFF
-                          </span>
-                        </>
+                        <span style={{
+                          fontSize: 9,
+                          fontWeight: 700,
+                          color: "var(--coral-dark)",
+                          background: "var(--coral-soft)",
+                          padding: "1px 4px",
+                          borderRadius: 4,
+                        }}>
+                          {p.discountPercent}% OFF
+                        </span>
                       )}
                     </div>
 
                     <span style={{
                       display: "inline-flex",
                       alignItems: "center",
-                      gap: 3,
+                      gap: 2,
                       color: "var(--coral-dark)",
-                      fontSize: 12,
+                      fontSize: 11,
                       fontWeight: 700,
                       flexShrink: 0,
                     }}>
-                      Order <IconArrowRight size={13} />
+                      Order <IconArrowRight size={11} />
                     </span>
                   </div>
                 </div>

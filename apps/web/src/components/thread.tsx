@@ -1,8 +1,12 @@
+"use client";
+
+import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { fmtLocal, type MessageRecord } from "@fluo/core";
 import { sendMessageAction } from "@/app/actions.ts";
 import { IconArrowRight, IconMessageSquare } from "@/components/icons.tsx";
 
-/** A chat thread with a reply box. `viewer` decides which side the viewer is; bubbles for the viewer sit on the right. */
+/** A live real-time chat thread with auto-polling every 3.5s and auto-scrolling */
 export function Thread({
   messages,
   viewer,
@@ -18,6 +22,41 @@ export function Thread({
   tz: string;
   names: { customer: string; business: string };
 }) {
+  const router = useRouter();
+  const bottomRef = useRef<HTMLDivElement | null>(null);
+  const formRef = useRef<HTMLFormElement | null>(null);
+  const [isSending, setIsSending] = useState(false);
+
+  // Background auto-refresh polling every 3.5 seconds so messages appear automatically without page reload
+  useEffect(() => {
+    const interval = setInterval(() => {
+      router.refresh();
+    }, 3500);
+    return () => clearInterval(interval);
+  }, [router]);
+
+  // Auto-scroll to newest message
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages.length]);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+    const body = (formData.get("body") as string || "").trim();
+    if (!body) return;
+
+    try {
+      setIsSending(true);
+      await sendMessageAction(formData);
+      form.reset();
+      router.refresh();
+    } finally {
+      setIsSending(false);
+    }
+  };
+
   return (
     <section aria-label="Conversation" style={{ maxWidth: 720, margin: "0 auto" }}>
       <div style={{
@@ -32,7 +71,7 @@ export function Thread({
         justifyContent: "space-between",
       }}>
         {/* Messages Stream */}
-        <div style={{ display: "grid", gap: 14, alignContent: "start", marginBottom: 20 }}>
+        <div style={{ display: "grid", gap: 14, alignContent: "start", marginBottom: 20, maxHeight: 480, overflowY: "auto", paddingRight: 4 }}>
           {messages.length === 0 ? (
             <div className="empty-dashboard" style={{ padding: "40px 10px" }}>
               <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center" }}><IconMessageSquare size={24} /></span>
@@ -81,11 +120,13 @@ export function Thread({
               );
             })
           )}
+          <div ref={bottomRef} />
         </div>
 
         {/* Reply Box */}
         <form
-          action={sendMessageAction}
+          ref={formRef}
+          onSubmit={handleSubmit}
           style={{
             borderTop: "1px solid var(--line)",
             paddingTop: 16,
@@ -103,6 +144,13 @@ export function Thread({
             maxLength={2000}
             required
             placeholder="Type your message here..."
+            disabled={isSending}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                formRef.current?.requestSubmit();
+              }
+            }}
             style={{
               width: "100%",
               padding: "12px 14px",
@@ -116,13 +164,17 @@ export function Thread({
               transition: "border-color 0.2s, box-shadow 0.2s",
             }}
           />
-          <div style={{ display: "flex", justifyContent: "flex-end" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span style={{ fontSize: 11, color: "var(--green)", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 5 }}>
+              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--green)", display: "inline-block" }} /> Live Chat Active
+            </span>
             <button
               className="primary-button"
               type="submit"
+              disabled={isSending}
               style={{ padding: "10px 20px", fontSize: 13 }}
             >
-              Send message <IconArrowRight size={14} />
+              {isSending ? "Sending..." : "Send message"} <IconArrowRight size={14} />
             </button>
           </div>
         </form>

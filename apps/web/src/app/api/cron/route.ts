@@ -6,15 +6,30 @@ import { env } from "@/server/env.ts";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-/** Called every ~5 minutes by an external scheduler (cron-job.org, Cloudflare Cron Trigger, VPS cron...):
- *    curl -X POST -H "Authorization: Bearer $CRON_SECRET" $APP_URL/api/cron
- *  Releases expired holds, cancels stale transfer orders, and sends due emails and push notifications. Safe to call repeatedly. */
-export async function POST(req: Request): Promise<Response> {
-  const given = Buffer.from((req.headers.get("authorization") ?? "").replace(/^Bearer /, ""));
-  const want = Buffer.from(env().CRON_SECRET);
-  if (given.length !== want.length || !timingSafeEqual(given, want)) return new Response("unauthorized", { status: 401 });
+async function handleCron(req: Request): Promise<Response> {
+  const authHeader = req.headers.get("authorization") ?? "";
+  const given = Buffer.from(authHeader.replace(/^Bearer /, ""));
+  const cronSecret = env().CRON_SECRET || "";
+  const want = Buffer.from(cronSecret);
+
+  // Authenticate via Bearer CRON_SECRET or Vercel Cron header
+  const isVercelCron = Boolean(req.headers.get("x-vercel-cron"));
+  const isAuthorized = (want.length > 0 && given.length === want.length && timingSafeEqual(given, want)) || isVercelCron;
+
+  if (!isAuthorized) {
+    return new Response("unauthorized", { status: 401 });
+  }
+
   const { deps, email, push } = container();
   const maintenance = await runMaintenance(deps);
   const outbox = await drainOutbox(deps, { email, push }, 100);
-  return Response.json({ maintenance, outbox });
+  return Response.json({ ok: true, maintenance, outbox });
+}
+
+export async function GET(req: Request): Promise<Response> {
+  return handleCron(req);
+}
+
+export async function POST(req: Request): Promise<Response> {
+  return handleCron(req);
 }

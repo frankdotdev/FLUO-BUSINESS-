@@ -1,15 +1,15 @@
 // Dynamic Open Graph Social Share Image Generator for Fluo
-// Generates high-resolution 1200x630 branded preview cards for WhatsApp, Twitter/X, Telegram, Facebook, and Instagram.
+// Generates high-resolution 1200x630 branded preview cards optimized for WhatsApp, Twitter/X, Telegram, and Facebook.
 
 export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const title = (searchParams.get("title") || "Fluo Marketplace").slice(0, 65);
-  const subtitle = (searchParams.get("subtitle") || "Commerce, Connected • Escrow Protected").slice(0, 95);
+  const title = (searchParams.get("title") || "Fluo Marketplace").slice(0, 60);
+  const subtitle = (searchParams.get("subtitle") || "Commerce, Connected • Escrow Protected").slice(0, 80);
   const price = searchParams.get("price") || "";
-  const badge = (searchParams.get("badge") || "Verified on Fluo").slice(0, 40);
-  const category = (searchParams.get("category") || "").slice(0, 30);
+  const badge = (searchParams.get("badge") || "Verified on Fluo").slice(0, 35);
+  const category = (searchParams.get("category") || "").slice(0, 25);
   const imageUrl = searchParams.get("image") || "";
 
   const escapeXml = (s: string) =>
@@ -29,87 +29,93 @@ export async function GET(request: Request) {
   const safePrice = escapeXml(price);
   const safeBadge = escapeXml(badge);
   const safeCategory = escapeXml(category);
-  const safeImageUrl = imageUrl ? escapeXml(imageUrl) : "";
 
-  // Split title if long (> 32 chars)
+  // Split title if long (> 24 chars for extra bold readability on small previews)
   let titleLine1 = safeTitle;
   let titleLine2 = "";
-  if (safeTitle.length > 32) {
-    const spaceIdx = safeTitle.lastIndexOf(" ", 32);
-    if (spaceIdx > 12) {
+  if (safeTitle.length > 24) {
+    const spaceIdx = safeTitle.lastIndexOf(" ", 24);
+    if (spaceIdx > 8) {
       titleLine1 = safeTitle.slice(0, spaceIdx);
       titleLine2 = safeTitle.slice(spaceIdx + 1);
     }
   }
 
+  // Attempt to fetch product/business image server-side for Sharp compositing
+  let fetchedImageBuffer: Buffer | null = null;
+  if (imageUrl) {
+    try {
+      const res = await fetch(imageUrl, { signal: AbortSignal.timeout(3500) });
+      if (res.ok) {
+        fetchedImageBuffer = Buffer.from(await res.arrayBuffer());
+      }
+    } catch {
+      // Fallback to stylized Fluo monogram emblem
+    }
+  }
+
   const svg = `
 <svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <clipPath id="photoClip">
-      <rect x="740" y="115" width="370" height="370" rx="24" />
-    </clipPath>
-  </defs>
-
   <!-- Deep Midnight Ink Background -->
   <rect width="1200" height="630" fill="#12181b" />
 
-  <!-- Subtle Fluo Coral & Emerald Atmosphere -->
-  <circle cx="1120" cy="110" r="280" fill="#f07866" opacity="0.10" />
-  <circle cx="120" cy="560" r="260" fill="#21866a" opacity="0.08" />
+  <!-- Atmospheric Coral & Emerald Ambient Accents -->
+  <circle cx="1120" cy="110" r="300" fill="#f07866" opacity="0.14" />
+  <circle cx="120" cy="560" r="280" fill="#21866a" opacity="0.10" />
 
-  <!-- Inner Elevated Card -->
-  <rect x="40" y="40" width="1120" height="550" rx="28" fill="#172126" stroke="#263339" stroke-width="2" />
+  <!-- Inner Elevated Premium Card Frame -->
+  <rect x="36" y="36" width="1128" height="558" rx="28" fill="#172126" stroke="#263339" stroke-width="2.5" />
 
-  <!-- Top Navigation Pill Header -->
-  <g transform="translate(80, 80)">
+  <!-- Top Brand & Protection Header Strip -->
+  <g transform="translate(76, 76)">
     <!-- Brand Mark & Logo -->
-    <circle cx="12" cy="18" r="8" fill="#f07866" />
-    <text x="30" y="26" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="24" font-weight="900" fill="#ffffff" letter-spacing="-0.03em">FLUO</text>
+    <circle cx="14" cy="20" r="10" fill="#f07866" />
+    <text x="34" y="28" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="28" font-weight="900" fill="#ffffff" letter-spacing="-0.03em">FLUO</text>
 
-    <!-- Escrow Protection Badge -->
-    <rect x="130" y="0" width="225" height="38" rx="19" fill="#1b2f27" stroke="#2d5243" stroke-width="1.5" />
-    <text x="242" y="24" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700" fill="#4ade80" text-anchor="middle">🛡️ Fluo Escrow Protected</text>
+    <!-- Escrow Protection Badge - Big & Legible on mobile -->
+    <rect x="145" y="0" width="260" height="44" rx="22" fill="#1b2f27" stroke="#2d5243" stroke-width="2" />
+    <text x="275" y="28" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="800" fill="#4ade80" text-anchor="middle">🛡️ Fluo Escrow Protected</text>
 
-    <!-- Category or Verification Badge -->
+    <!-- Category / Verified Badge -->
     ${
       safeBadge
-        ? `<rect x="365" y="0" width="190" height="38" rx="19" fill="#212d33" stroke="#2e3d45" stroke-width="1.5" />
-           <text x="460" y="24" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="600" fill="#a4b3b9" text-anchor="middle">✓ ${safeBadge}</text>`
+        ? `<rect x="420" y="0" width="200" height="44" rx="22" fill="#212d33" stroke="#2e3f47" stroke-width="2" />
+           <text x="520" y="28" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="700" fill="#b0c0c7" text-anchor="middle">✓ ${safeBadge}</text>`
         : ""
     }
   </g>
 
-  <!-- Left Main Content -->
-  <g transform="translate(80, 160)">
+  <!-- Left Main Content Block -->
+  <g transform="translate(76, 160)">
     ${
       safeCategory
-        ? `<text x="0" y="30" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="800" fill="#f07866" letter-spacing="1.5px">${safeCategory.toUpperCase()}</text>`
+        ? `<text x="0" y="26" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="800" fill="#f07866" letter-spacing="1.5px">${safeCategory.toUpperCase()}</text>`
         : ""
     }
 
-    <!-- Item / Business Name -->
-    <text x="0" y="${safeCategory ? 80 : 60}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="44" font-weight="800" fill="#ffffff" letter-spacing="-0.03em">
+    <!-- Item / Business Big Bold Title -->
+    <text x="0" y="${safeCategory ? 82 : 56}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="52" font-weight="900" fill="#ffffff" letter-spacing="-0.04em">
       ${titleLine1}
     </text>
     ${
       titleLine2
-        ? `<text x="0" y="${safeCategory ? 134 : 114}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="44" font-weight="800" fill="#ffffff" letter-spacing="-0.03em">
+        ? `<text x="0" y="${safeCategory ? 142 : 116}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="52" font-weight="900" fill="#ffffff" letter-spacing="-0.04em">
              ${titleLine2}
            </text>`
         : ""
     }
 
-    <!-- Subtitle / Details -->
-    <text x="0" y="${titleLine2 ? 180 : 120}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="20" font-weight="500" fill="#8d9ca2">
+    <!-- Subtitle / Merchant Name -->
+    <text x="0" y="${titleLine2 ? 195 : 128}" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="24" font-weight="600" fill="#9db0b7">
       ${safeSubtitle}
     </text>
 
-    <!-- Price Pill If Product / Ticket -->
+    <!-- Large Punchy Price Box -->
     ${
       safePrice
-        ? `<g transform="translate(0, ${titleLine2 ? 215 : 155})">
-             <rect x="0" y="0" width="240" height="60" rx="16" fill="#251b1a" stroke="#68342c" stroke-width="1.5" />
-             <text x="120" y="40" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="28" font-weight="800" fill="#f07866" text-anchor="middle">
+        ? `<g transform="translate(0, ${titleLine2 ? 230 : 160})">
+             <rect x="0" y="0" width="280" height="70" rx="18" fill="#261b1a" stroke="#7a372d" stroke-width="2" />
+             <text x="140" y="47" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="34" font-weight="900" fill="#f07866" text-anchor="middle">
                ${safePrice}
              </text>
            </g>`
@@ -117,39 +123,57 @@ export async function GET(request: Request) {
     }
   </g>
 
-  <!-- Right Visual / Photo Showcase -->
+  <!-- Right Visual Placeholder (Filled by Sharp composite if image fetched, or stylized vector emblem) -->
   ${
-    safeImageUrl
+    !fetchedImageBuffer
       ? `
-  <rect x="738" y="113" width="374" height="374" rx="26" fill="#222d33" stroke="#2e3d45" stroke-width="2" />
-  <image href="${safeImageUrl}" x="740" y="115" width="370" height="370" preserveAspectRatio="xMidYMid slice" clip-path="url(#photoClip)" />
-  <rect x="755" y="435" width="130" height="34" rx="10" fill="rgba(18, 24, 27, 0.85)" />
-  <text x="820" y="457" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#ffffff" text-anchor="middle">Direct Seller</text>
+  <rect x="730" y="110" width="380" height="380" rx="26" fill="#1b2428" stroke="#28353b" stroke-width="2.5" />
+  <circle cx="920" cy="270" r="85" fill="#f07866" opacity="0.15" />
+  <circle cx="920" cy="270" r="50" fill="#f07866" opacity="0.35" />
+  <text x="920" y="284" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="40" font-weight="900" fill="#f07866" text-anchor="middle">FLUO</text>
+  <text x="920" y="380" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="700" fill="#8d9ea5" text-anchor="middle">Nigeria's Commerce Network</text>
       `
-      : `
-  <rect x="740" y="115" width="370" height="370" rx="26" fill="#1b2428" stroke="#28353b" stroke-width="2" />
-  <circle cx="925" cy="275" r="75" fill="#f07866" opacity="0.15" />
-  <circle cx="925" cy="275" r="45" fill="#f07866" opacity="0.3" />
-  <text x="925" y="288" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="36" font-weight="900" fill="#f07866" text-anchor="middle">FLUO</text>
-  <text x="925" y="380" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="600" fill="#809096" text-anchor="middle">Nigeria's Commerce Network</text>
-      `
+      : ""
   }
 
-  <!-- Footer Link & CTA Strip -->
-  <line x1="80" y1="510" x2="1120" y2="510" stroke="#243137" stroke-width="1.5" />
+  <!-- Footer Security & Order Strip -->
+  <line x1="76" y1="510" x2="1124" y2="510" stroke="#25343a" stroke-width="1.5" />
   
-  <text x="80" y="552" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="18" font-weight="500" fill="#7d8d93">
-    Safe payments &amp; escrow delivery on <tspan fill="#ffffff" font-weight="700">fluo-business.vercel.app</tspan>
+  <text x="76" y="554" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="20" font-weight="600" fill="#8899a0">
+    100% Escrow delivery &amp; verified orders on <tspan fill="#ffffff" font-weight="800">fluo-business.vercel.app</tspan>
   </text>
 
-  <rect x="940" y="525" width="170" height="42" rx="12" fill="#f07866" />
-  <text x="1025" y="552" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="700" fill="#ffffff" text-anchor="middle">Open on Fluo →</text>
+  <rect x="930" y="524" width="180" height="46" rx="14" fill="#f07866" />
+  <text x="1020" y="554" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="800" fill="#ffffff" text-anchor="middle">Open on Fluo →</text>
 </svg>
   `.trim();
 
   try {
     const sharp = (await import("sharp")).default;
-    const pngBuffer = await sharp(Buffer.from(svg)).png().toBuffer();
+    let base = sharp(Buffer.from(svg));
+
+    // If an image was fetched, composite it on the right box with rounded corners
+    if (fetchedImageBuffer) {
+      const roundedCornerMask = Buffer.from(
+        `<svg width="380" height="380"><rect x="0" y="0" width="380" height="380" rx="26" ry="26" fill="#fff"/></svg>`
+      );
+
+      const processedImage = await sharp(fetchedImageBuffer)
+        .resize(380, 380, { fit: "cover", position: "center" })
+        .composite([{ input: roundedCornerMask, blend: "dest-in" }])
+        .png()
+        .toBuffer();
+
+      base = base.composite([
+        {
+          input: processedImage,
+          top: 110,
+          left: 730,
+        },
+      ]);
+    }
+
+    const pngBuffer = await base.png().toBuffer();
     return new Response(new Uint8Array(pngBuffer), {
       headers: {
         "Content-Type": "image/png",

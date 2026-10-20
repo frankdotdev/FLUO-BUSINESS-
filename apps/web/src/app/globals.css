@@ -142,14 +142,18 @@ h1, h2, h3, h4, p {
   padding: 24px 20px 80px;
   min-width: 0;
   box-sizing: border-box;
+  align-items: start;
 }
 .admin-sidebar {
   display: flex;
   flex-direction: column;
   gap: 16px;
   position: sticky;
-  top: 92px;
-  height: fit-content;
+  top: 84px;
+  align-self: start;
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
+  scrollbar-width: thin;
 }
 .admin-nav-item {
   display: flex;
